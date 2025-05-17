@@ -1,11 +1,9 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import Loadingbar from '@/components/Loadingbar.vue';
 </script>
 
 <template>
-  <RouterView />
+  <Loadingbar />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
