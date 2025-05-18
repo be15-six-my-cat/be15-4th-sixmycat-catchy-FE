@@ -4,6 +4,7 @@ import Loadingbar from '@/components/Loadingbar.vue';
 
 <template>
   <Loadingbar />
+  <RouterView />
 </template>
 
 <style scoped></style>
