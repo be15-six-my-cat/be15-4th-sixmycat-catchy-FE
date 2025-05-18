@@ -20,7 +20,7 @@ function handleOpenUploadModal() {
     </aside>
 
     <main class="main-content">
-      <RouterView />
+      <slot />
     </main>
   </div>
 </template>

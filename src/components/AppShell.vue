@@ -66,7 +66,9 @@ onUnmounted(() => {
 <template>
   <div>
     <!-- 사이드바 포함 전체 레이아웃 -->
-    <SidebarMainLayout @open-upload-modal="showUploadGuideModal = true" />
+    <SidebarMainLayout @open-upload-modal="showUploadGuideModal = true">
+      <RouterView />
+    </SidebarMainLayout>
 
     <!-- 파일 업로드 안내 모달 -->
     <UploadGuideModal
