@@ -11,9 +11,14 @@ import { loginUserTest } from '@/api/member.js';
 import App from './App.vue';
 import router from './router/index.js';
 
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
 async function bootstrap() {
   const app = createApp(App);
-  app.use(createPinia());
+
+  const pinia = createPinia();
+  pinia.use(piniaPluginPersistedstate);
+  app.use(pinia);
 
   const authStore = useAuthStore();
 

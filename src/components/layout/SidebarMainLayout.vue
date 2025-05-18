@@ -1,0 +1,52 @@
+<script setup>
+import SidebarNav from '@/components/layout/SidebarNav.vue';
+
+const emit = defineEmits(['open-upload-modal']);
+
+function handleOpenUploadModal() {
+  emit('open-upload-modal');
+}
+</script>
+
+<template>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="@/assets/logo.png" alt="Catchy 로고" class="logo-image" />
+        <span>Catchy</span>
+      </div>
+
+      <SidebarNav @open-upload-modal="handleOpenUploadModal" />
+    </aside>
+
+    <main class="main-content">
+      <slot />
+    </main>
+  </div>
+</template>
+
+<style scoped>
+.layout {
+  @apply flex h-screen w-full bg-pink-50 text-gray-800;
+}
+
+.sidebar {
+  @apply w-[250px] px-5 py-8 bg-white border-r border-gray-200 flex flex-col items-center font-bold;
+}
+
+.logo {
+  @apply flex flex-col items-center gap-2 mb-10;
+}
+
+.logo-image {
+  @apply w-[60px] h-[60px] object-cover rounded-full;
+}
+
+.logo span {
+  @apply text-headline-sm text-black font-bold;
+}
+
+.main-content {
+  @apply flex-1 p-10 overflow-y-auto bg-white;
+}
+</style>
