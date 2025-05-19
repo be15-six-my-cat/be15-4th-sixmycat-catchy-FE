@@ -17,10 +17,10 @@ const rankers = ref([]);
 onMounted(async () => {
   await nextTick();
 
-  // if (gameStore.gameStatus == null) {
-  //   router.push('/game/start');
-  //   return;
-  // }
+  if (gameStore.gameStatus == null) {
+    router.push('/game/start');
+    return;
+  }
 
   isFail.value = gameStore.gameStatus === 'fail';
 

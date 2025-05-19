@@ -1,5 +1,5 @@
 <script setup></script>
 
-<template></template>
+<template>Detaasdasdasdas</template>
 
 <style scoped></style>
