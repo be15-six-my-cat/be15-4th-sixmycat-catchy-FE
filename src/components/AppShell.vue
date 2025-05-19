@@ -5,9 +5,14 @@ import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
 import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
+import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
+import { createFeed, uploadImages } from '@/api/feed.js';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
+const showFeedUploadModal = ref(false);
+const imageUrls = ref([]);
+const imageFiles = ref([]);
 const videoUrl = ref('');
 const caption = ref('');
 
@@ -18,13 +23,23 @@ function handleFilesSelected(files) {
   if (!files.length) return;
 
   const file = files[0];
-  uploadStore.setFile(file);
-  showUploadGuideModal.value = false;
 
-  const type = file.type;
-  if (type.startsWith('video/')) {
+  const isVideo = file.type.startsWith('video/');
+  const isAllImages = files.every((f) => f.type.startsWith('image/'));
+
+  if (isVideo && files.length === 1) {
+    uploadStore.setFile(file);
     videoUrl.value = URL.createObjectURL(file);
+    showUploadGuideModal.value = false;
     showJjureUploadModal.value = true;
+    return;
+  }
+
+  if (isAllImages) {
+    imageFiles.value = files;
+    imageUrls.value = files.map((f) => URL.createObjectURL(f));
+    showUploadGuideModal.value = false;
+    showFeedUploadModal.value = true;
   }
 }
 
@@ -55,6 +70,34 @@ async function handleUpload() {
   }
 }
 
+async function handleFeedUpload() {
+  try {
+    const formData = new FormData();
+    imageFiles.value.forEach((file) => formData.append('files', file));
+
+    const res = await uploadImages(formData);
+    const uploadedImageUrls = res.data.data;
+
+    const payload = {
+      content: caption.value,
+      imageUrls: uploadedImageUrls,
+    };
+
+    await createFeed(payload);
+
+    alert('피드 업로드 성공!');
+    showFeedUploadModal.value = false;
+
+    imageFiles.value = [];
+    imageUrls.value.forEach((url) => URL.revokeObjectURL(url));
+    imageUrls.value = [];
+    caption.value = '';
+  } catch (err) {
+    console.error('피드 업로드 실패:', err);
+    alert('피드 업로드 중 오류 발생');
+  }
+}
+
 // 메모리 정리
 onUnmounted(() => {
   if (videoUrl.value) {
@@ -75,6 +118,14 @@ onUnmounted(() => {
       v-if="showUploadGuideModal"
       @close="showUploadGuideModal = false"
       @fileSelected="handleFilesSelected"
+    />
+
+    <FeedUploadModal
+      v-if="showFeedUploadModal"
+      @close="showFeedUploadModal = false"
+      v-model:caption="caption"
+      @upload="handleFeedUpload"
+      :imageUrls="imageUrls"
     />
 
     <!-- 쭈르 업로드 모달 -->

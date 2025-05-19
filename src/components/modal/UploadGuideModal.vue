@@ -1,8 +1,12 @@
 <script setup>
 import { ref } from 'vue';
+import draggable from 'vuedraggable';
 
 const emit = defineEmits(['close', 'fileSelected']);
 const inputRef = ref(null);
+const images = ref([]); // { file: File, url: string }
+const maxImages = 10;
+const isDragging = ref(false);
 
 function openFileDialog() {
   inputRef.value?.click();
@@ -10,25 +14,64 @@ function openFileDialog() {
 
 function handleFileChange(event) {
   const files = Array.from(event.target.files);
-  if (files.length > 0) {
-    emit('fileSelected', files);
+
+  const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+  const videoFiles = files.filter((file) => file.type.startsWith('video/'));
+
+  if (videoFiles.length === 1 && imageFiles.length === 0) {
+    emit('fileSelected', videoFiles);
     emit('close');
+    return;
   }
+
+  if (imageFiles.length > 0) {
+    const newImages = imageFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+
+    const total = images.value.length + newImages.length;
+    if (total > maxImages) {
+      alert(`최대 ${maxImages}장까지 업로드할 수 있습니다.`);
+      return;
+    }
+
+    images.value = [...images.value, ...newImages];
+    return;
+  }
+
+  alert('이미지 또는 하나의 비디오만 선택해주세요.');
+}
+
+function removeImage(index) {
+  URL.revokeObjectURL(images.value[index].url);
+  images.value.splice(index, 1);
+}
+
+function confirmUpload() {
+  if (images.value.length === 0) {
+    alert('최소 1장의 이미지를 선택해주세요.');
+    return;
+  }
+  const files = images.value.map((i) => i.file);
+  emit('fileSelected', files);
+  emit('close');
 }
 </script>
 
 <template>
   <div class="modal-overlay" @click.self="emit('close')">
     <section class="upload-modal">
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
-        alt="upload"
-        class="w-[40px] h-[40px] object-cover mb-[20px]"
-      />
-      <h2 class="modal-title">사진과 동영상을 여기다 끌어다 놓으세요</h2>
-      <p class="modal-description">또는 아래 버튼을 눌러 파일을 선택하세요.</p>
+      <div v-if="images.length === 0" class="text-center flex flex-col items-center">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
+          alt="upload"
+          class="w-[40px] h-[40px] object-cover mb-[20px]"
+        />
+        <h2 class="modal-title">사진과 동영상을 여기다 끌어다 놓으세요</h2>
+        <p class="modal-description">또는 아래 버튼을 눌러 파일을 선택하세요.</p>
+      </div>
 
-      <!-- 숨겨진 파일 선택 input -->
       <input
         ref="inputRef"
         type="file"
@@ -38,7 +81,33 @@ function handleFileChange(event) {
         @change="handleFileChange"
       />
 
-      <button class="modal-button" @click="openFileDialog">컴퓨터에서 선택</button>
+      <draggable
+        v-if="images.length > 0"
+        v-model="images"
+        tag="ul"
+        class="grid grid-cols-4 gap-2 my-4"
+        item-key="url"
+        @start="isDragging = true"
+        @end="isDragging = false"
+      >
+        <template #item="{ element, index }">
+          <li class="relative w-[80px] h-[80px] group">
+            <img :src="element.url" class="w-full h-full object-cover rounded" />
+            <button
+              v-if="!isDragging"
+              class="absolute top-0 right-0 bg-black/50 text-white w-5 h-5 flex justify-center items-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition"
+              @click.stop="removeImage(index)"
+            >
+              ✕
+            </button>
+          </li>
+        </template>
+      </draggable>
+
+      <div class="flex w-full gap-8 mt-4 justify-center">
+        <button class="modal-button" @click="openFileDialog">컴퓨터에서 선택</button>
+        <button v-if="images.length > 0" class="modal-button" @click="confirmUpload">업로드</button>
+      </div>
     </section>
   </div>
 </template>
