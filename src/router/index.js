@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth.js';
 import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import AppShell from '@/components/AppShell.vue';
 import { JjureRoutes } from '@/features/jjure/router.js';
+import gameRoutes from '@/features/game/router.js';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,7 +11,7 @@ const router = createRouter({
     {
       path: '/',
       component: AppShell,
-      children: [...JjureRoutes],
+      children: [...JjureRoutes, ...gameRoutes],
     },
   ],
 });
