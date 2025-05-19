@@ -6,6 +6,7 @@ const emit = defineEmits(['close', 'fileSelected']);
 const inputRef = ref(null);
 const images = ref([]); // { file: File, url: string }
 const maxImages = 10;
+const isDragging = ref(false);
 
 function openFileDialog() {
   inputRef.value?.click();
@@ -80,12 +81,21 @@ function confirmUpload() {
         @change="handleFileChange"
       />
 
-      <draggable v-model="images" tag="ul" class="grid grid-cols-4 gap-2 my-4" item-key="url">
+      <draggable
+        v-if="images.length > 0"
+        v-model="images"
+        tag="ul"
+        class="grid grid-cols-4 gap-2 my-4"
+        item-key="url"
+        @start="isDragging = true"
+        @end="isDragging = false"
+      >
         <template #item="{ element, index }">
           <li class="relative w-[80px] h-[80px] group">
             <img :src="element.url" class="w-full h-full object-cover rounded" />
             <button
-              class="absolute top-0 right-0 bg-black/50 text-white w-5 h-5 flex justify-center items-center rounded-full text-xs opacity-0 group-hover:opacity-100"
+              v-if="!isDragging"
+              class="absolute top-0 right-0 bg-black/50 text-white w-5 h-5 flex justify-center items-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition"
               @click.stop="removeImage(index)"
             >
               ✕
@@ -94,7 +104,7 @@ function confirmUpload() {
         </template>
       </draggable>
 
-      <div class="flex gap-2 mt-4 justify-center">
+      <div class="flex w-full gap-8 mt-4 justify-center">
         <button class="modal-button" @click="openFileDialog">컴퓨터에서 선택</button>
         <button v-if="images.length > 0" class="modal-button" @click="confirmUpload">업로드</button>
       </div>
