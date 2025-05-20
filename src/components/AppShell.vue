@@ -76,6 +76,7 @@ async function handleUpload() {
 async function handleFeedUpload() {
   try {
     const formData = new FormData();
+    startLoading();
     imageFiles.value.forEach((file) => formData.append('files', file));
 
     const res = await uploadImages(formData);
@@ -100,7 +101,9 @@ async function handleFeedUpload() {
     const errorCode = err.response?.data?.errorCode;
     console.log('errorCode=', errorCode);
     if (errorCode === '04004') {
-      alert('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^');
+      alert('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^😺😺😺');
+    } else if (errorCode === '04005') {
+      alert('고양이가 없는 이미지가 발견되었습니다. 고양이를 등록해주세요~^^😺😺😺');
     } else {
       alert('피드 업로드 중 오류 발생');
     }
