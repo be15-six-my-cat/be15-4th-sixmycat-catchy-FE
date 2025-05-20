@@ -4,7 +4,7 @@ import { ref } from 'vue';
 export function usePagination(fetchFn) {
   const items = ref([]);
   const page = ref(0);
-  const size = ref(20);
+  const size = ref(2);
   const hasNext = ref(true);
   const isLoading = ref(false);
 
@@ -13,7 +13,7 @@ export function usePagination(fetchFn) {
 
     isLoading.value = true;
     try {
-      const response = await fetchFn(page.value, size.value);
+      const response = await fetchFn({ page: page.value, size: size.value });
       const { content, last } = response.data.data;
       console.log(content);
 

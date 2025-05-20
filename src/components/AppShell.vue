@@ -97,7 +97,13 @@ async function handleFeedUpload() {
     caption.value = '';
   } catch (err) {
     console.error('피드 업로드 실패:', err);
-    alert('피드 업로드 중 오류 발생');
+    const errorCode = err.response?.data?.errorCode;
+    console.log('errorCode=', errorCode);
+    if (errorCode === '04004') {
+      alert('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^');
+    } else {
+      alert('피드 업로드 중 오류 발생');
+    }
   }
 }
 
