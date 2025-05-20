@@ -5,7 +5,7 @@ import draggable from 'vuedraggable';
 const emit = defineEmits(['close', 'fileSelected']);
 const inputRef = ref(null);
 const images = ref([]); // { file: File, url: string }
-const maxImages = 10;
+const maxImages = 8;
 const isDragging = ref(false);
 
 function openFileDialog() {
@@ -81,18 +81,21 @@ function confirmUpload() {
         @change="handleFileChange"
       />
 
+      <p v-if="images.length > 0" class="modal-description">
+        최대 {{ maxImages }}장의 사진을 업로드할 수 있습니다.
+      </p>
       <draggable
         v-if="images.length > 0"
         v-model="images"
         tag="ul"
-        class="grid grid-cols-4 gap-2 my-4"
+        class="image-preview-area"
         item-key="url"
         @start="isDragging = true"
         @end="isDragging = false"
       >
         <template #item="{ element, index }">
           <li class="relative w-[80px] h-[80px] group">
-            <img :src="element.url" class="w-full h-full object-cover rounded" />
+            <img :src="element.url" class="w-full h-full object-cover rounded block" />
             <button
               v-if="!isDragging"
               class="absolute top-0 right-0 bg-black/50 text-white w-5 h-5 flex justify-center items-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition"
@@ -103,6 +106,7 @@ function confirmUpload() {
           </li>
         </template>
       </draggable>
+      <p v-if="images.length > 0" class="modal-description">고양이 사진만 업로드 가능합니다.</p>
 
       <div class="flex w-full gap-8 mt-4 justify-center">
         <button class="modal-button" @click="openFileDialog">컴퓨터에서 선택</button>
@@ -131,5 +135,14 @@ function confirmUpload() {
 
 .modal-button {
   @apply bg-primary text-white text-body-sm px-4 py-2 rounded-md hover:bg-primary-hover;
+}
+
+.image-preview-area {
+  @apply w-full max-w-md
+  grid grid-cols-4 gap-2
+  my-4 h-72
+  border-2 border-dashed border-gray-300
+  rounded-lg p-4 overflow-auto
+  place-items-start;
 }
 </style>
