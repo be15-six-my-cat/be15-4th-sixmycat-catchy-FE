@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const props = defineProps({
   imageUrls: { type: Array, required: true },
@@ -10,14 +10,14 @@ const currentIndex = ref(0);
 
 const next = () => {
   if (currentIndex.value < props.imageUrls.length - 1) {
-    currentIndex.value++
+    currentIndex.value++;
   }
-}
+};
 const prev = () => {
   if (currentIndex.value > 0) {
-    currentIndex.value--
+    currentIndex.value--;
   }
-}
+};
 
 const emit = defineEmits(['close', 'upload', 'update:caption']);
 </script>
@@ -26,11 +26,7 @@ const emit = defineEmits(['close', 'upload', 'update:caption']);
   <section class="overlay" @click.self="emit('close')">
     <article class="reel-modal">
       <div class="image-preview relative">
-        <img
-          :src="props.imageUrls[currentIndex]"
-          class="preview-img"
-          alt="preview"
-        />
+        <img :src="props.imageUrls[currentIndex]" class="preview-img" alt="preview" />
         <button
           v-if="props.imageUrls.length > 1"
           @click="prev"
@@ -79,7 +75,7 @@ const emit = defineEmits(['close', 'upload', 'update:caption']);
 }
 
 .preview-img {
-  @apply w-full h-full object-cover rounded;
+  @apply w-full h-full object-cover;
 }
 
 .reel-form {
