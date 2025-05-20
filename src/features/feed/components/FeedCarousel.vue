@@ -1,6 +1,6 @@
 <template>
   <div class="feed-carousel">
-    <img :src="images[currentIndex]" />
+    <img :src="images[currentIndex]" @click="goToDetail" />
 
     <!-- 왼쪽 화살표: 첫 번째 사진에서는 숨김 -->
     <button v-if="images.length > 1 && currentIndex > 0" @click="prev" class="prev">
@@ -26,9 +26,11 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const props = defineProps({ images: Array });
+const props = defineProps({ images: Array, feedId: Number });
 const currentIndex = ref(0);
+const router = useRouter();
 
 const next = () => {
   if (currentIndex.value < props.images.length - 1) currentIndex.value++;
@@ -36,6 +38,10 @@ const next = () => {
 
 const prev = () => {
   if (currentIndex.value > 0) currentIndex.value--;
+};
+
+const goToDetail = () => {
+  router.push(`/feed/${props.feedId}`);
 };
 </script>
 
