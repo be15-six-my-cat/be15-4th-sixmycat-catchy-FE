@@ -4,7 +4,10 @@
       <img :src="author.profileImageUrl" alt="profile" class="profile-image" />
       <span class="nickname">{{ author.nickname }}</span>
     </div>
-    <span class="text-xs text-gray-400">{{ formattedTime }}</span>
+    <div class="flex gap-4">
+      <span class="text-xs text-gray-400">{{ formattedTime }}</span>
+      <i v-if="mine" class="fa-solid fa-ellipsis"></i>
+    </div>
   </div>
 </template>
 
@@ -18,6 +21,7 @@ dayjs.extend(relativeTime);
 const props = defineProps({
   author: Object,
   createdAt: String,
+  mine: Boolean,
 });
 const formattedTime = computed(() => dayjs(props.createdAt).fromNow());
 </script>
