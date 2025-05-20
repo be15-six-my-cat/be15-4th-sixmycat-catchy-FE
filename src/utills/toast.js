@@ -1,5 +1,4 @@
 import { useToast } from 'vue-toastification';
-개;
 
 const toast = useToast();
 

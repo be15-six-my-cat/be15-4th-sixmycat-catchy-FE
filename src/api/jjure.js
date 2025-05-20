@@ -27,3 +27,15 @@ export async function uploadFileToS3(presignedUrl, file) {
 export async function saveJjureMeta(payload) {
   await api.post('/jjure/upload', payload);
 }
+
+/* 4. 쭈르 목록 조회 */
+export function fetchJjureList(page = 0, size = 10) {
+  return api.get('/jjures', {
+    params: { page, size },
+  });
+}
+
+/* 5. 쭈르 상세 조회 */
+export function fetchJjureDetail(jjureId) {
+  return api.get(`/jjures/${jjureId}`);
+}

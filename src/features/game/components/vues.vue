@@ -1,11 +1,5 @@
-<script setup>
+<script setup></script>
 
-</script>
+<다template>game입니다</다template>
 
-<template>
-
-</template>
-
-<style scoped>
-
-</style>
+<style scoped></style>

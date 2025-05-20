@@ -7,6 +7,8 @@ import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
 import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { createFeed, uploadImages } from '@/api/feed.js';
+import { showSuccessToast } from '@/utills/toast.js';
+import { startLoading } from '@/composable/useLoadingBar.js';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
@@ -52,12 +54,13 @@ async function handleUpload() {
 
   try {
     const { presignedUrl, fileKey } = await getPresignedUrl(file.name, file.type);
+    startLoading();
 
     await uploadFileToS3(presignedUrl, file);
 
     await saveJjureMeta({ fileKey, caption: caption.value });
 
-    alert('쭈르 업로드 성공!');
+    showSuccessToast('쭈르 업로드에 성공했습니다!!');
   } catch (error) {
     console.error('업로드 실패:', error);
     alert('업로드 중 오류가 발생했습니다.');

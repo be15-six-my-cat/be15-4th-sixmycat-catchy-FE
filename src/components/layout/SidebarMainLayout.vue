@@ -47,6 +47,6 @@ function handleOpenUploadModal() {
 }
 
 .main-content {
-  @apply flex-1 p-10 overflow-y-auto bg-white;
+  @apply flex-1 overflow-y-auto bg-white;
 }
 </style>

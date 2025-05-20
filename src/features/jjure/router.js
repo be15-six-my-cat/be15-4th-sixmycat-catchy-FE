@@ -1,12 +1,15 @@
-import JjureCreatePage from '@/features/jjure/views/JjureCreatePage.vue';
+import JjureListPage from '@/features/jjure/views/JjureListPage.vue';
+import JjureDetailPage from '@/features/jjure/views/JjureDetailPage.vue';
 
 export const JjureRoutes = [
   {
     path: '/jjure',
+    component: JjureListPage,
     children: [
       {
-        path: 'create',
-        component: JjureCreatePage,
+        path: ':id',
+        component: JjureDetailPage,
+        props: true,
       },
     ],
   },
