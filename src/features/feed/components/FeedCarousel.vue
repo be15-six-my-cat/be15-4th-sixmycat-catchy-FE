@@ -4,12 +4,12 @@
 
     <!-- 왼쪽 화살표: 첫 번째 사진에서는 숨김 -->
     <button v-if="images.length > 1 && currentIndex > 0" @click="prev" class="prev">
-      <i class="fa-solid fa-arrow-left"></i>
+      <i class="fa-solid fa-arrow-left" style="color: #e04f7e"></i>
     </button>
 
     <!-- 오른쪽 화살표: 마지막 사진에서는 숨김 -->
     <button v-if="images.length > 1 && currentIndex < images.length - 1" @click="next" class="next">
-      <i class="fa-solid fa-arrow-right"></i>
+      <i class="fa-solid fa-arrow-right" style="color: #e04f7e"></i>
     </button>
 
     <!-- 하단 ●●● 인디케이터 -->
@@ -18,7 +18,7 @@
         v-for="(img, i) in images"
         :key="i"
         class="w-2 h-2 rounded-full"
-        :class="i === currentIndex ? 'bg-black' : 'bg-gray-300'"
+        :class="i === currentIndex ? 'bg-primary-hover' : 'bg-white'"
       />
     </div>
   </div>
@@ -55,10 +55,10 @@ const goToDetail = () => {
 }
 
 .feed-carousel .prev {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 bg-white shadow-md text-black w-8 h-8 rounded-full flex justify-center items-center hover:bg-gray-200 opacity-70;
+  @apply absolute left-3 top-1/2 -translate-y-1/2 bg-white shadow-md w-8 h-8 rounded-full flex justify-center items-center hover:bg-gray-200 opacity-70;
 }
 .feed-carousel .next {
-  @apply absolute right-3 top-1/2 -translate-y-1/2 bg-white shadow-md text-black w-8 h-8 rounded-full flex justify-center items-center hover:bg-gray-200 opacity-70;
+  @apply absolute right-3 top-1/2 -translate-y-1/2 bg-white shadow-md w-8 h-8 rounded-full flex justify-center items-center hover:bg-gray-200 opacity-70;
 }
 
 .indicator {
