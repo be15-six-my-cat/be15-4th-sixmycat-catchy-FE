@@ -2,8 +2,14 @@
   <div class="feed-action">
     <div class="flex items-center gap-4">
       <div class="action-wrapper">
-        <i v-if="liked" class="fa-solid fa-heart cursor-pointer" @click="toggleLike"></i>
-        <i v-else class="fa-regular fa-heart cursor-pointer" @click="toggleLike"></i>
+        <i
+          :class="[
+            liked ? 'fa-solid' : 'fa-regular',
+            'fa-heart cursor-pointer transition-transform duration-200',
+            animateLike ? 'scale-150' : '',
+          ]"
+          @click="toggleLike"
+        />
         <span class="inline-block text-center w-3">{{ likeCount }}</span>
       </div>
       <div class="action-wrapper">
@@ -28,6 +34,7 @@ const props = defineProps({
 
 const liked = ref(props.liked);
 const likeCount = ref(props.likeCount);
+const animateLike = ref(false);
 const toggleLike = () => {
   if (liked.value) {
     likeCount.value -= 1;
@@ -35,6 +42,11 @@ const toggleLike = () => {
     likeCount.value += 1;
   }
   liked.value = !liked.value;
+
+  animateLike.value = true;
+  setTimeout(() => {
+    animateLike.value = false;
+  }, 200);
 
   //API 호출
 };
