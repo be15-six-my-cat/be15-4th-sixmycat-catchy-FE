@@ -10,7 +10,7 @@ defineProps({ feed: Object });
 <template>
   <div class="feed-card">
     <FeedHeader :author="feed.author" :createdAt="feed.createdAt" />
-    <FeedCarousel :images="feed.imageUrls" />
+    <FeedCarousel :images="feed.imageUrls" :feedId="feed.id" />
     <FeedActions
       :likeCount="feed.likeCount"
       :commentCount="feed.commentCount"
@@ -20,7 +20,11 @@ defineProps({ feed: Object });
       <span class="author">{{ feed.author.nickname }}</span>
       <span class="content">{{ feed.content }}</span>
     </div>
-    <FeedCommentPreview :commentCount="feed.commentCount" :commentPreview="feed.commentPreview" />
+    <FeedCommentPreview
+      :commentCount="feed.commentCount"
+      :commentPreview="feed.commentPreview"
+      :feedId="feed.id"
+    />
   </div>
 </template>
 
