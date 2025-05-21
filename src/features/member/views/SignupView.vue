@@ -1,6 +1,6 @@
 <script setup>
 
-import SignupButton from '@/features/member/components/SignupButton.vue';
+import SignupButton from '@/features/member/components/WhiteButton.vue';
 import GoogleIcon from '@/assets/images/member/google-pink.png';
 import NaverIcon from '@/assets/images/member/n-pink.png';
 import KakaoIcon from '@/assets/images/member/kakao-talk-pink.png'
@@ -12,7 +12,7 @@ import KakaoIcon from '@/assets/images/member/kakao-talk-pink.png'
     <div class="text-frame">
       <div class="text">세상의 모든 냥이, 여기에서 만나요 <br/> Catchy</div>
     </div>
-    <div class="button-frame">
+    <div class="buttons-frame">
       <SignupButton
         :iconSrc="GoogleIcon"
         text="Google로 시작하기"
@@ -70,7 +70,7 @@ import KakaoIcon from '@/assets/images/member/kakao-talk-pink.png'
   width:790px;
 }
 
-.button-frame {
+.buttons-frame {
   height:142px;
   width:175px;
   display:flex;

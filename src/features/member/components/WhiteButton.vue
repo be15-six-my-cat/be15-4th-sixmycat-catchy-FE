@@ -13,7 +13,7 @@ const handleClick = () => {
 <template>
   <button class="button" @click="handleClick">
     <img class="icon" :src="props.iconSrc" alt="icon" />
-    <span class="label">{{ props.text }}</span>
+    <span class="text">{{ props.text }}</span>
   </button>
 </template>
 
@@ -36,7 +36,7 @@ const handleClick = () => {
   height: 20px;
 }
 
-.label {
+.text {
   font-size: 14px;
   font-weight: 500;
   color: #FF5C8D;
