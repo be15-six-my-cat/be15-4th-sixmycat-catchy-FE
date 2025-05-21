@@ -63,10 +63,10 @@ api.interceptors.response.use(
   },
 );
 
+export default api;
+
 // 기존 코드
 
-// export default api;
-//
 // import axios from 'axios';
 // import { useAuthStore } from '@/stores/auth.js';
 // import { loginUserTest } from '@/api/member.js';
