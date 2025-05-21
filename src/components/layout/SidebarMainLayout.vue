@@ -1,10 +1,14 @@
 <script setup>
 import SidebarNav from '@/components/layout/SidebarNav.vue';
 
-const emit = defineEmits(['open-upload-modal']);
+const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
 
 function handleOpenUploadModal() {
   emit('open-upload-modal');
+}
+
+function handleNotificationModal() {
+  emit('open-notification-modal');
 }
 </script>
 
@@ -16,7 +20,10 @@ function handleOpenUploadModal() {
         <span>Catchy</span>
       </div>
 
-      <SidebarNav @open-upload-modal="handleOpenUploadModal" />
+      <SidebarNav
+        @open-upload-modal="handleOpenUploadModal"
+        @open-notification-modal="handleNotificationModal"
+      />
     </aside>
 
     <main class="main-content">
