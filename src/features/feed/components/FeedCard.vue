@@ -9,7 +9,7 @@ defineProps({ feed: Object });
 
 <template>
   <div class="feed-card">
-    <FeedHeader :author="feed.author" :createdAt="feed.createdAt" />
+    <FeedHeader :author="feed.author" :createdAt="feed.createdAt" :mine="feed.mine" />
     <FeedCarousel :images="feed.imageUrls" :feedId="feed.id" />
     <FeedActions
       :likeCount="feed.likeCount"

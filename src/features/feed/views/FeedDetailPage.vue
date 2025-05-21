@@ -32,7 +32,12 @@
 
       <!-- 우측: 댓글/작성자 -->
       <div class="w-1/3 flex flex-col p-4 gap-4">
-        <FeedHeader v-if="feed" :author="feed.author" :createdAt="feed.createdAt" />
+        <FeedHeader
+          v-if="feed"
+          :author="feed.author"
+          :createdAt="feed.createdAt"
+          :mine="feed.mine"
+        />
         <span class="content">{{ feed?.content }}</span>
         <CommentSection v-if="feed" :target-id="feed.id" target-type="FEED" />
       </div>

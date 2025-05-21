@@ -4,7 +4,10 @@
       <img :src="author.profileImageUrl" alt="profile" class="profile-image" />
       <span class="nickname">{{ author.nickname }}</span>
     </div>
-    <span class="text-xs text-gray-400">{{ formattedTime }}</span>
+    <div class="flex gap-4 items-center">
+      <span class="text-xs text-gray-400">{{ formattedTime }}</span>
+      <EditDeleteDropdown v-if="mine" @edit="$emit('edit')" @delete="$emit('delete')" />
+    </div>
   </div>
 </template>
 
@@ -12,12 +15,14 @@
 import { computed } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import EditDeleteDropdown from '@/components/EditDeleteDropdown.vue';
 
 dayjs.extend(relativeTime);
 
 const props = defineProps({
   author: Object,
   createdAt: String,
+  mine: Boolean,
 });
 const formattedTime = computed(() => dayjs(props.createdAt).fromNow());
 </script>
