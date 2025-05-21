@@ -62,6 +62,9 @@ function confirmUpload() {
 <template>
   <div class="modal-overlay" @click.self="emit('close')">
     <section class="upload-modal">
+      <div class="modal-header">
+        <button class="cancel-button" @click="emit('close')">x</button>
+      </div>
       <div v-if="images.length === 0" class="text-center flex flex-col items-center">
         <img
           src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
@@ -123,6 +126,7 @@ function confirmUpload() {
 
 .upload-modal {
   @apply w-[480px] min-h-[600px] bg-white rounded-lg px-10 py-10 text-center shadow-elevated flex flex-col justify-center items-center;
+  position: relative;
 }
 
 .modal-title {
@@ -144,5 +148,16 @@ function confirmUpload() {
   border-2 border-dashed border-gray-300
   rounded-lg p-4 overflow-auto
   place-items-start;
+}
+
+.modal-header {
+  @apply w-full flex justify-end;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.cancel-button {
+  @apply bg-primary text-white text-body-sm py-1 px-3 rounded-sm hover:bg-primary-hover;
 }
 </style>
