@@ -39,6 +39,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex flex-col gap-6 items-center p-6">
+    <router-view />
     <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
     <p v-if="isLoading" class="loading">불러오는 중...</p>
     <p v-if="!isLoading && feeds.length === 0" class="empty">피드가 없습니다.</p>

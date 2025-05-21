@@ -19,3 +19,9 @@ export const fetchFeedList = (params = { page: 0, size: 2 }) =>
       },
     },
   );
+export const fetchFeed = (feedId) =>
+  api.get(`/feeds/${feedId}`, {
+    headers: {
+      'X-USER-ID': 1,
+    },
+  });
