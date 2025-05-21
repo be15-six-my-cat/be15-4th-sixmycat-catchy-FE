@@ -23,11 +23,7 @@ const authStore = useAuthStore();
 const { isAuthenticated } = storeToRefs(authStore);
 
 const defaultProfileStore = useDefaultProfileStore();
-// ✅ image를 profileImage로 별칭 지정
 const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
-
-// ✅ 상태 변화 로그
-watch([isAuthenticated, profileImage], ([auth, img]) => {}, { immediate: true });
 </script>
 
 <template>
@@ -60,15 +56,6 @@ watch([isAuthenticated, profileImage], ([auth, img]) => {}, { immediate: true })
         </button>
       </li>
     </ul>
-
-    <footer class="threads">
-      <img
-        src="https://cdn.pixabay.com/photo/2017/11/03/04/01/pets-2913316_1280.jpg"
-        alt="프로필"
-      />
-      <span>프로필</span>
-    </footer>
-    -->
 
     <!-- 👇 수정된 로그인 상태 반영 코드 시작 -->
     <footer class="threads" v-if="isAuthenticated">

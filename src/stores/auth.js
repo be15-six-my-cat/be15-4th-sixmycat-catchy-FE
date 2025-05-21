@@ -3,17 +3,13 @@ import { computed, ref } from 'vue';
 import { logout as logoutApi } from '@/api/member.js'; // 로그아웃 API 추가
 import { useDefaultProfileStore } from './defaultProfileStore.js'; // 프로필 상태 초기화 위해 추가
 
-/* 강사님 코드로 초기 구조 세팅 */
-export const useAuthStore = defineStore('auth', () => {
-  const accessToken = ref(null);
-  const expirationTime = ref(null);
-  const memberId = ref(null);
 export const useAuthStore = defineStore(
   'auth',
   () => {
     const accessToken = ref(null);
     const expirationTime = ref(null);
     const profileImage = ref(null);
+    const memberId = ref(null); // 이 위치에 있어야 합니다
 
     // 인증 여부 계산
     const isAuthenticated = computed(
@@ -60,37 +56,38 @@ export const useAuthStore = defineStore(
       accessToken.value = null;
       expirationTime.value = null;
       profileImage.value = null;
+      memberId.value = null;
     }
 
-    // 로그아웃: 서버 요청 + 상태 초기화
+    // 로그아웃
     async function logout() {
       try {
-        await logoutApi(); // 서버 로그아웃 API 호출
+        await logoutApi();
       } catch (err) {
         console.error('로그아웃 실패:', err);
       } finally {
-        clearAuth(); // auth 상태 초기화
+        clearAuth();
         const defaultProfileStore = useDefaultProfileStore();
-        defaultProfileStore.$reset(); // 별도 store도 초기화
+        defaultProfileStore.$reset();
       }
     }
 
     return {
       accessToken,
       expirationTime,
+      profileImage,
+      memberId,
       isAuthenticated,
       setAuth,
       clearAuth,
       logout,
-      profileImage,
       setProfileImage,
-      memberId
     };
   },
   {
     persist: {
-      storage: sessionStorage, // 또는 localStorage
-      paths: ['accessToken', 'expirationTime', 'profileImage'],
+      storage: sessionStorage,
+      paths: ['accessToken', 'expirationTime', 'profileImage', 'memberId'],
     },
   },
 );
