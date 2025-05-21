@@ -52,6 +52,7 @@ import FeedCarousel from '../components/FeedCarousel.vue';
 import FeedHeader from '../components/FeedHeader.vue';
 import CommentSection from '@/components/CommentSection.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { likeFeed, unLikeFeed } from '@/api/like.js';
 
 const feed = ref(null);
 const route = useRoute();
@@ -71,22 +72,30 @@ const close = () => {
 };
 
 const animateLike = ref(false);
-const toggleLike = () => {
-  if (liked.value) {
-    likeCount.value -= 1;
-  } else {
-    likeCount.value += 1;
+const toggleLike = async () => {
+  const payload = {
+    targetId: route.params.id, // ← 부모 컴포넌트에서 넘겨줘야 함
+    targetType: 'FEED',
+  };
+
+  try {
+    if (liked.value) {
+      await unLikeFeed(payload);
+      likeCount.value -= 1;
+    } else {
+      await likeFeed(payload);
+      likeCount.value += 1;
+    }
+    liked.value = !liked.value;
+
+    animateLike.value = true;
+    setTimeout(() => {
+      animateLike.value = false;
+    }, 200);
+  } catch (e) {
+    console.error('좋아요 처리 실패:', e);
   }
-  liked.value = !liked.value;
-
-  animateLike.value = true;
-  setTimeout(() => {
-    animateLike.value = false;
-  }, 200);
-
-  //API 호출
 };
-
 onMounted(async () => {
   const feedId = route.params.id;
   startLoading();

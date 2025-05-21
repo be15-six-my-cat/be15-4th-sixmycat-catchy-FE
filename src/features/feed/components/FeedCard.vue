@@ -15,6 +15,7 @@ defineProps({ feed: Object });
       :likeCount="feed.likeCount"
       :commentCount="feed.commentCount"
       :liked="feed.liked"
+      :feedId="feed.id"
     />
     <div class="content-wrapper">
       <span class="author">{{ feed.author.nickname }}</span>
