@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { fetchJjureList } from '@/api/jjure.js';
 import { usePagination } from '@/composable/usePagination.js';
 import JjureCard from '@/features/jjure/components/JjureCard.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useUploadStore } from '@/stores/uploadStore.js';
 
 const { items: jjures, loadMore, reset, hasNext, isLoading } = usePagination(fetchJjureList);
 
@@ -11,20 +12,32 @@ const observer = ref(null);
 const lastCard = ref(null);
 
 const observe = () => {
-  // if (observer.value) observer.value.disconnect();
-  // observer.value = new IntersectionObserver(
-  //   async ([entry]) => {
-  //     if (entry.isIntersecting && hasNext.value && !isLoading.value) {
-  //       await loadMore();
-  //     }
-  //   },
-  //   { threshold: 1.0 },
-  // );
-  //
-  // if (lastCard.value) {
-  //   observer.value.observe(lastCard.value);
-  // }
+  if (observer.value) observer.value.disconnect();
+  observer.value = new IntersectionObserver(
+    async ([entry]) => {
+      if (entry.isIntersecting && hasNext.value && !isLoading.value) {
+        await loadMore();
+      }
+    },
+    { threshold: 1.0 },
+  );
+
+  if (lastCard.value) {
+    observer.value.observe(lastCard.value);
+  }
 };
+
+const uploadStore = useUploadStore();
+
+watch(
+  () => uploadStore.selectedFile,
+  async (newVal, oldVal) => {
+    if (oldVal !== null && newVal === null) {
+      reset();
+      await loadMore();
+    }
+  },
+);
 
 onMounted(async () => {
   startLoading();
@@ -53,6 +66,8 @@ onBeforeUnmount(() => {
         :like-count="jjure.likeCount"
         :comment-count="jjure.commentCount"
         :ref="index === jjures.length - 1 ? lastCard : null"
+        :isLiked="jjure.liked"
+        :isMine="jjure.mine"
       />
     </section>
 

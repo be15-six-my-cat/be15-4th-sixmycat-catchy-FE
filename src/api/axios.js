@@ -18,13 +18,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => {
     stopLoading();
-    console.log(response.data);
     return response;
   },
   async (err) => {
     stopLoading();
     const authStore = useAuthStore();
     const { config, response } = err;
+
+    if (!config) return Promise.reject(err);
 
     if (config.url.includes('/auth/refresh')) {
       // 리프레시 요청에서 401이 오면 바로 로그아웃 처리

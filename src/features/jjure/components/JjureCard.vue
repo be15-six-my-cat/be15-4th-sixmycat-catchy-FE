@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+
+import { likeFeed, unLikeFeed } from '@/api/like.js';
 
 const props = defineProps({
   id: Number,
@@ -13,45 +14,77 @@ const props = defineProps({
   commentPreview: String,
   likeCount: Number,
   commentCount: Number,
+  isLiked: Boolean,
+  isMine: Boolean,
 });
-
-const router = useRouter();
-
-function goToDetail() {
-  router.push(`/jjure/${props.id}`);
-}
 
 const videoUrl = computed(
   () =>
     `https://${import.meta.env.VITE_AWS_BUCKET_NAME}.s3.${import.meta.env.VITE_AWS_REGION}.amazonaws.com/${props.fileKey}`,
 );
 
-const formattedLikeCount = computed(() =>
-  props.likeCount >= 10000 ? `${Math.floor(props.likeCount / 1000)}K` : props.likeCount,
-);
+const animateLike = ref(false);
 
 const formattedCommentCount = computed(() =>
   props.commentCount >= 10000 ? `${Math.floor(props.commentCount / 1000)}K` : props.commentCount,
 );
+
+const likeRequest = computed(() => ({
+  targetId: props.id,
+  targetType: 'JJURE',
+}));
+
+const likeCount = ref(props.likeCount);
+const isLiked = ref(props.isLiked);
+
+const formattedLikeCount = computed(() =>
+  likeCount.value >= 10000 ? `${Math.floor(props.likeCount / 1000)}K` : likeCount.value,
+);
+
+const handleLikeClick = async () => {
+  try {
+    if (isLiked.value) {
+      likeCount.value -= 1;
+      await unLikeFeed(likeRequest.value);
+    } else {
+      likeCount.value += 1;
+      await likeFeed(likeRequest.value);
+    }
+    isLiked.value = !isLiked.value;
+
+    animateLike.value = true;
+    setTimeout(() => {
+      animateLike.value = false;
+    }, 200);
+  } catch (e) {
+    console.error('좋아요 처리 실패:', e);
+  }
+};
 </script>
 
 <template>
-  <div class="jjure-card" @click="goToDetail">
+  <div class="jjure-card">
     <div class="video-wrapper">
       <video autoplay muted loop playsinline>
         <source :src="videoUrl" type="video/mp4" />
         브라우저가 비디오를 지원하지 않습니다.
       </video>
       <div class="reel-actions">
-        <div class="icon-wrapper">
-          <i class="fa-regular fa-heart"></i>
+        <button class="icon-wrapper" @click="handleLikeClick">
+          <i
+            :class="[
+              isLiked ? 'fa-solid' : 'fa-regular',
+              'fa-heart text-primary cursor-pointer transition-transform duration-200',
+              animateLike ? 'scale-150' : '',
+            ]"
+          ></i>
           <div class="action-count">{{ formattedLikeCount }}</div>
-        </div>
+        </button>
         <RouterLink :to="`/jjure/${id}`" class="icon-wrapper">
-          <i class="fa-regular fa-comment"></i>
+          <i class="fa-regular fa-comment text-primary"></i>
           <div class="action-count">{{ formattedCommentCount }}</div>
         </RouterLink>
-        <div class="icon-wrapper"><i class="fa-solid fa-share-nodes"></i></div>
+        <button class="icon-wrapper text-primary"><i class="fa-solid fa-share-nodes"></i></button>
       </div>
     </div>
 
@@ -90,7 +123,7 @@ const formattedCommentCount = computed(() =>
 }
 
 .icon-wrapper {
-  @apply cursor-pointer text-center shadow-[var(--tw-shadow-elevated)] bg-black-alpha-20 rounded-full p-2;
+  @apply cursor-pointer text-center shadow-elevated bg-black-alpha-20 rounded-full p-2;
 }
 
 .reel-actions i {

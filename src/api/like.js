@@ -1,8 +1,18 @@
 import api from './axios.js';
 
-export const likeFeed = (data) => api.post('/likes', data);
+export async function likeFeed(request) {
+  await api.post('/likes', request);
+}
 
-export const unLikeFeed = (data) =>
-  api.delete('/likes', {
-    data,
+export async function unLikeFeed(request) {
+  await api.delete('/likes', {
+    data: request,
   });
+}
+
+// export const likeFeed = (request) => api.post('/likes', request);
+
+// export const unLikeFeed = (request) =>
+//   api.delete('/likes', {
+//     data: request,
+//   });
