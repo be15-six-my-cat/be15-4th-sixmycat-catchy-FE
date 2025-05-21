@@ -6,7 +6,6 @@ import 'vue-toastification/dist/index.css';
 import { createApp, watch } from 'vue';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
-// import { loginUserTest } from '@/api/member.js'; // 👈 자동 로그인 제거로 인해 주석 처리
 
 import App from './App.vue';
 import router from './router/index.js';
@@ -25,26 +24,19 @@ async function bootstrap() {
   const authStore = useAuthStore();
   const defaultProfileStore = useDefaultProfileStore();
 
-  // 👇 [자동 로그인 비활성화]
-  // 앱 로딩 시 accessToken 자동 재발급 요청을 비활성화했습니다.
-  // 로그인 흐름을 사용자 액션 기반으로 처리하기 위해 아래 코드를 주석 처리합니다.
-  //
-  // try {
-  //   const resp = await loginUserTest();
-  //   authStore.setAuth(resp.data.data.accessToken);
-  //   console.log('초기화 : 로그인 상태 유지');
-  // } catch (e) {
-  //   console.log('초기화 : 로그아웃 상태 유지');
-  // }
-
-  // ✅ accessToken 복원 이후에 프로필 이미지 설정
   watch(
     () => authStore.accessToken,
     async (token) => {
       if (token && authStore.isAuthenticated) {
         try {
           const res = await fetchMyProfile();
-          const { profileImage, nickname } = res.data.data;
+          console.log('📦 fetchMyProfile 응답:', res.data); // ✅ 로그 추가
+          const profileData = res.data.data ?? {};
+          const { profileImage, nickname } = profileData;
+
+          console.log('🖼️ profileImage:', profileImage);
+          console.log('🏷️ nickname:', nickname);
+
           defaultProfileStore.setProfileImage(profileImage); // null이면 랜덤 이미지 설정됨
           defaultProfileStore.setNickname(nickname);
           console.log('✅ 프로필 이미지 초기 설정 완료');
@@ -53,7 +45,7 @@ async function bootstrap() {
         }
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   app.use(router);

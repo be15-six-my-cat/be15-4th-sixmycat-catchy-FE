@@ -15,12 +15,12 @@ export const useAuthStore = defineStore('auth', () => {
   );
 
   function setAuth(at) {
+    console.log('🛠 setAuth 실행됨:', at);
     accessToken.value = at;
     try {
       const payload = JSON.parse(atob(at.split('.')[1]));
-      if (!payload.exp) {
-        throw new Error('만료 시간 없음');
-      }
+      console.log('🧑‍💻 로그인된 사용자 ID:', payload.sub); // 또는 payload.id
+      if (!payload.exp) throw new Error('만료 시간 없음');
       expirationTime.value = payload.exp * 1000;
     } catch (e) {
       accessToken.value = null;
