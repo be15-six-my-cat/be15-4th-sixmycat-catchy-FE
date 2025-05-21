@@ -23,7 +23,7 @@ const { isAuthenticated } = storeToRefs(authStore);
 
 const defaultProfileStore = useDefaultProfileStore();
 // ✅ image를 profileImage로 별칭 지정
-const { image: profileImage } = storeToRefs(defaultProfileStore);
+const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
 
 // ✅ 상태 변화 로그
 watch(
@@ -74,8 +74,7 @@ watch(
         :src="profileImage"
         alt="프로필"
       />
-      <!-- 👉 디버깅용 텍스트 출력 -->
-      <RouterLink to="/profile">프로필</RouterLink>
+      <RouterLink to="/profile">{{ nickname }}</RouterLink>
       <span class="logout" @click="authStore.clearAuth">로그아웃</span>
     </footer>
 

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-// ✅ 이미지 자동 가져오기
+// 이미지 자동 가져오기
 const imageMap = import.meta.glob('@/assets/default_images/*.png', {
   eager: true,
   import: 'default',

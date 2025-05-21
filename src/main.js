@@ -44,8 +44,9 @@ async function bootstrap() {
       if (token && authStore.isAuthenticated) {
         try {
           const res = await fetchMyProfile();
-          const imageUrl = res.data.data.profileImage;
-          defaultProfileStore.setProfileImage(imageUrl); // null이면 랜덤 이미지 설정됨
+          const { profileImage, nickname } = res.data.data;
+          defaultProfileStore.setProfileImage(profileImage); // null이면 랜덤 이미지 설정됨
+          defaultProfileStore.setNickname(nickname);
           console.log('✅ 프로필 이미지 초기 설정 완료');
         } catch (e) {
           console.warn('❌ 프로필 이미지 설정 실패:', e);
