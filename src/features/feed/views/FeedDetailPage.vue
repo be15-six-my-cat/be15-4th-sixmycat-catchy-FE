@@ -34,6 +34,7 @@
       <div class="w-1/3 flex flex-col p-4 gap-4">
         <FeedHeader v-if="feed" :author="feed.author" :createdAt="feed.createdAt" />
         <span class="content">{{ feed?.content }}</span>
+        <CommentSection v-if="feed" :target-id="feed.id" target-type="FEED" />
       </div>
 
       <!-- 닫기 버튼 -->
@@ -49,6 +50,7 @@ import { fetchFeed } from '@/api/feed.js';
 
 import FeedCarousel from '../components/FeedCarousel.vue';
 import FeedHeader from '../components/FeedHeader.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 
 const feed = ref(null);
