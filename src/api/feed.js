@@ -23,3 +23,8 @@ export const fetchFeed = (feedId) =>
       'X-USER-ID': 1,
     },
   });
+
+export const deleteFeed = (feedId) =>
+  api.delete(`/feeds/${feedId}`, {
+    headers: { 'X-USER-ID': 1 },
+  });
