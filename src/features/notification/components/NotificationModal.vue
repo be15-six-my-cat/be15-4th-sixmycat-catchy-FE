@@ -3,72 +3,25 @@ import NotificationList from '@/features/notification/components/NotificationLis
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { getNotifications } from '@/api/notification.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
 const emit = defineEmits(['close']);
 
-const notifications = ref([]);
-const curPage = ref(1);
-const totalPage = ref(1);
 const scrollContainer = ref(null);
-const isLoading = ref(false);
-const isLastPage = ref(false);
 
-const fetchNotifications = async (page = 1) => {
+const fetchFn = async (page) => {
   try {
     startLoading();
-    console.log(page + ' 페이지 초기 로드');
-    const { data: wrapper } = await getNotifications(page);
-    notifications.value = wrapper.data.content;
-    curPage.value = wrapper.data.currentPage + 1;
-    totalPage.value = wrapper.data.totalPages;
+    const { data } = await getNotifications(page);
+    return data;
   } catch (e) {
     console.log(e + '알림 목록 초기 로드 실패');
   }
 };
 
-const loadAdditionalNotifications = async (page = 1) => {
-  if (isLoading.value || isLastPage.value) return;
-  isLoading.value = true;
-
-  try {
-    startLoading();
-    console.log(page + ' 페이지 추가 로드');
-    const { data: wrapper } = await getNotifications(page);
-    notifications.value.push(...wrapper.data.content);
-    curPage.value = wrapper.data.currentPage + 1;
-    if (wrapper.data.currentPage === wrapper.data.totalPages) {
-      isLastPage.value = true;
-    }
-    console.log(curPage.value + ':' + totalPage.value);
-  } catch (e) {
-    console.log('알림 목록 추가 로드 실패');
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const handleScroll = () => {
-  if (totalPage.value === curPage.value) {
-    return;
-  }
-  const container = scrollContainer.value;
-  if (!container) return;
-
-  const threshold = 100; // px
-  const { scrollTop, scrollHeight, clientHeight } = container;
-
-  if (scrollTop + clientHeight >= scrollHeight - threshold) {
-    loadAdditionalNotifications(curPage.value + 1);
-  }
-};
-
-onMounted(() => {
-  fetchNotifications();
-  scrollContainer.value?.addEventListener('scroll', handleScroll);
-});
-
-onBeforeUnmount(() => {
-  scrollContainer.value?.removeEventListener('scroll', handleScroll);
+const { items: notifications, isLastPage } = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef: scrollContainer,
 });
 </script>
 
