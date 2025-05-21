@@ -112,6 +112,6 @@ onMounted(async () => {
 
 <style scoped>
 .content {
-  @apply text-sm text-gray-800 px-4;
+  @apply text-sm text-gray-800 px-4 mb-4;
 }
 </style>
