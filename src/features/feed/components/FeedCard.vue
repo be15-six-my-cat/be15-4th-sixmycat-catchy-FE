@@ -3,13 +3,38 @@ import FeedHeader from './FeedHeader.vue';
 import FeedCarousel from './FeedCarousel.vue';
 import FeedActions from './FeedActions.vue';
 import FeedCommentPreview from './FeedCommentPreview.vue';
+import { deleteFeed } from '@/api/feed.js';
+import { showSuccessToast } from '@/utills/toast.js';
+import { useRouter } from 'vue-router';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 
-defineProps({ feed: Object });
+const props = defineProps({ feed: Object });
+const feedRefreshStore = useFeedRefreshStore();
+
+const handleDelete = async () => {
+  const confirmDelete = confirm('정말 삭제하시겠습니까?');
+  if (!confirmDelete) return;
+
+  try {
+    await deleteFeed(props.feed.id);
+    showSuccessToast('삭제되었습니다.');
+    feedRefreshStore.triggerRefresh();
+  } catch (e) {
+    console.error(e);
+    alert('삭제 중 오류 발생');
+  }
+};
 </script>
 
 <template>
   <div class="feed-card">
-    <FeedHeader :author="feed.author" :createdAt="feed.createdAt" :mine="feed.mine" />
+    <FeedHeader
+      :author="feed.author"
+      :createdAt="feed.createdAt"
+      :mine="feed.mine"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    />
     <FeedCarousel :images="feed.imageUrls" :feedId="feed.id" />
     <FeedActions
       :likeCount="feed.likeCount"
