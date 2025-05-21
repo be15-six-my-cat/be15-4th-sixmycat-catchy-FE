@@ -113,6 +113,9 @@ onMounted(() => {
 
       <form class="reel-form" @submit.prevent="handleSubmit">
         <div class="input-group">
+          <div class="modal-header">
+            <button class="cancel-button" @click="emit('close')">x</button>
+          </div>
           <label for="reel-caption" class="label">쭈르 설명</label>
           <textarea
             id="reel-caption"
@@ -144,6 +147,7 @@ onMounted(() => {
 
 .reel-modal {
   @apply w-[860px] h-[560px] flex bg-white rounded-lg overflow-hidden shadow-elevated;
+  position: relative;
 }
 
 .video-preview {
@@ -187,5 +191,16 @@ onMounted(() => {
 }
 .thumbnail-select img {
   @apply w-full h-full object-cover;
+}
+
+.modal-header {
+  @apply w-full flex justify-end;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.cancel-button {
+  @apply bg-primary text-white text-body-sm py-1 px-3 rounded-sm hover:bg-primary-hover;
 }
 </style>

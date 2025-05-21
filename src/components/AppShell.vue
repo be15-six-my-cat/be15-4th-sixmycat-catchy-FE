@@ -4,12 +4,6 @@ import { useUploadStore } from '@/stores/uploadStore';
 import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
-import {
-  getPresignedUrl,
-  uploadFileToS3,
-  saveJjureMeta,
-  uploadThumbnailImage,
-} from '@/api/jjure.js';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import NotificationModal from '@/features/notification/components/NotificationModal.vue';
 import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
