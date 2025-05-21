@@ -9,10 +9,12 @@ import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { createFeed, uploadImages } from '@/api/feed.js';
 import { showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import NotificationModal from '@/features/notification/components/NotificationModal.vue';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
 const showFeedUploadModal = ref(false);
+const showNotificationModal = ref(false);
 const imageUrls = ref([]);
 const imageFiles = ref([]);
 const videoUrl = ref('');
@@ -121,9 +123,14 @@ onUnmounted(() => {
 <template>
   <div>
     <!-- 사이드바 포함 전체 레이아웃 -->
-    <SidebarMainLayout @open-upload-modal="showUploadGuideModal = true">
+    <SidebarMainLayout
+      @open-upload-modal="showUploadGuideModal = true"
+      @open-notification-modal="showNotificationModal = true"
+    >
       <RouterView />
     </SidebarMainLayout>
+
+    <NotificationModal v-if="showNotificationModal" @close="showNotificationModal = false" />
 
     <!-- 파일 업로드 안내 모달 -->
     <UploadGuideModal

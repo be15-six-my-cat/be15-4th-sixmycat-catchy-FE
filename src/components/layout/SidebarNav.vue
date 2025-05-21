@@ -1,17 +1,21 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 
-const emit = defineEmits(['open-upload-modal']);
+const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
 
 function handleCreateClick() {
   emit('open-upload-modal');
+}
+
+function handleNotificationModal() {
+  emit('open-notification-modal');
 }
 
 const navItems = [
   { label: '피드', icon: 'fas fa-home', path: '/feed' },
   { label: '쮸르', icon: 'fa-solid fa-circle-play', path: '/jjure' },
   { label: '게임', icon: 'fas fa-gamepad', path: '/game' },
-  { label: '알림', icon: 'fas fa-bell', path: '/notifications' },
+  { label: '알림', icon: 'fas fa-bell', type: 'noti-modal' },
   { label: '만들기', icon: 'fa-solid fa-square-plus', type: 'modal' },
 ];
 </script>
@@ -30,6 +34,16 @@ const navItems = [
           type="button"
           class="nav-item"
           @click="handleCreateClick"
+        >
+          <i :class="item.icon" />
+          <span>{{ item.label }}</span>
+        </button>
+
+        <button
+          v-else-if="item.type === 'noti-modal'"
+          type="button"
+          class="nav-item"
+          @click="handleNotificationModal"
         >
           <i :class="item.icon" />
           <span>{{ item.label }}</span>
