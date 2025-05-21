@@ -18,11 +18,18 @@ function getTimeAgo(dateString) {
   const now = new Date();
   const created = new Date(dateString);
   const diffMs = now - created;
+
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffWeeks = Math.floor(diffDays / 7);
 
-  if (diffHours < 24) {
+  if (diffSeconds < 60) {
+    return `${diffSeconds}초`;
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes}분`;
+  } else if (diffHours < 24) {
     return `${diffHours}시간`;
   } else if (diffDays < 7) {
     return `${diffDays}일`;
