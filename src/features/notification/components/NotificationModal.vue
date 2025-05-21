@@ -1,39 +1,28 @@
 <script setup>
 import NotificationList from '@/features/notification/components/NotificationList.vue';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { getNotifications } from '@/api/notification.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
 const emit = defineEmits(['close']);
 
-const notifications = ref([]);
-const curPage = ref(1);
+const scrollContainer = ref(null);
 
-const fetchNotifications = async (page = 1) => {
+const fetchFn = async (page) => {
   try {
     startLoading();
-    console.log(page + ' 페이지 초기 로드');
-    const { data: wrapper } = await getNotifications(page);
-    notifications.value = wrapper.data.content;
-    curPage.value = wrapper.data.currentPage + 1;
+    const { data } = await getNotifications(page);
+    return data;
   } catch (e) {
     console.log(e + '알림 목록 초기 로드 실패');
   }
 };
 
-const loadAdditionalNotifications = async (page = 1) => {
-  try {
-    startLoading();
-    console.log(page + ' 페이지 추가 로드');
-    const { data: wrapper } = await getNotifications(page);
-    notifications.value.push(...wrapper.data.content);
-    curPage.value = wrapper.data.currentPage + 1;
-  } catch (e) {
-    console.log('알림 목록 추가 로드 실패');
-  }
-};
-
-onMounted(() => fetchNotifications());
+const { items: notifications, isLastPage } = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef: scrollContainer,
+});
 </script>
 
 <template>
@@ -44,8 +33,9 @@ onMounted(() => fetchNotifications());
       </div>
       <div class="modal-body">
         <div class="header1">알림</div>
-        <div class="body-scroll">
+        <div class="body-scroll" ref="scrollContainer">
           <NotificationList :notifications="notifications" />
+          <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
         </div>
       </div>
     </section>
