@@ -1,6 +1,6 @@
 <script setup>
 import NotificationList from '@/features/notification/components/NotificationList.vue';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { getNotifications } from '@/api/notification.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 
@@ -8,6 +8,10 @@ const emit = defineEmits(['close']);
 
 const notifications = ref([]);
 const curPage = ref(1);
+const totalPage = ref(1);
+const scrollContainer = ref(null);
+const isLoading = ref(false);
+const isLastPage = ref(false);
 
 const fetchNotifications = async (page = 1) => {
   try {
@@ -16,24 +20,56 @@ const fetchNotifications = async (page = 1) => {
     const { data: wrapper } = await getNotifications(page);
     notifications.value = wrapper.data.content;
     curPage.value = wrapper.data.currentPage + 1;
+    totalPage.value = wrapper.data.totalPages;
   } catch (e) {
     console.log(e + '알림 목록 초기 로드 실패');
   }
 };
 
 const loadAdditionalNotifications = async (page = 1) => {
+  if (isLoading.value || isLastPage.value) return;
+  isLoading.value = true;
+
   try {
     startLoading();
     console.log(page + ' 페이지 추가 로드');
     const { data: wrapper } = await getNotifications(page);
     notifications.value.push(...wrapper.data.content);
     curPage.value = wrapper.data.currentPage + 1;
+    if (wrapper.data.currentPage === wrapper.data.totalPages) {
+      isLastPage.value = true;
+    }
+    console.log(curPage.value + ':' + totalPage.value);
   } catch (e) {
     console.log('알림 목록 추가 로드 실패');
+  } finally {
+    isLoading.value = false;
   }
 };
 
-onMounted(() => fetchNotifications());
+const handleScroll = () => {
+  if (totalPage.value === curPage.value) {
+    return;
+  }
+  const container = scrollContainer.value;
+  if (!container) return;
+
+  const threshold = 100; // px
+  const { scrollTop, scrollHeight, clientHeight } = container;
+
+  if (scrollTop + clientHeight >= scrollHeight - threshold) {
+    loadAdditionalNotifications(curPage.value + 1);
+  }
+};
+
+onMounted(() => {
+  fetchNotifications();
+  scrollContainer.value?.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+  scrollContainer.value?.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
@@ -44,8 +80,9 @@ onMounted(() => fetchNotifications());
       </div>
       <div class="modal-body">
         <div class="header1">알림</div>
-        <div class="body-scroll">
+        <div class="body-scroll" ref="scrollContainer">
           <NotificationList :notifications="notifications" />
+          <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
         </div>
       </div>
     </section>
