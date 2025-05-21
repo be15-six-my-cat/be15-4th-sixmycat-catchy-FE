@@ -56,9 +56,9 @@ const formattedCommentCount = computed(() =>
     </div>
 
     <div class="caption-box">
-      <div class="author">
-        <span class="nickname">@{{ authorNickname }}</span
-        >팔로우
+      <div class="title">
+        <span class="nickname">@{{ authorNickname }}</span>
+        <span class="caption">{{ caption }}</span>
       </div>
       <div class="comment-preview" v-if="commentPreview">{{ commentPreview }}</div>
       <div class="music-info" v-if="musicTitle">
@@ -72,15 +72,15 @@ const formattedCommentCount = computed(() =>
 
 <style scoped>
 .jjure-card {
-  @apply w-[400px] h-[740px] bg-white rounded-xl overflow-hidden shadow-md text-black flex flex-col;
+  @apply w-[400px] h-[740px] bg-white rounded-xl overflow-hidden shadow-hover text-black flex flex-col;
 }
 
 .video-wrapper {
-  @apply relative w-full flex-1 bg-black;
+  @apply relative w-full h-[650px] bg-black;
 }
 
 .video-wrapper video {
-  @apply w-full h-full object-contain;
+  @apply w-full h-full object-cover;
 }
 
 .reel-actions {
@@ -103,7 +103,13 @@ const formattedCommentCount = computed(() =>
   @apply bg-white p-3 text-[13px] border-t border-gray-200 text-gray-800;
 }
 
-.author .nickname {
+.caption {
+  @apply inline-block truncate text-[13px] max-w-[300px] text-gray-700;
+}
+.title {
+  @apply flex items-center;
+}
+.title .nickname {
   @apply font-bold text-primary mr-2;
 }
 

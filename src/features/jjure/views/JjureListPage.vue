@@ -11,19 +11,19 @@ const observer = ref(null);
 const lastCard = ref(null);
 
 const observe = () => {
-  if (observer.value) observer.value.disconnect();
-  observer.value = new IntersectionObserver(
-    async ([entry]) => {
-      if (entry.isIntersecting && hasNext.value && !isLoading.value) {
-        await loadMore();
-      }
-    },
-    { threshold: 1.0 },
-  );
-
-  if (lastCard.value) {
-    observer.value.observe(lastCard.value);
-  }
+  // if (observer.value) observer.value.disconnect();
+  // observer.value = new IntersectionObserver(
+  //   async ([entry]) => {
+  //     if (entry.isIntersecting && hasNext.value && !isLoading.value) {
+  //       await loadMore();
+  //     }
+  //   },
+  //   { threshold: 1.0 },
+  // );
+  //
+  // if (lastCard.value) {
+  //   observer.value.observe(lastCard.value);
+  // }
 };
 
 onMounted(async () => {

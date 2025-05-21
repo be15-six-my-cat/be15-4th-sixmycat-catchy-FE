@@ -20,10 +20,9 @@ export function usePagination(fetchFn) {
       items.value.push(...content);
       hasNext.value = !last;
       page.value += 1;
+      isLoading.value = false;
     } catch (e) {
       console.error('페이지네이션 데이터 가져오기 실패', e);
-    } finally {
-      isLoading.value = false;
     }
   };
 

@@ -39,3 +39,10 @@ export function fetchJjureList(page = 0, size = 10) {
 export function fetchJjureDetail(jjureId) {
   return api.get(`/jjures/${jjureId}`);
 }
+
+/* 6. 썸네일 이미지 등록 (CloudFront URL 반환) */
+export function uploadThumbnailImage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/jjure/upload/thumbnail', formData);
+}

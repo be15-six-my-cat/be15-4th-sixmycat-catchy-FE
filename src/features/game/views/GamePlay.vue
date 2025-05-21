@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import Card from '@/features/game/components/Card.vue';
 import { saveGameScore } from '@/api/game.js';
 import { showErrorToast } from '@/utills/toast.js';
+import { startLoading } from '@/composable/useLoadingBar.js';
 
 const router = useRouter();
 const gameStore = useGameStore();
@@ -103,6 +104,7 @@ async function handleCardClick(card) {
         gameStore.setResult({ time: finishedTimeSec, status: 'success' });
 
         try {
+          startLoading();
           await saveGameScore(finishedTimeSec);
         } catch (err) {
           console.error('게임 점수 저장 실패:', err?.response?.data || err.message);
