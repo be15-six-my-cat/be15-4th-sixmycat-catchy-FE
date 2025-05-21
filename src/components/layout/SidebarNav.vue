@@ -26,14 +26,7 @@ const defaultProfileStore = useDefaultProfileStore();
 const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
 
 // ✅ 상태 변화 로그
-watch(
-  [isAuthenticated, profileImage],
-  ([auth, img]) => {
-    console.log('👤 isAuthenticated:', auth);
-    console.log('🖼️ profileImage:', img);
-  },
-  { immediate: true }
-);
+watch([isAuthenticated, profileImage], ([auth, img]) => {}, { immediate: true });
 </script>
 
 <template>
@@ -70,12 +63,9 @@ watch(
 
     <!-- 👇 수정된 로그인 상태 반영 코드 시작 -->
     <footer class="threads" v-if="isAuthenticated">
-      <img
-        :src="profileImage"
-        alt="프로필"
-      />
+      <img :src="profileImage" alt="프로필" />
       <RouterLink to="/profile">{{ nickname }}</RouterLink>
-      <span class="logout" @click="authStore.clearAuth">로그아웃</span>
+      <span class="logout" @click="authStore.logout">로그아웃</span>
     </footer>
 
     <footer class="threads" v-else>

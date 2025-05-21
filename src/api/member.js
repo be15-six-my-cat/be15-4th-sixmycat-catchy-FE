@@ -16,11 +16,24 @@ export function getTempMemberInfo(email, social) {
   return api.get('/members/temp-info', {
     params: {
       email,
-      social
-    }
+      social,
+    },
   });
 }
 
 export async function fetchMyProfile() {
   return api.get('/members/me');
+}
+
+export async function logout(accessToken) {
+  return api.post('/members/logout', null, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    withCredentials: true,
+  });
+}
+
+export function reissueAccessToken() {
+  return api.get('/members/token');
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.js';
-import { loginUserTest } from '@/api/member.js';
+import { reissueAccessToken } from '@/api/member.js';
 import { stopLoading } from '@/composable/useLoadingBar.js';
 
 const api = axios.create({
@@ -41,8 +41,9 @@ api.interceptors.response.use(
       config._retry = true;
 
       // 토큰 재발급 시도
+
       try {
-        const refreshRes = await loginUserTest();
+        const refreshRes = await reissueAccessToken();
         const newToken = refreshRes.data.data.accessToken;
         authStore.setAuth(newToken);
 
