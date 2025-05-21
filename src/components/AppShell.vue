@@ -4,22 +4,27 @@ import { useUploadStore } from '@/stores/uploadStore';
 import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
-import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
+import NotificationModal from '@/features/notification/components/NotificationModal.vue';
 import { createFeed, uploadImages } from '@/api/feed.js';
-import { showSuccessToast } from '@/utills/toast.js';
+import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
+import { useRouter } from 'vue-router';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
 const showFeedUploadModal = ref(false);
+const showNotificationModal = ref(false);
 const imageUrls = ref([]);
 const imageFiles = ref([]);
 const videoUrl = ref('');
 const caption = ref('');
+const router = useRouter();
+const thumbnailBlob = ref(null); // 썸네일 Blob 저장
 
 const uploadStore = useUploadStore();
-
+const feedRefreshStore = useFeedRefreshStore();
 // 파일 선택 핸들러
 function handleFilesSelected(files) {
   if (!files.length) return;
@@ -45,22 +50,31 @@ function handleFilesSelected(files) {
   }
 }
 
-// 업로드 처리 핸들러
+/* 쭈르 동영상 업로드 */
 async function handleUpload() {
   const file = uploadStore.selectedFile;
-  if (!file) return;
-
-  console.log(file);
+  console.log('1번째 file', file);
+  console.log('2번째 썸네일', thumbnailBlob.value);
+  if (!file || !thumbnailBlob.value) return;
 
   try {
-    const { presignedUrl, fileKey } = await getPresignedUrl(file.name, file.type);
     startLoading();
 
+    // 1. 썸네일 S3 업로드
+    console.log('2번째 썸네일 이미지', thumbnailBlob.value);
+    const thumbnailRes = await uploadThumbnailImage(thumbnailBlob.value);
+    const thumbnailUrl = thumbnailRes.data.data;
+
+    // 2. Presigned URL 발급
+    const { presignedUrl, fileKey } = await getPresignedUrl(file.name, file.type);
+
+    // 3. S3에 동영상 업로드
     await uploadFileToS3(presignedUrl, file);
 
-    await saveJjureMeta({ fileKey, caption: caption.value });
+    // 4. 메타데이터 저장 API 호출 (썸네일 포함)
+    await saveJjureMeta({ fileKey, caption: caption.value, imageUrl: thumbnailUrl });
 
-    showSuccessToast('쭈르 업로드에 성공했습니다!!');
+    showSuccessToast('쭈르 업로드에 성공했습니다!');
   } catch (error) {
     console.error('업로드 실패:', error);
     alert('업로드 중 오류가 발생했습니다.');
@@ -70,6 +84,7 @@ async function handleUpload() {
     videoUrl.value = '';
     caption.value = '';
     uploadStore.setFile(null);
+    thumbnailBlob.value = null;
   }
 }
 
@@ -89,8 +104,11 @@ async function handleFeedUpload() {
 
     await createFeed(payload);
 
-    alert('피드 업로드 성공!');
+    showSuccessToast('피드 업로드에 성공했습니다!');
+
+    feedRefreshStore.triggerRefresh();
     showFeedUploadModal.value = false;
+    await router.push('/feed');
 
     imageFiles.value = [];
     imageUrls.value.forEach((url) => URL.revokeObjectURL(url));
@@ -101,14 +119,19 @@ async function handleFeedUpload() {
     const errorCode = err.response?.data?.errorCode;
     console.log('errorCode=', errorCode);
     if (errorCode === '04004') {
-      alert('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^😺😺😺');
+      showErrorToast('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^😺😺😺');
     } else if (errorCode === '04005') {
-      alert('고양이가 없는 이미지가 발견되었습니다. 고양이를 등록해주세요~^^😺😺😺');
+      showErrorToast('고양이가 없는 이미지가 발견되었습니다. 고양이를 등록해주세요~^^😺😺😺');
     } else {
-      alert('피드 업로드 중 오류 발생');
+      showErrorToast('피드 업로드중 에러가 발생했습니다!');
     }
   }
 }
+
+const handleUpdateThumbnail = (blob) => {
+  console.log('썸네일 전달 받음:', blob);
+  thumbnailBlob.value = blob;
+};
 
 // 메모리 정리
 onUnmounted(() => {
@@ -121,9 +144,14 @@ onUnmounted(() => {
 <template>
   <div>
     <!-- 사이드바 포함 전체 레이아웃 -->
-    <SidebarMainLayout @open-upload-modal="showUploadGuideModal = true">
+    <SidebarMainLayout
+      @open-upload-modal="showUploadGuideModal = true"
+      @open-notification-modal="showNotificationModal = true"
+    >
       <RouterView />
     </SidebarMainLayout>
+
+    <NotificationModal v-if="showNotificationModal" @close="showNotificationModal = false" />
 
     <!-- 파일 업로드 안내 모달 -->
     <UploadGuideModal
@@ -140,11 +168,11 @@ onUnmounted(() => {
       :imageUrls="imageUrls"
     />
 
-    <!-- 쭈르 업로드 모달 -->
     <JjureUploadModal
       v-if="showJjureUploadModal"
       :videoUrl="videoUrl"
       v-model:caption="caption"
+      @update:thumbnail="handleUpdateThumbnail"
       @close="showJjureUploadModal = false"
       @upload="handleUpload"
     />

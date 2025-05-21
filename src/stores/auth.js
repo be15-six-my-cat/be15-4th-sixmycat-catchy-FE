@@ -3,6 +3,11 @@ import { computed, ref } from 'vue';
 import { logout as logoutApi } from '@/api/member.js'; // 로그아웃 API 추가
 import { useDefaultProfileStore } from './defaultProfileStore.js'; // 프로필 상태 초기화 위해 추가
 
+/* 강사님 코드로 초기 구조 세팅 */
+export const useAuthStore = defineStore('auth', () => {
+  const accessToken = ref(null);
+  const expirationTime = ref(null);
+  const memberId = ref(null);
 export const useAuthStore = defineStore(
   'auth',
   () => {
@@ -79,6 +84,7 @@ export const useAuthStore = defineStore(
       logout,
       profileImage,
       setProfileImage,
+      memberId
     };
   },
   {

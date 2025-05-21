@@ -1,14 +1,28 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import FeedCard from '../components/FeedCard.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { usePagination } from '@/composable/usePagination.js';
 import { fetchFeedList } from '@/api/feed.js';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 
 const { items: feeds, loadMore, reset, hasNext, isLoading } = usePagination(fetchFeedList);
 
 const observer = ref(null);
 const lastCard = ref(null);
+
+const feedRefreshStore = useFeedRefreshStore();
+
+watch(
+  () => feedRefreshStore.needsRefresh,
+  async (shouldRefresh) => {
+    if (shouldRefresh) {
+      reset();
+      await loadMore();
+      feedRefreshStore.clearRefresh();
+    }
+  },
+);
 
 const observe = () => {
   // if (observer.value) observer.value.disconnect();

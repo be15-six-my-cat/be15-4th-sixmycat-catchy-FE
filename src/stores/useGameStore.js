@@ -5,8 +5,8 @@ import { ref } from 'vue';
 export const useGameStore = defineStore('game', () => {
   const selectedFiles = ref([]);
   const imageUrls = ref([]);
-  const resultTime = ref(null); // 걸린 시간 (초)
-  const gameStatus = ref(null); // 'success' | 'fail'
+  const resultTime = ref(24); // 걸린 시간 (초)
+  const gameStatus = ref('success'); // 'success' | 'fail'
 
   function setSelectedFiles(files) {
     selectedFiles.value = files;

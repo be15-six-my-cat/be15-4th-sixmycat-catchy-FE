@@ -10,15 +10,13 @@ export const createFeed = (data) =>
   });
 
 export const fetchFeedList = (params = { page: 0, size: 2 }) =>
-  api.get(
-    '/feeds',
-    { params },
-    {
-      headers: {
-        'X-USER-ID': 1,
-      },
+  api.get('/feeds', {
+    params,
+    headers: {
+      'X-USER-ID': 1,
     },
-  );
+  });
+
 export const fetchFeed = (feedId) =>
   api.get(`/feeds/${feedId}`, {
     headers: {

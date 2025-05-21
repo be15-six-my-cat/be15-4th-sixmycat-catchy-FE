@@ -5,7 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 
-const emit = defineEmits(['open-upload-modal']);
+const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
+
 function handleCreateClick() {
   emit('open-upload-modal');
 }
@@ -14,7 +15,7 @@ const navItems = [
   { label: '피드', icon: 'fas fa-home', path: '/feed' },
   { label: '쮸르', icon: 'fa-solid fa-circle-play', path: '/jjure' },
   { label: '게임', icon: 'fas fa-gamepad', path: '/game' },
-  { label: '알림', icon: 'fas fa-bell', path: '/notifications' },
+  { label: '알림', icon: 'fas fa-bell', type: 'noti-modal' },
   { label: '만들기', icon: 'fa-solid fa-square-plus', type: 'modal' },
 ];
 
@@ -47,11 +48,19 @@ watch([isAuthenticated, profileImage], ([auth, img]) => {}, { immediate: true })
           <i :class="item.icon" />
           <span>{{ item.label }}</span>
         </button>
+
+        <button
+          v-else-if="item.type === 'noti-modal'"
+          type="button"
+          class="nav-item"
+          @click="handleNotificationModal"
+        >
+          <i :class="item.icon" />
+          <span>{{ item.label }}</span>
+        </button>
       </li>
     </ul>
 
-    <!-- 기존 하단 고정 UI (수정 전 코드) -->
-    <!--
     <footer class="threads">
       <img
         src="https://cdn.pixabay.com/photo/2017/11/03/04/01/pets-2913316_1280.jpg"

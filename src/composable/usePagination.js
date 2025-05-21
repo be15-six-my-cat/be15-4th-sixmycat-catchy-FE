@@ -4,7 +4,7 @@ import { ref } from 'vue';
 export function usePagination(fetchFn) {
   const items = ref([]);
   const page = ref(0);
-  const size = ref(2);
+  const size = ref(3);
   const hasNext = ref(true);
   const isLoading = ref(false);
 
@@ -20,10 +20,9 @@ export function usePagination(fetchFn) {
       items.value.push(...content);
       hasNext.value = !last;
       page.value += 1;
+      isLoading.value = false;
     } catch (e) {
       console.error('페이지네이션 데이터 가져오기 실패', e);
-    } finally {
-      isLoading.value = false;
     }
   };
 

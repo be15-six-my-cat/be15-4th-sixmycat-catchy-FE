@@ -32,8 +32,14 @@
 
       <!-- 우측: 댓글/작성자 -->
       <div class="w-1/3 flex flex-col p-4 gap-4">
-        <FeedHeader v-if="feed" :author="feed.author" :createdAt="feed.createdAt" />
+        <FeedHeader
+          v-if="feed"
+          :author="feed.author"
+          :createdAt="feed.createdAt"
+          :mine="feed.mine"
+        />
         <span class="content">{{ feed?.content }}</span>
+        <CommentSection v-if="feed" :target-id="feed.id" target-type="FEED" />
       </div>
 
       <!-- 닫기 버튼 -->
@@ -49,7 +55,9 @@ import { fetchFeed } from '@/api/feed.js';
 
 import FeedCarousel from '../components/FeedCarousel.vue';
 import FeedHeader from '../components/FeedHeader.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { likeFeed, unLikeFeed } from '@/api/like.js';
 
 const feed = ref(null);
 const route = useRoute();
@@ -69,22 +77,30 @@ const close = () => {
 };
 
 const animateLike = ref(false);
-const toggleLike = () => {
-  if (liked.value) {
-    likeCount.value -= 1;
-  } else {
-    likeCount.value += 1;
+const toggleLike = async () => {
+  const payload = {
+    targetId: route.params.id, // ← 부모 컴포넌트에서 넘겨줘야 함
+    targetType: 'FEED',
+  };
+
+  try {
+    if (liked.value) {
+      await unLikeFeed(payload);
+      likeCount.value -= 1;
+    } else {
+      await likeFeed(payload);
+      likeCount.value += 1;
+    }
+    liked.value = !liked.value;
+
+    animateLike.value = true;
+    setTimeout(() => {
+      animateLike.value = false;
+    }, 200);
+  } catch (e) {
+    console.error('좋아요 처리 실패:', e);
   }
-  liked.value = !liked.value;
-
-  animateLike.value = true;
-  setTimeout(() => {
-    animateLike.value = false;
-  }, 200);
-
-  //API 호출
 };
-
 onMounted(async () => {
   const feedId = route.params.id;
   startLoading();
@@ -101,6 +117,6 @@ onMounted(async () => {
 
 <style scoped>
 .content {
-  @apply text-sm text-gray-800 px-4;
+  @apply text-sm text-gray-800 px-4 mb-4;
 }
 </style>
