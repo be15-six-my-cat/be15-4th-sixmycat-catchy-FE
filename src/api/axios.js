@@ -22,6 +22,7 @@ api.interceptors.response.use(
     return response;
   },
   async (err) => {
+    stopLoading();
     const authStore = useAuthStore();
     const { config, response } = err;
 

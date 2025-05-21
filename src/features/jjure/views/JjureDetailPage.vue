@@ -1,5 +1,5 @@
 <script setup></script>
 
-<template>Detaasdasdasdas</template>
+<template>Detail Page입니다.</template>
 
 <style scoped></style>

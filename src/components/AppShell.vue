@@ -4,7 +4,12 @@ import { useUploadStore } from '@/stores/uploadStore';
 import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
-import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
+import {
+  getPresignedUrl,
+  uploadFileToS3,
+  saveJjureMeta,
+  uploadThumbnailImage,
+} from '@/api/jjure.js';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { createFeed, uploadImages } from '@/api/feed.js';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
@@ -20,6 +25,7 @@ const imageFiles = ref([]);
 const videoUrl = ref('');
 const caption = ref('');
 const router = useRouter();
+const thumbnailBlob = ref(null); // 썸네일 Blob 저장
 
 const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
@@ -48,22 +54,31 @@ function handleFilesSelected(files) {
   }
 }
 
-// 업로드 처리 핸들러
+/* 쭈르 동영상 업로드 */
 async function handleUpload() {
   const file = uploadStore.selectedFile;
-  if (!file) return;
-
-  console.log(file);
+  console.log('1번째 file', file);
+  console.log('2번째 썸네일', thumbnailBlob.value);
+  if (!file || !thumbnailBlob.value) return;
 
   try {
-    const { presignedUrl, fileKey } = await getPresignedUrl(file.name, file.type);
     startLoading();
 
+    // 1. 썸네일 S3 업로드
+    console.log('2번째 썸네일 이미지', thumbnailBlob.value);
+    const thumbnailRes = await uploadThumbnailImage(thumbnailBlob.value);
+    const thumbnailUrl = thumbnailRes.data.data;
+
+    // 2. Presigned URL 발급
+    const { presignedUrl, fileKey } = await getPresignedUrl(file.name, file.type);
+
+    // 3. S3에 동영상 업로드
     await uploadFileToS3(presignedUrl, file);
 
-    await saveJjureMeta({ fileKey, caption: caption.value });
+    // 4. 메타데이터 저장 API 호출 (썸네일 포함)
+    await saveJjureMeta({ fileKey, caption: caption.value, imageUrl: thumbnailUrl });
 
-    showSuccessToast('쭈르 업로드에 성공했습니다!!');
+    showSuccessToast('쭈르 업로드에 성공했습니다!');
   } catch (error) {
     console.error('업로드 실패:', error);
     alert('업로드 중 오류가 발생했습니다.');
@@ -73,6 +88,7 @@ async function handleUpload() {
     videoUrl.value = '';
     caption.value = '';
     uploadStore.setFile(null);
+    thumbnailBlob.value = null;
   }
 }
 
@@ -116,6 +132,11 @@ async function handleFeedUpload() {
   }
 }
 
+const handleUpdateThumbnail = (blob) => {
+  console.log('썸네일 전달 받음:', blob);
+  thumbnailBlob.value = blob;
+};
+
 // 메모리 정리
 onUnmounted(() => {
   if (videoUrl.value) {
@@ -146,11 +167,11 @@ onUnmounted(() => {
       :imageUrls="imageUrls"
     />
 
-    <!-- 쭈르 업로드 모달 -->
     <JjureUploadModal
       v-if="showJjureUploadModal"
       :videoUrl="videoUrl"
       v-model:caption="caption"
+      @update:thumbnail="handleUpdateThumbnail"
       @close="showJjureUploadModal = false"
       @upload="handleUpload"
     />
