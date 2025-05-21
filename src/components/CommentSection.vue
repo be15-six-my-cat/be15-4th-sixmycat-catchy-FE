@@ -1,195 +1,129 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getComments, postComment, deleteComment } from '@/api/comment';
+
 dayjs.extend(relativeTime);
 
 const props = defineProps({
-  targetId: {
-    type: Number,
-    required: true,
-  },
-  targetType: {
-    type: String,
-    required: true,
-    validator: (value) => ['FEED', 'JJURE'].includes(value),
-  },
+  targetId: Number,
+  targetType: String,
 });
 
-const currentUser = 'Catchy';
-
-// 모든 게시글의 댓글 리스트 (더미)
-const comments = ref([
-  {
-    id: 1,
-    writer: 'day7s_official',
-    text: '너무 귀여워요! 😺',
-    createdAt: '2025-05-19 11:00:31',
-    targetId: 1,
-    targetType: 'FEED',
-    replies: [
-      {
-        id: 101,
-        writer: 'Catchy',
-        text: '@day7s_official 고마워요!',
-        createdAt: '2025-05-19 11:05:00',
-      },
-    ],
-    showReplies: false,
-  },
-  {
-    id: 2,
-    writer: 'hang.vintage',
-    text: '감사합니다!',
-    createdAt: '2025-05-19 11:03:00',
-    targetId: 2,
-    targetType: 'JJURE',
-    replies: [],
-    showReplies: false,
-  },
-  {
-    id: 3,
-    writer: 'meowlover',
-    text: '이 고양이 영상 어디서 볼 수 있나요?',
-    createdAt: '2025-05-19 11:10:00',
-    targetId: 1,
-    targetType: 'FEED',
-    replies: [
-      {
-        id: 102,
-        writer: 'Catchy',
-        text: '@meowlover 피드에서 확인할 수 있어요!',
-        createdAt: '2025-05-19 11:12:00',
-      },
-      {
-        id: 103,
-        writer: 'day7s_official',
-        text: '@meowlover 유튜브도 있어요!',
-        createdAt: '2025-05-19 11:15:00',
-      },
-    ],
-    showReplies: false,
-  },
-  {
-    id: 4,
-    writer: 'jellybean',
-    text: '쮸르 너무 맛있어 보여요!',
-    createdAt: '2025-05-19 11:20:00',
-    targetId: 2,
-    targetType: 'JJURE',
-    replies: [
-      {
-        id: 104,
-        writer: 'hang.vintage',
-        text: '@jellybean 감사합니다 😊',
-        createdAt: '2025-05-19 11:21:00',
-      },
-    ],
-    showReplies: false,
-  },
-  {
-    id: 5,
-    writer: 'catperson',
-    text: '쮸르 사러 갑니다~',
-    createdAt: '2025-05-19 11:30:00',
-    targetId: 2,
-    targetType: 'JJURE',
-    replies: [],
-    showReplies: false,
-  },
-]);
-
-const filteredComments = computed(() =>
-  comments.value.filter((c) => c.targetId === props.targetId && c.targetType === props.targetType),
-);
-
+const currentUserId = 1; // 로그인 유저 ID
+const comments = ref([]);
 const newComment = ref('');
 const replyingTo = ref(null);
 
-function addComment() {
+const fetchComments = async () => {
+  const { data } = await getComments(props.targetId, props.targetType, 1, 100);
+  const flatList = data.data.content;
+  flatList.forEach((c) => (c.showReplies = false)); // 반응성 보장
+  comments.value = flatList;
+};
+
+onMounted(fetchComments);
+
+const addComment = async () => {
   const text = newComment.value.trim();
   if (!text) return;
 
-  const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
-  const replyText = text;
+  await postComment(props.targetId, props.targetType, text, replyingTo.value, currentUserId);
+
   newComment.value = '';
+  replyingTo.value = null;
+  await fetchComments();
+};
 
-  if (replyingTo.value !== null) {
-    const parent = filteredComments.value.find((c) => c.id === replyingTo.value);
-    if (parent) {
-      parent.replies.push({
-        id: Date.now(),
-        writer: currentUser,
-        text: replyText,
-        createdAt: now,
-      });
-    }
-    replyingTo.value = null;
-  } else {
-    comments.value.push({
-      id: Date.now(),
-      writer: currentUser,
-      text: replyText,
-      createdAt: now,
-      targetId: props.targetId,
-      targetType: props.targetType,
-      replies: [],
-      showReplies: false,
-    });
+const deleteCommentHandler = async (commentId) => {
+  await deleteComment(commentId, props.targetType, currentUserId);
+  await fetchComments();
+};
+
+const handleReplyClick = (commentId, writer) => {
+  replyingTo.value = commentId;
+  newComment.value = writer ? `@${writer} ` : '';
+};
+
+const toggleReplies = (comment) => {
+  const index = comments.value.findIndex((c) => c.commentId === comment.commentId);
+  if (index === -1) {
+    console.warn(`⚠️ commentId ${comment.commentId} not found in comments`);
+    return;
   }
-}
 
-function handleReplyClick(parentId, replyWriter = null) {
-  replyingTo.value = parentId;
-  newComment.value = replyWriter ? `@${replyWriter} ` : '';
-}
+  // showReplies만 토글, replies는 filteredComments에서 계산
+  const updated = { ...comments.value[index] };
+  updated.showReplies = !updated.showReplies;
 
-function toggleReplies(comment) {
-  comment.showReplies = !comment.showReplies;
-}
+  // 교체
+  comments.value.splice(index, 1, updated);
 
-function formatMention(text) {
+  console.log(`🔁 toggled replies for commentId: ${comment.commentId}`);
+  console.log(`↪️ showReplies: ${updated.showReplies}`);
+};
+
+const formatMention = (text) => {
   return text.replace(/(@\S+)/g, '<span class="mention">$1</span>');
-}
+};
 
-function deleteComment(commentId) {
-  comments.value = comments.value.filter((c) => c.id !== commentId);
-}
+const filteredComments = computed(() => {
+  const root = [];
+  const map = {};
 
-function deleteReply(parentId, replyId) {
-  const parent = filteredComments.value.find((c) => c.id === parentId);
-  if (parent) {
-    parent.replies = parent.replies.filter((r) => r.id !== replyId);
-  }
-}
+  comments.value.forEach((c) => {
+    map[c.commentId] = {
+      ...c,
+      replies: c.replies || [],
+      showReplies: c.showReplies ?? false, // 반드시 포함시킴
+    };
+  });
+
+  comments.value.forEach((c) => {
+    if (c.parentCommentId) {
+      const parent = map[c.parentCommentId];
+      const child = map[c.commentId];
+      if (parent && child) {
+        parent.replies.push(child);
+      }
+    } else {
+      root.push(map[c.commentId]);
+    }
+  });
+
+  console.log('✅ computed root:', root);
+  console.log('📌 map:', map);
+
+  return root;
+});
 </script>
 
 <template>
-  <div class="w-[234px] h-[385px] border-none bg-white flex flex-col">
-    <!-- 스크롤 가능한 댓글 영역 -->
-    <div class="flex-1 overflow-y-auto p-2">
-      <div class="flex flex-col gap-4">
-        <div v-for="comment in filteredComments" :key="comment.id" class="text-sm">
+  <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col">
+    <!-- 스크롤 가능 한 댓글 영역-->
+    <div class="flex-1 overflow-y-auto p-4">
+      <div class="flex flex-col gap-6">
+        <div v-for="comment in filteredComments" :key="comment.commentId" class="text-sm">
           <div class="flex flex-col">
             <p class="flex items-center gap-2">
-              <strong class="text-[#3e2f2f] font-bold">{{ comment.writer }}</strong>
+              <strong class="text-xs text-[#3e2f2f] font-bold">{{ comment.nickname }}</strong>
               <span class="text-xs text-gray-400">{{ dayjs(comment.createdAt).fromNow() }}</span>
               <button
-                v-if="comment.writer === currentUser"
-                @click="deleteComment(comment.id)"
+                v-if="comment.memberId === currentUserId"
+                @click="deleteCommentHandler(comment.commentId)"
                 class="bg-none border-none text-gray-400 text-base leading-none px-1 ml-auto hover:text-red-500"
               >
                 ×
               </button>
             </p>
             <p
-              class="mt-0.5 text-[#555555] font-normal whitespace-pre-wrap"
-              v-html="formatMention(comment.text)"
+              class="mt-0.5 text-[#555555] font-normal text-sm whitespace-pre-wrap"
+              v-html="formatMention(comment.content)"
             ></p>
-
             <div class="flex gap-2 mt-1">
               <button
-                @click="handleReplyClick(comment.id, comment.writer)"
+                @click="handleReplyClick(comment.commentId, comment.nickname)"
                 class="bg-none border-none text-gray-400 text-xs cursor-pointer p-0 hover:underline"
               >
                 답글 달기
@@ -205,26 +139,25 @@ function deleteReply(parentId, replyId) {
           </div>
 
           <div v-if="comment.showReplies" class="ml-5 mt-2.5 flex flex-col gap-3">
-            <div v-for="reply in comment.replies" :key="reply.id">
+            <div v-for="reply in comment.replies" :key="reply.commentId">
               <p class="flex items-center gap-2">
-                <strong class="text-[#3e2f2f] font-bold">{{ reply.writer }}</strong>
+                <strong class="text-[#3e2f2f] text-xs font-bold">{{ reply.nickname }}</strong>
                 <span class="text-xs text-gray-400">{{ dayjs(reply.createdAt).fromNow() }}</span>
                 <button
-                  v-if="reply.writer === currentUser"
-                  @click="deleteReply(comment.id, reply.id)"
+                  v-if="reply.memberId === currentUserId"
+                  @click="deleteCommentHandler(reply.commentId)"
                   class="bg-none border-none text-gray-400 text-base leading-none px-1 ml-auto hover:text-red-500"
                 >
                   ×
                 </button>
               </p>
               <p
-                class="mt-0.5 text-[#555555] font-normal whitespace-pre-wrap"
-                v-html="formatMention(reply.text)"
+                class="mt-0.5 text-[#555555] text-sm font-normal whitespace-pre-wrap"
+                v-html="formatMention(reply.content)"
               ></p>
-
               <div class="flex gap-2 mt-1">
                 <button
-                  @click="handleReplyClick(comment.id, reply.writer)"
+                  @click="handleReplyClick(comment.commentId, reply.nickname)"
                   class="bg-none border-none text-gray-400 text-xs cursor-pointer p-0 hover:underline"
                 >
                   답글 달기
@@ -236,14 +169,14 @@ function deleteReply(parentId, replyId) {
       </div>
     </div>
 
-    <!-- 댓글 입력창 -->
+    <!-- 입력창 -->
     <div class="flex gap-2 px-2 py-3 border-t border-gray-300">
       <input
         v-model="newComment"
         type="text"
         placeholder="댓글 달기..."
         @keyup.enter="addComment"
-        class="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded"
+        class="flex-1 px-2 py-1.5 text-sm"
       />
       <button
         @click="addComment"
@@ -259,5 +192,7 @@ function deleteReply(parentId, replyId) {
 <style scoped>
 ::v-deep(.mention) {
   color: #ff5c8d;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 </style>
