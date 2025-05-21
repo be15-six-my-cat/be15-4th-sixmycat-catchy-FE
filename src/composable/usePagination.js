@@ -4,7 +4,7 @@ import { ref } from 'vue';
 export function usePagination(fetchFn) {
   const items = ref([]);
   const page = ref(0);
-  const size = ref(2);
+  const size = ref(3);
   const hasNext = ref(true);
   const isLoading = ref(false);
 
