@@ -7,8 +7,9 @@ import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
 import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { createFeed, uploadImages } from '@/api/feed.js';
-import { showSuccessToast } from '@/utills/toast.js';
+import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
@@ -19,7 +20,7 @@ const videoUrl = ref('');
 const caption = ref('');
 
 const uploadStore = useUploadStore();
-
+const feedRefreshStore = useFeedRefreshStore();
 // 파일 선택 핸들러
 function handleFilesSelected(files) {
   if (!files.length) return;
@@ -89,7 +90,8 @@ async function handleFeedUpload() {
 
     await createFeed(payload);
 
-    alert('피드 업로드 성공!');
+    showSuccessToast('피드 업로드에 성공했습니다!');
+    feedRefreshStore.triggerRefresh();
     showFeedUploadModal.value = false;
 
     imageFiles.value = [];
@@ -101,11 +103,11 @@ async function handleFeedUpload() {
     const errorCode = err.response?.data?.errorCode;
     console.log('errorCode=', errorCode);
     if (errorCode === '04004') {
-      alert('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^😺😺😺');
+      showErrorToast('강아지 이미지가 발견되었습니다. 고양이만 등록해주세요~^^😺😺😺');
     } else if (errorCode === '04005') {
-      alert('고양이가 없는 이미지가 발견되었습니다. 고양이를 등록해주세요~^^😺😺😺');
+      showErrorToast('고양이가 없는 이미지가 발견되었습니다. 고양이를 등록해주세요~^^😺😺😺');
     } else {
-      alert('피드 업로드 중 오류 발생');
+      showErrorToast('피드 업로드중 에러가 발생했습니다!');
     }
   }
 }
