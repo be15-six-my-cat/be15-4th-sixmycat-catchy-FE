@@ -10,6 +10,7 @@ import { createFeed, uploadImages } from '@/api/feed.js';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
+import { useRouter } from 'vue-router';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
@@ -18,6 +19,7 @@ const imageUrls = ref([]);
 const imageFiles = ref([]);
 const videoUrl = ref('');
 const caption = ref('');
+const router = useRouter();
 
 const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
@@ -91,8 +93,10 @@ async function handleFeedUpload() {
     await createFeed(payload);
 
     showSuccessToast('피드 업로드에 성공했습니다!');
+
     feedRefreshStore.triggerRefresh();
     showFeedUploadModal.value = false;
+    await router.push('/feed');
 
     imageFiles.value = [];
     imageUrls.value.forEach((url) => URL.revokeObjectURL(url));
