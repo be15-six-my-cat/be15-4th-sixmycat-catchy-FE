@@ -3,47 +3,49 @@ import { ref, onMounted, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getGameRanking } from '@/api/game.js';
 import { useGameStore } from '@/stores/useGameStore.js';
+import { showErrorToast } from '@/utills/toast.js';
+import { useAuthStore } from '@/stores/auth.js';
 
 const router = useRouter();
 const gameStore = useGameStore();
-const memberId = 1;
+const auth = useAuthStore();
 const limit = 10;
 
 const isFail = ref(false);
-const myScore = ref(null);
+const resultTime = ref(null);
+const bestScore = ref(null);
 const topPercentage = ref(null);
 const rankers = ref([]);
 
 onMounted(async () => {
   await nextTick();
 
-  if (gameStore.gameStatus == null) {
-    router.push('/game/start');
-    return;
-  }
+  // // 게임 상태 없으면 되돌리기
+  // if (gameStore.gameStatus == null) {
+  //   router.push('/game/start');
+  //   return;
+  // }
 
   isFail.value = gameStore.gameStatus === 'fail';
+  resultTime.value = gameStore.resultTime;
 
   try {
-    const response = await getGameRanking(memberId, limit);
+    const response = await getGameRanking(auth.memberId, limit);
     const data = response.data.data;
 
+    bestScore.value = data.myScore;
+    topPercentage.value = data.topPercentage;
     rankers.value = data.topRankers.sort((a, b) => a.score - b.score);
-
-    if (!isFail.value) {
-      myScore.value = gameStore.time;
-      topPercentage.value = data.topPercentage;
-    }
   } catch (err) {
     console.error('랭킹 조회 실패:', err);
-    alert('랭킹 조회에 실패했습니다.');
+    showErrorToast('랭킹 조회에 실패했다냥...ㅠ');
   }
 });
 
 const shareUrl = window.location.href;
 const shareText = ref('');
 
-watch(myScore, (score) => {
+watch(resultTime, (score) => {
   if (score !== null) {
     shareText.value = `내가 Catch Me! 게임에서 ${Math.floor(score / 1000)}초 기록! 너도 도전해봐!`;
   }
@@ -79,15 +81,26 @@ function getRankClass(rank, isMe) {
   <main class="ranking-container">
     <h1 class="ranking-title">Catch Me! 게임 랭킹</h1>
 
-    <section class="score-box">
-      <p class="my-score">
-        <strong>
-          {{ isFail ? '맞추기 실패ㅠㅠ' : '내 기록:' + Math.floor(myScore / 1000) + '초' }}
+    <section class="result-box">
+      <p class="result-text">
+        최신 기록: <strong>{{ Math.floor(resultTime / 1000) }}초</strong>
+      </p>
+      <p class="result-status">
+        결과:
+        <strong :class="isFail ? 'text-red-500' : 'text-green-500'">
+          {{ isFail ? '실패ㅠㅠ' : '성공!' }}
         </strong>
       </p>
-      <p class="percent-rank">
-        {{ isFail ? '아쉽다냥...' : '상위 ' + Math.round(topPercentage) + '%에 속합니다' }}
+    </section>
+
+    <section class="score-box">
+      <p class="my-score">
+        역대 최고 기록: <strong>{{ Math.floor(bestScore / 1000) }}초</strong>
       </p>
+      <p class="percent-rank" v-if="!isFail">
+        상위 <strong>{{ Math.round(topPercentage) }}%</strong>에 속합니다
+      </p>
+      <p class="percent-rank" v-else>아쉽다냥...</p>
       <div class="share-section">
         <button @click="shareTwitter" class="sns-btn twitter">X</button>
         <button @click="shareFacebook" class="sns-btn facebook">f</button>
@@ -99,13 +112,13 @@ function getRankClass(rank, isMe) {
       <li
         v-for="ranker in rankers"
         :key="ranker.rank"
-        :class="getRankClass(ranker.rank, !isFail && ranker.memberId == memberId)"
+        :class="getRankClass(ranker.rank, !isFail && ranker.id == auth.memberId)"
       >
         <div class="flex items-center gap-2">
           <i v-if="ranker.rank === 1" class="fas fa-crown text-yellow-400 text-[18px]" />
           <span class="rank-text">
             {{ ranker.rank }}위
-            <span v-if="!isFail && ranker.memberId == memberId" class="ml-1 text-pink-400 font-bold"
+            <span v-if="!isFail && ranker.id == auth.memberId" class="ml-1 text-pink-400 font-bold"
               >(나)</span
             >
           </span>
@@ -114,7 +127,7 @@ function getRankClass(rank, isMe) {
       </li>
     </ul>
 
-    <button class="restart-btn">다시 시작하기</button>
+    <button class="restart-btn" @click="router.push('/game/start')">다시 시작하기</button>
   </main>
 </template>
 
@@ -127,6 +140,18 @@ function getRankClass(rank, isMe) {
   @apply text-[22px] font-bold text-gray-600 mb-6;
 }
 
+.result-box {
+  @apply bg-white rounded-xl shadow px-6 py-5 max-w-[340px] w-full text-center mb-4;
+}
+
+.result-text {
+  @apply text-[14px] text-gray-600 mb-1;
+}
+
+.result-status {
+  @apply text-[16px] font-bold mb-1;
+}
+
 .score-box {
   @apply bg-white rounded-xl shadow px-6 py-5 max-w-[340px] w-full text-center mb-6;
 }
@@ -136,7 +161,7 @@ function getRankClass(rank, isMe) {
 }
 
 .percent-rank {
-  @apply text-[18px] font-bold text-gray-600 mb-3;
+  @apply text-[16px] font-bold text-gray-600 mb-3;
 }
 
 .percent-rank strong {
