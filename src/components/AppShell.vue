@@ -6,7 +6,6 @@ import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import NotificationModal from '@/features/notification/components/NotificationModal.vue';
-import { getPresignedUrl, uploadFileToS3, saveJjureMeta } from '@/api/jjure.js';
 import { createFeed, uploadImages } from '@/api/feed.js';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
