@@ -23,10 +23,14 @@ const router = createRouter({
 router.beforeEach((to) => {
   const authStore = useAuthStore();
 
-  // 인증이 필요한데 로그인 안 된 경우 → 알림 띄우고 /feed 리디렉션
+  // 인증이 필요한데 로그인 안 된 경우 → 알림 띄움
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     showErrorToast('로그인이 필요한 페이지입니다.');
-    return { path: '/feed' };
+
+    // 1초 후 /feed 로 이동
+    setTimeout(() => {
+      router.push('/feed');
+    }, 1000);
   }
 
   // 로그인된 사용자가 로그인/회원가입 페이지에 접근하면 메인으로

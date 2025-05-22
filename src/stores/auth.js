@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { logout as logoutApi } from '@/api/member.js';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
+import { showErrorToast } from '@/utills/toast.js';
 export const useAuthStore = defineStore(
   'auth',
   () => {
@@ -35,11 +36,10 @@ export const useAuthStore = defineStore(
       try {
         await logoutApi();
       } catch (err) {
-        console.error('로그아웃 실패:', err);
+        showErrorToast('로그아웃이 실패했습니다. 다시 시도해주세요.');
       } finally {
         clearAuth();
         useDefaultProfileStore().clearProfileImage();
-        location.reload();
       }
     }
 
