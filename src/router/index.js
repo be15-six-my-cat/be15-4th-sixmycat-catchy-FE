@@ -5,8 +5,9 @@ import { JjureRoutes } from '@/features/jjure/router.js';
 import gameRoutes from '@/features/game/router.js';
 import { FeedRoutes } from '@/features/feed/router.js';
 import { MemberRoutes } from '@/features/member/router.js';
-import profileRoutes from '@/features/profile/router';
 import { showErrorToast } from '@/utills/toast.js';
+import blockRoutes from '@/features/block/router';
+import profileRoutes from '@/features/profile/router';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,7 +15,14 @@ const router = createRouter({
     {
       path: '/',
       component: AppShell,
-      children: [...JjureRoutes, ...gameRoutes, ...FeedRoutes, ...profileRoutes, ...MemberRoutes],
+      children: [
+        ...JjureRoutes,
+        ...gameRoutes,
+        ...FeedRoutes,
+        ...profileRoutes,
+        ...MemberRoutes,
+        ...blockRoutes,
+      ],
     },
   ],
 });
