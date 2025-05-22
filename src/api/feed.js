@@ -4,9 +4,14 @@ export const uploadImages = (data) => api.post('/feed/images', data);
 
 export const createFeed = (data) => api.post('/feeds', data);
 
-export function fetchFeedList(page = 0, size = 2) {
-  return api.get('/feeds');
-}
+export const fetchFeedList = (page = 0, size = 5) => {
+  return api.get('/feeds', {
+    params: {
+      page: page - 1,
+      size,
+    },
+  });
+};
 
 export const fetchFeed = (feedId) => api.get(`/feeds/${feedId}`);
 
