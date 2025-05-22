@@ -37,6 +37,8 @@
           :author="feed.author"
           :createdAt="feed.createdAt"
           :mine="feed.mine"
+          @edit="handleEdit"
+          @delete="handleDelete"
         />
         <span class="content">{{ feed?.content }}</span>
         <CommentSection v-if="feed" :target-id="feed.id" target-type="FEED" />
@@ -51,19 +53,22 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchFeed } from '@/api/feed.js';
+import { deleteFeed, fetchFeed } from '@/api/feed.js';
 
 import FeedCarousel from '../components/FeedCarousel.vue';
 import FeedHeader from '../components/FeedHeader.vue';
 import CommentSection from '@/components/CommentSection.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { likeFeed, unLikeFeed } from '@/api/like.js';
+import { showSuccessToast } from '@/utills/toast.js';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 
 const feed = ref(null);
 const route = useRoute();
 const router = useRouter();
 const liked = ref(false);
 const likeCount = ref(0);
+const feedRefreshStore = useFeedRefreshStore();
 
 watch(feed, (newFeed) => {
   if (newFeed) {
@@ -113,6 +118,21 @@ onMounted(async () => {
     console.error('피드 조회 실패', e);
   }
 });
+
+const handleDelete = async () => {
+  const confirmDelete = confirm('정말 삭제하시겠습니까?');
+  if (!confirmDelete) return;
+
+  try {
+    await deleteFeed(feed.value.id);
+    showSuccessToast('삭제되었습니다.');
+    feedRefreshStore.triggerRefresh();
+    router.back();
+  } catch (e) {
+    console.error(e);
+    alert('삭제 중 오류 발생');
+  }
+};
 </script>
 
 <style scoped>
