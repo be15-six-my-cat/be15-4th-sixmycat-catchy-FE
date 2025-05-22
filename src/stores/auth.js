@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { logout as logoutApi } from '@/api/member.js';
+import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 export const useAuthStore = defineStore(
   'auth',
   () => {
@@ -37,7 +38,8 @@ export const useAuthStore = defineStore(
         console.error('로그아웃 실패:', err);
       } finally {
         clearAuth();
-        useDefaultProfileStore().$reset();
+        useDefaultProfileStore().clearProfileImage();
+        location.reload();
       }
     }
 
