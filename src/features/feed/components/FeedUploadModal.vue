@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
+import FeedCarousel from '@/features/feed/components/FeedCarousel.vue';
 
 const props = defineProps({
   imageUrls: { type: Array, required: true },
-  caption: { type: String, default: '' },
 });
 
 const currentIndex = ref(0);
+const caption = defineModel('caption');
 
 const next = () => {
   if (currentIndex.value < props.imageUrls.length - 1) {
@@ -19,29 +20,13 @@ const prev = () => {
   }
 };
 
-const emit = defineEmits(['close', 'upload', 'update:caption']);
+const emit = defineEmits(['close', 'upload']);
 </script>
 
 <template>
   <section class="overlay" @click.self="emit('close')">
     <article class="reel-modal">
-      <div class="image-preview relative">
-        <img :src="props.imageUrls[currentIndex]" class="preview-img" alt="preview" />
-        <button
-          v-if="props.imageUrls.length > 1"
-          @click="prev"
-          class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white px-2 py-1 rounded-full"
-        >
-          ◀
-        </button>
-        <button
-          v-if="props.imageUrls.length > 1"
-          @click="next"
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white px-2 py-1 rounded-full"
-        >
-          ▶
-        </button>
-      </div>
+      <FeedCarousel :images="props.imageUrls" />
 
       <!-- 설명 입력 -->
       <form class="reel-form" @submit.prevent="emit('upload')">
@@ -51,11 +36,9 @@ const emit = defineEmits(['close', 'upload', 'update:caption']);
             id="reel-caption"
             class="textarea"
             placeholder="피드 설명을 입력하세요"
-            :value="caption"
-            @input="emit('update:caption', $event.target.value)"
+            v-model="caption"
           ></textarea>
         </div>
-
         <button type="submit" class="submit-button">피드 업로드</button>
       </form>
     </article>
@@ -68,14 +51,6 @@ const emit = defineEmits(['close', 'upload', 'update:caption']);
 
 .reel-modal {
   @apply w-[860px] h-[560px] flex bg-white rounded-lg overflow-hidden shadow-elevated;
-}
-
-.image-preview {
-  @apply w-[560px] h-[560px] bg-black relative;
-}
-
-.preview-img {
-  @apply w-full h-full object-cover;
 }
 
 .reel-form {

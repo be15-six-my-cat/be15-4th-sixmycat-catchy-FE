@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import draggable from 'vuedraggable';
 
 const emit = defineEmits(['close', 'fileSelected']);
@@ -7,6 +7,12 @@ const inputRef = ref(null);
 const images = ref([]); // { file: File, url: string }
 const maxImages = 8;
 const isDragging = ref(false);
+const props = defineProps({
+  initialImages: {
+    type: Array,
+    default: () => [],
+  },
+});
 
 function openFileDialog() {
   inputRef.value?.click();
@@ -53,10 +59,23 @@ function confirmUpload() {
     alert('최소 1장의 이미지를 선택해주세요.');
     return;
   }
-  const files = images.value.map((i) => i.file);
-  emit('fileSelected', files);
+
+  const existingUrls = images.value.filter((i) => i.file === null).map((i) => i.url); // 기존 이미지
+
+  const files = images.value.filter((i) => i.file !== null).map((i) => i.file); // 새로 업로드한 이미지
+
+  emit('fileSelected', { existingUrls, files });
   emit('close');
 }
+
+onMounted(() => {
+  if (props.initialImages.length) {
+    images.value = props.initialImages.map((url) => ({
+      file: null,
+      url,
+    }));
+  }
+});
 </script>
 
 <template>
@@ -98,7 +117,11 @@ function confirmUpload() {
       >
         <template #item="{ element, index }">
           <li class="relative w-[80px] h-[80px] group">
-            <img :src="element.url" class="w-full h-full object-cover rounded block" />
+            <img
+              :src="element.url"
+              class="w-full h-full object-cover rounded block"
+              alt="upload-image"
+            />
             <button
               v-if="!isDragging"
               class="absolute top-0 right-0 bg-black/50 text-white w-5 h-5 flex justify-center items-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition"

@@ -1,6 +1,6 @@
 <template>
   <div class="feed-carousel">
-    <img :src="images[currentIndex]" @click="goToDetail" />
+    <img :src="images[currentIndex]" @click="goToDetail" alt="feed-image" />
 
     <!-- 왼쪽 화살표: 첫 번째 사진에서는 숨김 -->
     <button v-if="images.length > 1 && currentIndex > 0" @click="prev" class="prev">
@@ -47,7 +47,7 @@ const goToDetail = () => {
 
 <style scoped>
 .feed-carousel {
-  @apply relative w-full aspect-[5/4] overflow-hidden bg-black/5;
+  @apply relative w-full h-full max-w-[560px] max-h-[560px] aspect-[5/4] overflow-hidden bg-black/5;
 }
 
 .feed-carousel img {
