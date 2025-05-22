@@ -1,9 +1,8 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { fetchLikedFeedList, fetchMyFeedList } from '@/api/feed.js';
 import { fetchLikedJjureList, fetchMyJjureList } from '@/api/jjure.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
-import { data } from 'autoprefixer';
 
 const { selectedTab } = defineProps({
   selectedTab: String,
@@ -27,7 +26,7 @@ const fetchFn = async (page = 1) => {
       return;
     }
 
-    const { data } = await fetchFn({ page, size: 2 });
+    const { data } = await fetchFn({ page, size: 9 });
     return data;
   } catch (error) {
     console.log('API 오류:', error);
@@ -49,27 +48,20 @@ watch(
   () => {
     reset();
   },
-  { immediate: true },
 );
-
-onMounted(fetchFn);
 </script>
 
 <template>
-  <div class="flex flex-wrap justify-center w-[400px] gap-4 p-2">
+  <div class="justify-center w-[400px]">
     <div v-if="items.value === 0">데이터가 없습니다.</div>
     <template v-else>
       <div class="body-scroll" ref="scrollContainer">
         <div
           v-for="(item, index) in items"
           :key="index"
-          class="w-full sm:w-[48%] md:w-[30%] aspect-square overflow-hidden"
+          class="w-full sm:w-[48%] md:w-[30%] aspect-square overflow-hidden m-1"
         >
-          <img
-            :src="item.thumbnailUrl"
-            alt="'item.thumbnailUrl'"
-            class="w-full h-full object-cover"
-          />
+          <img :src="item.thumbnailUrl" alt="item.thumbnailUrl" class="object-cover" />
         </div>
       </div>
     </template>
@@ -78,6 +70,6 @@ onMounted(fetchFn);
 
 <style scoped>
 .body-scroll {
-  @apply overflow-y-auto space-y-1 max-h-[70vh];
+  @apply overflow-y-auto space-y-1 max-h-[70vh] flex flex-wrap;
 }
 </style>

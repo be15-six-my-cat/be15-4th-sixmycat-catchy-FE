@@ -17,7 +17,9 @@
         </div>
         <PetSlider v-if="user?.cats?.length" :pets="user.cats" />
         <FeedTabs v-model:selectedTab="selectedTab" />
-        <MyThumbnailList :selectedTab="selectedTab" />
+        <div class="flex justify-center">
+          <MyThumbnailList :selectedTab="selectedTab" />
+        </div>
       </div>
     </div>
   </div>
