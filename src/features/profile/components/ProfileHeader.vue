@@ -38,7 +38,7 @@
           >
           <span
             ><button class="follow-button" @click="handleGetFollowing">
-              팔로우 {{ user.follows?.followingCount ?? 0 }}
+              팔로잉 {{ user.follows?.followingCount ?? 0 }}
             </button></span
           >
         </div>
