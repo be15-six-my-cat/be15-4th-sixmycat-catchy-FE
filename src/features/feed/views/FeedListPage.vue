@@ -1,25 +1,26 @@
+<template>
+  <div
+    ref="scrollContainer"
+    class="flex flex-col gap-6 items-center p-6 max-h-[100vh] overflow-y-auto"
+  >
+    <router-view />
+    <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
+    <p v-if="isLoading" class="loading">불러오는 중...</p>
+    <p v-if="!isLoading && feeds.length === 0" class="empty">피드가 없습니다.</p>
+    <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
+  </div>
+</template>
+
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import FeedCard from '../components/FeedCard.vue';
-import { isLoading, startLoading } from '@/composable/useLoadingBar.js';
 import { fetchFeedList } from '@/api/feed.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
+import { startLoading, isLoading } from '@/composable/useLoadingBar.js';
 
 const scrollContainer = ref(null);
-
 const feedRefreshStore = useFeedRefreshStore();
-
-watch(
-  () => feedRefreshStore.needsRefresh,
-  async (shouldRefresh) => {
-    if (shouldRefresh) {
-      feedRefreshStore.clearRefresh();
-      reset();
-      await loadMore();
-    }
-  },
-);
 
 const fetchFn = async (page) => {
   try {
@@ -41,22 +42,21 @@ const {
   scrollTargetRef: scrollContainer,
 });
 
+watch(
+  () => feedRefreshStore.needsRefresh,
+  async (shouldRefresh) => {
+    if (shouldRefresh) {
+      feedRefreshStore.clearRefresh();
+      reset();
+      await loadMore();
+    }
+  },
+);
+
 onMounted(async () => {
   startLoading();
 });
 </script>
-
-<template>
-  <div>
-    <router-view />
-    <div ref="scrollContainer" class="flex flex-col gap-6 items-center p-6 max-h-[70vh]">
-      <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
-      <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
-    </div>
-    <p v-if="isLoading" class="loading">불러오는 중...</p>
-    <p v-if="!isLoading && feeds.length === 0" class="empty">피드가 없습니다.</p>
-  </div>
-</template>
 
 <style scoped>
 .loading {
