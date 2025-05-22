@@ -14,6 +14,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      redirect: '/feed',
       component: AppShell,
       children: [
         ...JjureRoutes,

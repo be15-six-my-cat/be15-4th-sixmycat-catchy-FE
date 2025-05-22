@@ -9,13 +9,11 @@ export const createFeed = (data) =>
     },
   });
 
-export const fetchFeedList = (params = { page: 0, size: 2 }) =>
-  api.get('/feeds', {
-    params,
-    headers: {
-      'X-USER-ID': 1,
-    },
+export function fetchFeedList(page = 0, size = 2) {
+  return api.get('/feeds', {
+    params: { page, size },
   });
+}
 
 export const fetchFeed = (feedId) =>
   api.get(`/feeds/${feedId}`, {
