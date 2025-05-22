@@ -39,7 +39,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import ProfileMenu from '../../profile/components/ProfileMenu.vue';
 
 const blockedUsers = ref([
   {
