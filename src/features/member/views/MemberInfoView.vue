@@ -1,24 +1,48 @@
 <script setup>
-import ProfileSide from '@/features/member/components/ProfileSide.vue';
-import ProfileMainInfo from '@/features/member/components/ProfileMainInfo.vue';
+import ProfileMenu from '@/features/profile/components/ProfileMenu.vue';
+import MemberInfoContent from '@/features/member/components/MemberInfoContent.vue';
 </script>
 
 <template>
-  <div class="content-frame">
-    <ProfileSide :s1="false" :s2="false" :s3="true" :s4="false" />
-    <ProfileMainInfo />
+  <div class="flex">
+    <ProfileMenu />
+
+    <div class="content-frame">
+      <div class="header-frame">
+        <span class="header-text">회원 정보</span>
+      </div>
+      <MemberInfoContent />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .content-frame {
-  height: 900px;
-  width: 950px;
-  padding: 40px;
+  height: 820px;
+  width: 605px;
+  padding-left: 40px;
+  padding-top: 20px;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.header-frame {
+  height: 31px;
+  width: 565px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-text {
+  color: #1e1e1e;
+  text-align: left;
+  vertical-align: text-top;
+  font-size: 24px;
+  font-family: Anuphan;
+  line-height: 1.5;
+  font-weight: bold;
+  outline: none;
+  width: 565px;
 }
 </style>
