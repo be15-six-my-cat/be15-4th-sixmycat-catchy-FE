@@ -13,7 +13,7 @@ export function usePagination(fetchFn) {
 
     isLoading.value = true;
     try {
-      const response = await fetchFn({ page: page.value, size: size.value });
+      const response = await fetchFn(page.value, size.value);
       const { content, last } = response.data.data;
       console.log(content);
 
