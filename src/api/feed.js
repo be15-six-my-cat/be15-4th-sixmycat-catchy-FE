@@ -24,6 +24,11 @@ export const fetchFeed = (feedId) =>
     },
   });
 
+export const editFeed = (feedId, data) =>
+  api.put(`/feeds/${feedId}`, data, {
+    headers: { 'X-USER-ID': 1 },
+  });
+
 export const deleteFeed = (feedId) =>
   api.delete(`/feeds/${feedId}`, {
     headers: { 'X-USER-ID': 1 },
