@@ -47,7 +47,7 @@ export const fetchMyFeedList = (params = { page: 0, size: 2 }) =>
 
 /* 내가 좋아요한 피드 썸네일 목록 조회 */
 export const fetchLikedFeedList = (params = { page: 0, size: 2 }) =>
-  api.get('/feeds/me', {
+  api.get('/feeds/likes', {
     params,
     headers: {
       'X-USER-ID': 1,

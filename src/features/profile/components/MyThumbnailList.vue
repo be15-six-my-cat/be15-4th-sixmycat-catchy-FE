@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { fetchLikedFeedList, fetchMyFeedList } from '@/api/feed.js';
 import { fetchLikedJjureList, fetchMyJjureList } from '@/api/jjure.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
+import { data } from 'autoprefixer';
 
 const { selectedTab } = defineProps({
   selectedTab: String,
@@ -26,15 +27,19 @@ const fetchFn = async (page = 1) => {
       return;
     }
 
-    const res = await fetchFn({ page, size: 2 });
-    items.value = res.data.data.content;
+    const { data } = await fetchFn({ page, size: 2 });
+    return data;
   } catch (error) {
     console.log('API 오류:', error);
     items.value = [];
   }
 };
 
-const { items: items, isLastPage } = useInfiniteScroll({
+const {
+  items: items,
+  isLastPage,
+  reset,
+} = useInfiniteScroll({
   fetchFn,
   scrollTargetRef: scrollContainer,
 });
@@ -42,7 +47,7 @@ const { items: items, isLastPage } = useInfiniteScroll({
 watch(
   () => selectedTab,
   () => {
-    fetchFn();
+    reset();
   },
   { immediate: true },
 );
@@ -51,7 +56,7 @@ onMounted(fetchFn);
 </script>
 
 <template>
-  <div class="flex flex-wrap justify-center w-full gap-4 p-12">
+  <div class="flex flex-wrap justify-center w-[400px] gap-4 p-2">
     <div v-if="items.value === 0">데이터가 없습니다.</div>
     <template v-else>
       <div class="body-scroll" ref="scrollContainer">

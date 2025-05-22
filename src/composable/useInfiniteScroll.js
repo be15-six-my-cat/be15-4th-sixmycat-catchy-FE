@@ -12,8 +12,6 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     try {
       isLoading.value = true;
       const wrapper = await fetchFn(1);
-      console.log('래퍼');
-      console.log(wrapper);
       items.value = wrapper.data.content;
       curPage.value = wrapper.data.currentPage + 1;
       totalPage.value = wrapper.data.totalPages;
@@ -60,9 +58,18 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     scrollTargetRef.value?.removeEventListener('scroll', handleScroll);
   });
 
+  const reset = async () => {
+    curPage.value = 1;
+    totalPage.value = 1;
+    items.value = [];
+    isLastPage.value = false;
+    await fetchInitial();
+  };
+
   return {
     items,
     isLoading,
     isLastPage,
+    reset, // 외부에서 호출 가능하도록
   };
 }
