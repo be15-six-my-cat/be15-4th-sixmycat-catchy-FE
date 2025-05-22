@@ -43,7 +43,7 @@ const { items: members, isLastPage } = useInfiniteScroll({
       </div>
       <div class="modal-body">
         <div class="body-scroll" ref="scrollContainer">
-          <FollowMemberList :members="members" />
+          <FollowMemberList :members="members" :isFollowing="isFollowing" />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center pt-2 pb-4">catchy</div>
         </div>
       </div>

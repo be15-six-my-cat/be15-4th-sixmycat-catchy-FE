@@ -22,3 +22,15 @@ export function getFollower(page = 1, size = 2) {
     },
   });
 }
+
+/* todo : 팔로우 요청 */
+
+/* 팔로잉 취소 */
+export function unfollow(memberId) {
+  return api.delete(`/follows/${memberId}/cancel`);
+}
+/* 팔로워 취소 */
+export function deleteFollower(memberId) {
+  // todo : api 추가
+  // return api.delete(`/follows/${memberId}/cancel`);
+}

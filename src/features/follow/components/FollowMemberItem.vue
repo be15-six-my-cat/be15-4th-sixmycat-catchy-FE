@@ -1,10 +1,15 @@
 <script setup>
 import defaultProfileImage from '@/assets/default_images/01_cat.png';
+import { deleteFollower, unfollow } from '@/api/follow.js';
 
-const { member } = defineProps({
+const { member, isFollowing } = defineProps({
   member: {
     type: Object,
     required: true,
+  },
+  isFollowing: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -13,14 +18,11 @@ function goToProfile() {
 }
 
 const deleteFollow = async (memberId) => {
-  // try {
-  //   const res = await /* todo : api 추가*/
-  //   if (res.status === 200) {
-  //     emit('follow-deleted', memberId)
-  //   }
-  // } catch (err) {
-  //   console.error('팔로우 취소 실패:', err)
-  // }
+  try {
+    await (isFollowing ? unfollow(memberId) : deleteFollower(memberId));
+  } catch (err) {
+    console.error('팔로우 취소 실패:', err);
+  }
 };
 </script>
 
@@ -49,7 +51,7 @@ const deleteFollow = async (memberId) => {
 </template>
 
 <style scoped>
-/*.profile-image {
+.profile-image {
   @apply w-12 h-12 rounded-full;
-}*/
+}
 </style>
