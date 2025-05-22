@@ -5,6 +5,7 @@ import { startLoading } from '@/composable/useLoadingBar.js';
 import { usePagination } from '@/composable/usePagination.js';
 import { fetchFeedList } from '@/api/feed.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
+import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
 
 const { items: feeds, loadMore, reset, hasNext, isLoading } = usePagination(fetchFeedList);
 
@@ -49,11 +50,14 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (observer.value) observer.value.disconnect();
 });
+
+const selectedTab = ref('MyFeed');
 </script>
 
 <template>
   <div class="flex flex-col gap-6 items-center p-6">
     <router-view />
+    <MyThumbnailList :selectedTab="selectedTab" />
     <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
     <p v-if="isLoading" class="loading">불러오는 중...</p>
     <p v-if="!isLoading && feeds.length === 0" class="empty">피드가 없습니다.</p>
