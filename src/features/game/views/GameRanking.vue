@@ -51,15 +51,33 @@ watch(resultTime, (score) => {
   }
 });
 
-function shareTwitter() {
-  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText.value)}&url=${encodeURIComponent(shareUrl)}`;
-  window.open(url, '_blank');
-}
+const shareKakao = () => {
+  if (!window.Kakao.isInitialized()) {
+    window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+  }
 
-function shareFacebook() {
-  const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-  window.open(url, '_blank');
-}
+  window.Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: shareText.value,
+      description: 'CATCHY에서 작성된 내용입니다.',
+      imageUrl: '',
+      link: {
+        mobileWebUrl: '',
+        webUrl: '',
+      },
+    },
+    buttons: [
+      {
+        title: '내용 보기',
+        link: {
+          mobileWebUrl: '',
+          webUrl: '',
+        },
+      },
+    ],
+  });
+};
 
 function copyLink() {
   navigator.clipboard.writeText(shareUrl).then(() => {
@@ -102,8 +120,7 @@ function getRankClass(rank, isMe) {
       </p>
       <p class="percent-rank" v-else>아쉽다냥...</p>
       <div class="share-section">
-        <button @click="shareTwitter" class="sns-btn twitter">X</button>
-        <button @click="shareFacebook" class="sns-btn facebook">f</button>
+        <button @click="shareKakao" class="sns-btn kakao">k</button>
         <button @click="copyLink" class="sns-btn link">🔗</button>
       </div>
     </section>
@@ -176,12 +193,8 @@ function getRankClass(rank, isMe) {
   @apply w-9 h-9 rounded-full text-white font-bold flex items-center justify-center cursor-pointer transition;
 }
 
-.twitter {
-  @apply bg-blue-400 hover:bg-blue-500;
-}
-
-.facebook {
-  @apply bg-blue-700 hover:bg-blue-800;
+.kakao {
+  @apply bg-yellow-300 hover:bg-yellow-400 text-black;
 }
 
 .link {
