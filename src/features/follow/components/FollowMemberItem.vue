@@ -20,6 +20,7 @@ function goToProfile() {
 const deleteFollow = async (memberId) => {
   try {
     await (isFollowing ? unfollow(memberId) : deleteFollower(memberId));
+    window.location.reload();
   } catch (err) {
     console.error('팔로우 취소 실패:', err);
   }

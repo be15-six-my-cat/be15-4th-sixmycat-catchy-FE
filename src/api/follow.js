@@ -31,6 +31,5 @@ export function unfollow(memberId) {
 }
 /* 팔로워 취소 */
 export function deleteFollower(memberId) {
-  // todo : api 추가
-  // return api.delete(`/follows/${memberId}/cancel`);
+  return api.delete(`/follows/${memberId}/reject`);
 }
