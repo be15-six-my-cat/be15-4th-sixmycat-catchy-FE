@@ -52,11 +52,13 @@ const navItems = [
     </ul>
 
     <footer class="threads">
-      <img
-        src="https://cdn.pixabay.com/photo/2017/11/03/04/01/pets-2913316_1280.jpg"
-        alt="프로필"
-      />
-      <span>프로필</span>
+      <RouterLink to="/profile" class="flex items-center gap-2">
+        <img
+          src="https://cdn.pixabay.com/photo/2017/11/03/04/01/pets-2913316_1280.jpg"
+          alt="프로필"
+        />
+        <span>프로필</span>
+      </RouterLink>
     </footer>
   </nav>
 </template>
