@@ -3,7 +3,7 @@ const props = defineProps({
   title: String,
   text: String,
   modelValue: String,
-  readonly: { type: Boolean, default: false }
+  readonly: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -40,31 +40,29 @@ const emit = defineEmits(['update:modelValue']);
   font-family: Assistant;
 }
 
-.text-frame
-{
-  background-color:#ffffff;
-  height:40px;
-  width:337px;
-  border-radius:8px;
-  padding-left:11px;
-  padding-right:11px;
-  padding-top:9px;
-  padding-bottom:9px;
-  display:flex;
-  flex-direction:column;
-  border: 1.5px solid #CCCCCC;
+.text-frame {
+  background-color: #ffffff;
+  height: 40px;
+  width: 337px;
+  border-radius: 8px;
+  padding-left: 11px;
+  padding-right: 11px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid #cccccc;
 }
 
-
 .text {
-  color:#757575;
-  text-align:left;
-  vertical-align:text-top;
-  font-size:14px;
-  font-family:Assistant;
-  line-height:1.5;
-  border-style:hidden;
-  outline:none;
-  width:315px;
+  color: #757575;
+  text-align: left;
+  vertical-align: text-top;
+  font-size: 14px;
+  font-family: Assistant;
+  line-height: 1.5;
+  border-style: hidden;
+  outline: none;
+  width: 315px;
 }
 </style>

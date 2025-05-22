@@ -99,6 +99,15 @@ const submitSignup = async () => {
     showSuccessToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
   }
 };
+
+const handleContactInput = (e) => {
+  const raw = e.target.value.replace(/\D/g, ''); // 숫자만 추출
+  contactNumber.value = raw.slice(0, 11); // 최대 11자리 제한
+};
+
+const handleNicknameInput = (e) => {
+  nickname.value = e.target.value.slice(0, 20);
+};
 </script>
 
 <template>
@@ -149,8 +158,14 @@ const submitSignup = async () => {
         text="- 없이 전화번호를 입력해주세요 (후에 수정 불가)"
         v-model="contactNumber"
         :readonly="contactReadonly"
+        @input="handleContactInput"
       />
-      <Input title="닉네임" text="영어, 숫자, 특수문자 (., _, ^)만 가능합니다" v-model="nickname" />
+      <Input
+        title="닉네임"
+        text="영어, 숫자, 특수문자 (., _, ^)만 가능합니다"
+        v-model="nickname"
+        @input="handleNicknameInput"
+      />
     </div>
   </div>
 </template>

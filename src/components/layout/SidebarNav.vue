@@ -72,7 +72,7 @@ function handleLogout() {
     <!-- 👇 수정된 로그인 상태 반영 코드 시작 -->
     <footer class="threads" v-if="isAuthenticated">
       <img :src="profileImage" alt="프로필" />
-      <RouterLink to="/profile">{{ nickname }}</RouterLink>
+      <RouterLink to="/profile" class="hover:text-[#FF5C8D]">{{ nickname }}</RouterLink>
       <span class="logout" @click="handleLogout">로그아웃</span>
     </footer>
 
@@ -103,12 +103,16 @@ function handleLogout() {
 }
 
 .threads {
-  @apply font-bold text-sm text-gray-700 flex items-center justify-center gap-2 pb-4;
+  @apply font-bold text-sm text-gray-700 flex justify-center flex-wrap gap-2 pb-4;
+  align-items: flex-start; /* 또는 items-start */
+  width: 100%;
+  text-align: center;
 }
 .threads img {
   @apply w-6 h-6 rounded-full;
 }
 .logout {
   @apply text-red-500 cursor-pointer;
+  white-space: nowrap;
 }
 </style>

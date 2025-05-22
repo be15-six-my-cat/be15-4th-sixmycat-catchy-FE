@@ -2,12 +2,15 @@
 import { ref, onMounted, computed } from 'vue';
 import { fetchMyProfile } from '@/api/member.js';
 import MemberInfoItem from '@/features/member/components/MemberInfoItem.vue';
-import { startLoading, stopLoading } from '@/composable/useLoadingBar.js'; // 경로 확인
+import RedButton from '@/features/member/components/RedButton.vue';
+import DeleteMemModal from '@/features/member/components/DeleteMemModal.vue';
+import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
 const name = ref('');
 const contactNumber = ref('');
 const email = ref('');
 const social = ref('');
+const isModalOpen = ref(false);
 
 const SOCIAL_LABELS = {
   KAKAO: '카카오',
@@ -24,10 +27,8 @@ const formattedContactNumber = computed(() =>
 onMounted(async () => {
   try {
     startLoading();
-
     const res = await fetchMyProfile();
     const data = res.data.data;
-
     name.value = data.name;
     contactNumber.value = data.contactNumber;
     email.value = data.email;
@@ -35,7 +36,7 @@ onMounted(async () => {
   } catch (err) {
     console.error('프로필 정보 가져오기 실패:', err);
   } finally {
-    stopLoading(); // 무조건 로딩 종료
+    stopLoading();
   }
 });
 </script>
@@ -46,6 +47,9 @@ onMounted(async () => {
     <MemberInfoItem title="전화번호" :content="formattedContactNumber" />
     <MemberInfoItem title="이메일" :content="email" />
     <MemberInfoItem title="소셜 로그인" :content="socialLabel" />
+
+    <RedButton @click="isModalOpen = true">탈퇴하기</RedButton>
+    <DeleteMemModal :visible="isModalOpen" @close="isModalOpen = false" />
   </div>
 </template>
 
