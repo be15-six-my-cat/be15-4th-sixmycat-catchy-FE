@@ -1,16 +1,12 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import FeedCard from '../components/FeedCard.vue';
-import { startLoading } from '@/composable/useLoadingBar.js';
-import { usePagination } from '@/composable/usePagination.js';
+import { isLoading, startLoading } from '@/composable/useLoadingBar.js';
 import { fetchFeedList } from '@/api/feed.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
-import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
+import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
-const { items: feeds, loadMore, reset, hasNext, isLoading } = usePagination(fetchFeedList);
-
-const observer = ref(null);
-const lastCard = ref(null);
+const scrollContainer = ref(null);
 
 const feedRefreshStore = useFeedRefreshStore();
 
@@ -18,44 +14,45 @@ watch(
   () => feedRefreshStore.needsRefresh,
   async (shouldRefresh) => {
     if (shouldRefresh) {
+      feedRefreshStore.clearRefresh();
       reset();
       await loadMore();
-      feedRefreshStore.clearRefresh();
     }
   },
 );
 
-const observe = () => {
-  // if (observer.value) observer.value.disconnect();
-  // observer.value = new IntersectionObserver(
-  //   async ([entry]) => {
-  //     if (entry.isIntersecting && hasNext.value && !isLoading.value) {
-  //       await loadMore();
-  //     }
-  //   },
-  //   { threshold: 1.0 },
-  // );
-  //
-  // if (lastCard.value) {
-  //   observer.value.observe(lastCard.value);
-  // }
+const fetchFn = async (page) => {
+  try {
+    startLoading();
+    const { data } = await fetchFeedList(page);
+    return data;
+  } catch (e) {
+    console.log(e + '피드 목록 초기 로드 실패');
+  }
 };
+
+const {
+  items: feeds,
+  loadMore,
+  reset,
+  isLastPage,
+} = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef: scrollContainer,
+});
 
 onMounted(async () => {
   startLoading();
-  await loadMore();
-  observe();
-});
-
-onBeforeUnmount(() => {
-  if (observer.value) observer.value.disconnect();
 });
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 items-center p-6">
+  <div>
     <router-view />
-    <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
+    <div ref="scrollContainer" class="flex flex-col gap-6 items-center p-6 max-h-[70vh]">
+      <FeedCard v-for="feed in feeds" :key="feed.id" :feed="feed" />
+      <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
+    </div>
     <p v-if="isLoading" class="loading">불러오는 중...</p>
     <p v-if="!isLoading && feeds.length === 0" class="empty">피드가 없습니다.</p>
   </div>
