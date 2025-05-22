@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { logout as logoutApi } from '@/api/member.js';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 import { showErrorToast } from '@/utills/toast.js';
+
 export const useAuthStore = defineStore(
   'auth',
   () => {
