@@ -11,6 +11,10 @@ function handleCreateClick() {
   emit('open-upload-modal');
 }
 
+function handleNotificationModal() {
+  emit('open-notification-modal');
+}
+
 const navItems = [
   { label: '피드', icon: 'fas fa-home', path: '/feed' },
   { label: '쮸르', icon: 'fa-solid fa-circle-play', path: '/jjure' },
