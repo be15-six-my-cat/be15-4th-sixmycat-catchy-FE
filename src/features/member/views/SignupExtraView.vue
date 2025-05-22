@@ -100,6 +100,14 @@ const submitSignup = async () => {
 
 <template>
   <div class="main-frame">
+    <div class="signup-button-frame">
+      <BasicButton
+        text="회원가입 하기"
+        backgroundColor="#ff5c8d"
+        textColor="#ffffff"
+        @click="submitSignup"
+      />
+    </div>
     <!-- 프로필 이미지 및 아이콘 -->
     <div class="profile-frame">
       <img
@@ -142,14 +150,9 @@ const submitSignup = async () => {
       <Input title="닉네임" text="영어 및 특수문자" v-model="nickname" />
     </div>
 
-    <div class="signup-button-frame">
-      <BasicButton
-        text="회원가입 하기"
-        backgroundColor="#ff5c8d"
-        textColor="#ffffff"
-        @click="submitSignup"
-      />
-    </div>
+
+
+
   </div>
 </template>
 
