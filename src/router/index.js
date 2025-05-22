@@ -5,12 +5,9 @@ import { JjureRoutes } from '@/features/jjure/router.js';
 import gameRoutes from '@/features/game/router.js';
 import { FeedRoutes } from '@/features/feed/router.js';
 import { MemberRoutes } from '@/features/member/router.js';
-import profileRoutes from '@/features/profile/router';
-import { showErrorToast } from '@/utills/toast.js';
 import { showErrorToast } from '@/utills/toast.js';
 import blockRoutes from '@/features/block/router';
 import profileRoutes from '@/features/profile/router';
-import { showErrorToast } from '@/utills/toast.js';
 
 const router = createRouter({
   history: createWebHistory(),
