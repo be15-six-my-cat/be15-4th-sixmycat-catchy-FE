@@ -55,22 +55,31 @@ onMounted(async () => {
     return;
   }
 
-  try {
-    const res = await getTempMemberInfo(email, social.toUpperCase());
-    const data = res.data.data;
+  const submitSignup = async () => {
+    startLoading();
+    try {
+      const formData = new FormData();
+      formData.append('name', name.value);
+      formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
+      formData.append('nickname', nickname.value);
+      formData.append('email', email);
+      formData.append('social', social.toUpperCase());
 
-    if (data.name) {
-      name.value = data.name;
-      nameReadonly.value = true;
+      if (profileImage.value) {
+        formData.append('profileImage', profileImage.value);
+      }
+
+      const { data } = await socialSignupExtra(formData);
+
+      showSuccessToast('Catchy에 오신 것을 환영합니다!');
+      router.push('/feed');
+    } catch (error) {
+      const { errorCode, message } = error.response?.data ?? {};
+      showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
+    } finally {
+      stopLoading(); // 항상 실행됨
     }
-    if (data.contactNumber) {
-      contactNumber.value = data.contactNumber;
-      contactReadonly.value = true;
-    }
-  } catch (err) {
-    showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
-    router.push('/member/start');
-  }
+  };
 });
 
 // 회원가입 제출
@@ -79,7 +88,7 @@ const submitSignup = async () => {
     startLoading();
     const formData = new FormData();
     formData.append('name', name.value);
-    formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
+    formData.append('contactNumber', contactNumber.value);
     formData.append('nickname', nickname.value);
     formData.append('email', email);
     formData.append('social', social.toUpperCase());
@@ -91,13 +100,21 @@ const submitSignup = async () => {
     const { data } = await socialSignupExtra(formData);
 
     showSuccessToast('Catchy에 오신 것을 환영합니다!');
-    defaultProfileStore.clearProfileImage();
     router.push('/feed');
     stopLoading();
   } catch (error) {
     const { errorCode, message } = error.response?.data ?? {};
     showSuccessToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
   }
+};
+
+const handleContactInput = (e) => {
+  const raw = e.target.value.replace(/\D/g, ''); // 숫자만 추출
+  contactNumber.value = raw.slice(0, 11); // 최대 11자리 제한
+};
+
+const handleNicknameInput = (e) => {
+  nickname.value = e.target.value.slice(0, 20);
 };
 </script>
 
@@ -149,8 +166,14 @@ const submitSignup = async () => {
         text="- 없이 전화번호를 입력해주세요 (후에 수정 불가)"
         v-model="contactNumber"
         :readonly="contactReadonly"
+        @input="handleContactInput"
       />
-      <Input title="닉네임" text="영어, 숫자, 특수문자 (., _, ^)만 가능합니다" v-model="nickname" />
+      <Input
+        title="닉네임"
+        text="영어, 숫자, 특수문자 (., _, ^)만 가능합니다"
+        v-model="nickname"
+        @input="handleNicknameInput"
+      />
     </div>
   </div>
 </template>

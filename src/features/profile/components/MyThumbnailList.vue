@@ -53,7 +53,9 @@ watch(
 
 <template>
   <div class="justify-center w-[400px]">
-    <div v-if="items.value === 0">데이터가 없습니다.</div>
+    <div v-if="items.length === 0" class="text-gray-400 text-sm text-center py-2">
+      데이터가 없습니다.
+    </div>
     <template v-else>
       <div class="body-scroll" ref="scrollContainer">
         <div

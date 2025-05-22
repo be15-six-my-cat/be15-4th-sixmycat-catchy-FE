@@ -12,7 +12,7 @@ import router from './router/index.js';
 
 import { useAuthStore } from '@/stores/auth.js';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
-import { fetchMyProfile } from '@/api/member.js'; // 프로필 조회 API
+import { fetchMyProfile, reissueAccessToken } from '@/api/member.js'; // ✅ refresh API import
 
 async function bootstrap() {
   const app = createApp(App);
@@ -24,6 +24,17 @@ async function bootstrap() {
   const authStore = useAuthStore();
   const defaultProfileStore = useDefaultProfileStore();
 
+  // 새로고침 시 refreshToken으로 accessToken 복구 시도
+  try {
+    const resp = await reissueAccessToken(); // 백엔드에 쿠키로 전송됨
+    // 초기화: accessToken 복구 완료'
+    authStore.setAuth(resp.data.data.accessToken);
+  } catch (e) {
+    // 초기화: refresh 실패 → 로그아웃 상태 유지'
+    authStore.clearAuth();
+  }
+
+  // accessToken이 있을 경우 프로필 정보 동기화
   watch(
     () => authStore.accessToken,
     async (token) => {
@@ -33,7 +44,7 @@ async function bootstrap() {
           const profileData = res.data.data ?? {};
           const { profileImage, nickname } = profileData;
 
-          defaultProfileStore.setProfileImage(profileImage); // null이면 랜덤 이미지 설정됨
+          defaultProfileStore.setProfileImage(profileImage);
           defaultProfileStore.setNickname(nickname);
         } catch (e) {
           console.warn('프로필 이미지 설정 실패:', e);

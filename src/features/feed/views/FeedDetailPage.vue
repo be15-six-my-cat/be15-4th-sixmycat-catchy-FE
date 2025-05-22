@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-    <div class="bg-white w-[90%] max-w-5xl h-[70%] rounded-xl flex overflow-hidden relative">
+    <div class="bg-white w-[75%] max-w-5xl h-[65%] rounded-xl flex overflow-hidden relative">
       <!-- 좌측: 이미지 -->
       <div class="w-2/3 bg-black relative flex items-center justify-center">
         <FeedCarousel v-if="feed" :images="feed.imageUrls" />
@@ -24,9 +24,11 @@
             <i class="fa-regular fa-comment"></i>
             <span>{{ feed?.commentCount }}</span>
           </button>
-          <button class="flex flex-col items-center opacity-80 hover:opacity-100">
-            <i class="fa-solid fa-share-nodes"></i>
-          </button>
+          <ShareDropdown
+            :shareUrl="`https://catchy.site/feed`"
+            :shareText="caption"
+            :shareImage="feed?.imageUrls[0]"
+          />
         </div>
       </div>
 
@@ -78,6 +80,7 @@ import { showSuccessToast } from '@/utills/toast.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
+import ShareDropdown from '@/components/ShareDropdown.vue';
 
 const feed = ref(null);
 const route = useRoute();
