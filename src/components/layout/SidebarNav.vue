@@ -1,5 +1,9 @@
 <script setup>
+import { watch } from 'vue';
 import { RouterLink } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 
 const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
 
@@ -18,6 +22,12 @@ const navItems = [
   { label: '알림', icon: 'fas fa-bell', type: 'noti-modal' },
   { label: '만들기', icon: 'fa-solid fa-square-plus', type: 'modal' },
 ];
+
+const authStore = useAuthStore();
+const { isAuthenticated } = storeToRefs(authStore);
+
+const defaultProfileStore = useDefaultProfileStore();
+const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
 </script>
 
 <template>
@@ -51,15 +61,17 @@ const navItems = [
       </li>
     </ul>
 
-    <footer class="threads">
-      <RouterLink to="/profile" class="flex items-center gap-2">
-        <img
-          src="https://cdn.pixabay.com/photo/2017/11/03/04/01/pets-2913316_1280.jpg"
-          alt="프로필"
-        />
-        <span>프로필</span>
-      </RouterLink>
+    <!-- 👇 수정된 로그인 상태 반영 코드 시작 -->
+    <footer class="threads" v-if="isAuthenticated">
+      <img :src="profileImage" alt="프로필" />
+      <RouterLink to="/profile">{{ nickname }}</RouterLink>
+      <span class="logout" @click="authStore.logout">로그아웃</span>
     </footer>
+
+    <footer class="threads" v-else>
+      <RouterLink to="/member/start">Catchy 시작하기</RouterLink>
+    </footer>
+    <!-- ☝ 수정된 로그인 상태 반영 코드 끝 -->
   </nav>
 </template>
 
@@ -83,9 +95,12 @@ const navItems = [
 }
 
 .threads {
-  @apply font-bold text-sm text-gray-700 flex items-center justify-center gap-2;
+  @apply font-bold text-sm text-gray-700 flex items-center justify-center gap-2 pb-4;
 }
 .threads img {
   @apply w-6 h-6 rounded-full;
+}
+.logout {
+  @apply text-red-500 cursor-pointer;
 }
 </style>

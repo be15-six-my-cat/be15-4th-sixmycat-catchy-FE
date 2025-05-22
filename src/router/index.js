@@ -4,6 +4,7 @@ import AppShell from '@/components/AppShell.vue';
 import { JjureRoutes } from '@/features/jjure/router.js';
 import gameRoutes from '@/features/game/router.js';
 import { FeedRoutes } from '@/features/feed/router.js';
+import { MemberRoutes } from '@/features/member/router.js'
 import profileRoutes from '@/features/profile/router'
 
 const router = createRouter({
@@ -12,7 +13,7 @@ const router = createRouter({
     {
       path: '/',
       component: AppShell,
-      children: [...JjureRoutes, ...gameRoutes, ...FeedRoutes, ...profileRoutes],
+      children: [...JjureRoutes, ...gameRoutes, ...FeedRoutes, ...profileRoutes, ...MemberRoutes],
     },
   ],
 });
