@@ -28,3 +28,23 @@ export const deleteFeed = (feedId) =>
   api.delete(`/feeds/${feedId}`, {
     headers: { 'X-USER-ID': 1 },
   });
+
+/* 내가 등록한 피드 썸네일 목록 조회 */
+export const fetchMyFeedList = (params = { page: 0, size: 2 }) =>
+  api.get('/feeds/me', {
+    params,
+    headers: {
+      'X-USER-ID': 1,
+    },
+  });
+
+/* todo : 남이 등록한 피드 썸네일 목록 조회 */
+
+/* 내가 좋아요한 피드 썸네일 목록 조회 */
+export const fetchLikedFeedList = (params = { page: 0, size: 2 }) =>
+  api.get('/feeds/me', {
+    params,
+    headers: {
+      'X-USER-ID': 1,
+    },
+  });
