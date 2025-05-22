@@ -97,6 +97,8 @@ const handleFeedEdit = async () => {
       :commentCount="feed.commentCount"
       :liked="feed.liked"
       :feedId="feed.id"
+      :shareContent="feed.content"
+      :shareImage="feed.imageUrls[0]"
     />
     <div class="content-wrapper">
       <span class="author">{{ feed.author.nickname }}</span>
