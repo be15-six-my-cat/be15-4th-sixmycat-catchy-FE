@@ -31,16 +31,29 @@
         <!-- 게시물 수 등 -->
         <div class="flex gap-4 mt-2 text-body-md text-gray-700">
           <span>게시물 {{ user.contents?.feedCount ?? 0 }}</span>
-          <span>팔로워 {{ user.follows?.followerCount ?? 0 }}</span>
-          <span>팔로우 {{ user.follows?.followingCount ?? 0 }}</span>
+          <span
+            ><button class="follow-button" @click="handleGetFollower">
+              팔로워 {{ user.follows?.followerCount ?? 0 }}
+            </button></span
+          >
+          <span
+            ><button class="follow-button" @click="handleGetFollowing">
+              팔로우 {{ user.follows?.followingCount ?? 0 }}
+            </button></span
+          >
         </div>
       </div>
     </div>
   </div>
+  <template v-if="isVisibleFollowModal">
+    <FollowModal :isFollowing="isFollowing" @close="isVisibleFollowModal = false" />
+  </template>
 </template>
 
 <script setup>
 import defaultProfileImage from '@/assets/default_images/01_cat.png';
+import { ref } from 'vue';
+import FollowModal from '@/features/follow/components/FollowModal.vue';
 
 defineProps({
   user: {
@@ -48,10 +61,26 @@ defineProps({
     required: true,
   },
 });
+
+const isFollowing = ref(false);
+const isVisibleFollowModal = ref(false);
+function handleGetFollower() {
+  isFollowing.value = false;
+  isVisibleFollowModal.value = true;
+}
+
+function handleGetFollowing() {
+  isFollowing.value = true;
+  isVisibleFollowModal.value = true;
+}
 </script>
 
 <style scoped>
 .badge {
   @apply text-xs font-semibold px-2 py-1 rounded-full;
+}
+
+.follow-button {
+  @apply hover:text-primary-hover;
 }
 </style>
