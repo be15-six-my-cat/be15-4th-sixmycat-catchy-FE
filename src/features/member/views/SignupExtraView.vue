@@ -55,22 +55,31 @@ onMounted(async () => {
     return;
   }
 
-  try {
-    const res = await getTempMemberInfo(email, social.toUpperCase());
-    const data = res.data.data;
+  const submitSignup = async () => {
+    startLoading();
+    try {
+      const formData = new FormData();
+      formData.append('name', name.value);
+      formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
+      formData.append('nickname', nickname.value);
+      formData.append('email', email);
+      formData.append('social', social.toUpperCase());
 
-    if (data.name) {
-      name.value = data.name;
-      nameReadonly.value = true;
+      if (profileImage.value) {
+        formData.append('profileImage', profileImage.value);
+      }
+
+      const { data } = await socialSignupExtra(formData);
+
+      showSuccessToast('Catchy에 오신 것을 환영합니다!');
+      router.push('/feed');
+    } catch (error) {
+      const { errorCode, message } = error.response?.data ?? {};
+      showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
+    } finally {
+      stopLoading(); // 항상 실행됨
     }
-    if (data.contactNumber) {
-      contactNumber.value = data.contactNumber;
-      contactReadonly.value = true;
-    }
-  } catch (err) {
-    showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
-    router.push('/member/start');
-  }
+  };
 });
 
 // 회원가입 제출
@@ -79,7 +88,7 @@ const submitSignup = async () => {
     startLoading();
     const formData = new FormData();
     formData.append('name', name.value);
-    formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
+    formData.append('contactNumber', contactNumber.value);
     formData.append('nickname', nickname.value);
     formData.append('email', email);
     formData.append('social', social.toUpperCase());
@@ -91,7 +100,6 @@ const submitSignup = async () => {
     const { data } = await socialSignupExtra(formData);
 
     showSuccessToast('Catchy에 오신 것을 환영합니다!');
-    defaultProfileStore.clearProfileImage();
     router.push('/feed');
     stopLoading();
   } catch (error) {
