@@ -1,15 +1,78 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
   videoUrl: { type: String, required: true },
   caption: { type: String, default: '' },
+  thumbnail: File,
 });
 
-const emit = defineEmits(['close', 'upload', 'update:caption', 'update:thumbnail']);
+const emit = defineEmits([
+  'update:caption',
+  'update:videoUrl',
+  'update:thumbnail',
+  'upload',
+  'close',
+]);
+
+const localCaption = ref(props.caption);
+const localVideoUrl = ref(props.videoUrl);
+const localThumbnail = ref(props.thumbnail);
+
+watch(localCaption, (val) => emit('update:caption', val));
+watch(localVideoUrl, (val) => emit('update:videoUrl', val));
+watch(localThumbnail, (val) => emit('update:thumbnail', val));
+
+watch(
+  () => props.caption,
+  (val) => (localCaption.value = val),
+);
+watch(
+  () => props.videoUrl,
+  (val) => (localVideoUrl.value = val),
+);
+watch(
+  () => props.thumbnail,
+  (val) => (localThumbnail.value = val),
+);
 
 const thumbnailUrl = ref('');
 const thumbnailBlob = ref(null);
+
+// video 엘리먼트 참조
+const videoRef = ref(null);
+
+// props 변경 감지 → 내부 URL 반영 + reload
+watch(
+  () => props.videoUrl,
+  async (newVal) => {
+    localVideoUrl.value = newVal;
+    await nextTick();
+    videoRef.value?.load();
+
+    // 썸네일 생성 시도
+    await generateThumbnail();
+  },
+  { immediate: true },
+);
+
+// 썸네일 생성
+async function generateThumbnail(retryCount = 0) {
+  try {
+    const base64 = await generateThumbnailFromVideo(localVideoUrl.value);
+    thumbnailUrl.value = base64;
+    thumbnailBlob.value = dataURItoBlob(base64);
+    emit('update:thumbnail', thumbnailBlob.value);
+  } catch (err) {
+    console.warn(`썸네일 생성 실패 [시도 ${retryCount + 1}/3]:`, err);
+
+    if (retryCount < 2) {
+      setTimeout(() => generateThumbnail(retryCount + 1), 1000); // 1초 간격 재시도
+    } else {
+      console.error('썸네일 최종 생성 실패. 사용자에게는 이전 썸네일이 유지됩니다.');
+    }
+  }
+}
 
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(',')[1]);
@@ -22,33 +85,6 @@ function dataURItoBlob(dataURI) {
   }
 
   return new Blob([ab], { type: mimeString });
-}
-
-// 👉 썸네일 생성 함수
-async function generateThumbnail() {
-  try {
-    const base64 = await generateThumbnailFromVideo(props.videoUrl);
-    thumbnailUrl.value = base64;
-    thumbnailBlob.value = dataURItoBlob(base64);
-    emit('update:thumbnail', thumbnailBlob.value);
-  } catch (err) {
-    console.error('썸네일 자동 생성 실패, 재시도 중...', err);
-    setTimeout(async () => {
-      try {
-        const retryBase64 = await generateThumbnailFromVideo(props.videoUrl);
-        thumbnailUrl.value = retryBase64;
-        thumbnailBlob.value = dataURItoBlob(retryBase64);
-        emit('update:thumbnail', thumbnailBlob.value);
-      } catch (retryErr) {
-        console.error('재시도도 실패했습니다.', retryErr);
-        alert('썸네일 생성에 실패했습니다.');
-      }
-    }, 300);
-  }
-}
-
-function handleSubmit() {
-  emit('upload');
 }
 
 function generateThumbnailFromVideo(videoUrl) {
@@ -83,7 +119,6 @@ function generateThumbnailFromVideo(videoUrl) {
   });
 }
 
-// ✋ 수동 썸네일 선택은 기존 유지
 function onThumbnailSelected(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -97,6 +132,10 @@ function onThumbnailSelected(e) {
   reader.readAsDataURL(file);
 }
 
+function handleSubmit() {
+  emit('upload');
+}
+
 onMounted(() => {
   generateThumbnail();
 });
@@ -106,12 +145,18 @@ onMounted(() => {
   <section class="overlay" @click.self="emit('close')">
     <article class="reel-modal">
       <div class="video-preview">
-        <video controls playsinline>
-          <source :src="videoUrl" type="video/mp4" />
+        <!-- ✅ video에 ref 연결 -->
+        <video ref="videoRef" controls playsinline>
+          <source :src="localVideoUrl" type="video/mp4" />
         </video>
       </div>
 
       <form class="reel-form" @submit.prevent="handleSubmit">
+        <!-- ✅ 사용자 정의 슬롯 영역 -->
+        <div>
+          <slot name="video-upload-slot" />
+        </div>
+
         <div class="input-group">
           <div class="modal-header">
             <button class="cancel-button" @click="emit('close')">x</button>
@@ -151,7 +196,7 @@ onMounted(() => {
 }
 
 .video-preview {
-  @apply w-[560px] h-full bg-black flex items-center justify-center;
+  @apply w-[560px] h-full bg-black flex flex-col items-center justify-center gap-2;
 }
 
 .video-preview video {
@@ -185,7 +230,6 @@ onMounted(() => {
   @apply bg-primary text-white text-body-sm py-3 px-4 rounded-md mt-4 hover:bg-primary-hover;
 }
 
-/* 썸네일 선택 커스텀 스타일 */
 .thumbnail-select {
   @apply mt-2 block w-[100px] h-[140px] overflow-hidden rounded border border-gray-300 cursor-pointer;
 }
