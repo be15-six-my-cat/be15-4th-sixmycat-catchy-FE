@@ -45,7 +45,6 @@ const handleImageChange = (e) => {
 
 // 초기 데이터 세팅
 onMounted(async () => {
-  // 랜덤 기본 프로필 이미지 설정
   if (!defaultProfileStore.hasImage) {
     defaultProfileStore.setProfileImage();
   }
@@ -55,40 +54,36 @@ onMounted(async () => {
     return;
   }
 
-  const submitSignup = async () => {
-    startLoading();
-    try {
-      const formData = new FormData();
-      formData.append('name', name.value);
-      formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
-      formData.append('nickname', nickname.value);
-      formData.append('email', email);
-      formData.append('social', social.toUpperCase());
+  startLoading(); // 로딩 시작
 
-      if (profileImage.value) {
-        formData.append('profileImage', profileImage.value);
-      }
+  try {
+    const res = await getTempMemberInfo(email, social.toUpperCase());
+    const data = res.data.data;
 
-      const { data } = await socialSignupExtra(formData);
-
-      showSuccessToast('Catchy에 오신 것을 환영합니다!');
-      router.push('/feed');
-    } catch (error) {
-      const { errorCode, message } = error.response?.data ?? {};
-      showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
-    } finally {
-      stopLoading(); // 항상 실행됨
+    if (data.name) {
+      name.value = data.name;
+      nameReadonly.value = true;
     }
-  };
+    if (data.contactNumber) {
+      contactNumber.value = data.contactNumber.replace(/-/g, '');
+      contactReadonly.value = true;
+    }
+  } catch (err) {
+    showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
+    router.push('/member/start');
+  } finally {
+    stopLoading(); // 로딩 종료
+  }
 });
 
-// 회원가입 제출
+// ✅ 회원가입 제출
 const submitSignup = async () => {
   try {
     startLoading();
+
     const formData = new FormData();
     formData.append('name', name.value);
-    formData.append('contactNumber', contactNumber.value);
+    formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
     formData.append('nickname', nickname.value);
     formData.append('email', email);
     formData.append('social', social.toUpperCase());
@@ -98,19 +93,19 @@ const submitSignup = async () => {
     }
 
     const { data } = await socialSignupExtra(formData);
-
     showSuccessToast('Catchy에 오신 것을 환영합니다!');
     router.push('/feed');
-    stopLoading();
   } catch (error) {
     const { errorCode, message } = error.response?.data ?? {};
-    showSuccessToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
+    showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
+  } finally {
+    stopLoading();
   }
 };
 
 const handleContactInput = (e) => {
-  const raw = e.target.value.replace(/\D/g, ''); // 숫자만 추출
-  contactNumber.value = raw.slice(0, 11); // 최대 11자리 제한
+  const raw = e.target.value.replace(/\D/g, '');
+  contactNumber.value = raw.slice(0, 11);
 };
 
 const handleNicknameInput = (e) => {
@@ -128,6 +123,7 @@ const handleNicknameInput = (e) => {
         @click="submitSignup"
       />
     </div>
+
     <!-- 프로필 이미지 및 아이콘 -->
     <div class="profile-frame">
       <img
@@ -137,7 +133,7 @@ const handleNicknameInput = (e) => {
         @click="triggerImageInput"
       />
       <img
-        src="@/assets/images/member/camera-pink.png "
+        src="@/assets/images/member/camera-pink.png"
         class="camera-icon"
         @click="triggerImageInput"
         alt="image add"
