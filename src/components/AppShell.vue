@@ -11,6 +11,12 @@ import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 import { useRouter } from 'vue-router';
+import {
+  getPresignedUrl,
+  saveJjureMeta,
+  uploadFileToS3,
+  uploadThumbnailImage,
+} from '@/api/jjure.js';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
@@ -76,7 +82,7 @@ async function handleUpload() {
 
     showSuccessToast('쭈르 업로드에 성공했습니다!');
   } catch (error) {
-    alert('업로드 중 오류가 발생했습니다.');
+    showErrorToast('업로드 중 오류가 발생했습니다.');
   } finally {
     showJjureUploadModal.value = false;
     URL.revokeObjectURL(videoUrl.value);

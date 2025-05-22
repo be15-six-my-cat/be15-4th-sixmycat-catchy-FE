@@ -1,5 +1,188 @@
-<script setup></script>
+<script setup>
+import { ref, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  fetchJjureDetail,
+  fetchJjureComments,
+  postJjureComment,
+  deleteJjureComment,
+} from '@/api/jjure.js';
+import CommentSection from '@/components/CommentSection.vue';
+import { likeFeed, unLikeFeed } from '@/api/like.js';
+import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
-<template>Detail Page입니다.</template>
+const jjure = ref(null);
+const route = useRoute();
+const router = useRouter();
+const jjureId = route.params.id;
 
-<style scoped></style>
+const liked = ref(false);
+const likeCount = ref(0);
+const animateLike = ref(false);
+const videoUrl = ref(null); // 🎯 최종 video URL
+
+// 닫기
+const close = () => router.back();
+
+// 좋아요 토글
+const toggleLike = async () => {
+  const payload = { targetId: jjureId, targetType: 'JJURE' };
+  try {
+    if (liked.value) {
+      await unLikeFeed(payload);
+      likeCount.value -= 1;
+    } else {
+      await likeFeed(payload);
+      likeCount.value += 1;
+    }
+    liked.value = !liked.value;
+    animateLike.value = true;
+    setTimeout(() => (animateLike.value = false), 200);
+  } catch (e) {
+    console.error('좋아요 실패:', e);
+  }
+};
+
+// fileKey → videoUrl 생성 로직
+watch(
+  jjure,
+  (val) => {
+    if (val?.fileKey) {
+      const key = val.fileKey;
+      const bucket = import.meta.env.VITE_AWS_BUCKET_NAME;
+      const region = import.meta.env.VITE_AWS_REGION;
+      videoUrl.value = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+      console.log('📽️ videoUrl 설정됨:', videoUrl.value);
+    }
+  },
+  { immediate: true },
+); // 즉시 실행 추가
+
+// 상세 조회
+onMounted(async () => {
+  startLoading();
+  try {
+    const res = await fetchJjureDetail(jjureId);
+    if (res.data.success) {
+      jjure.value = res.data.data;
+      liked.value = jjure.value.liked;
+      likeCount.value = jjure.value.likeCount;
+    }
+  } catch (e) {
+    console.error('쭈르 상세 조회 실패:', e);
+  } finally {
+    stopLoading();
+  }
+});
+</script>
+
+<template>
+  <div class="backdrop">
+    <div class="modal-container">
+      <!-- 비디오 -->
+      <div class="video-area">
+        <video
+          v-if="videoUrl"
+          :key="videoUrl"
+          controls
+          autoplay
+          muted
+          playsinline
+          loop
+          class="video-player"
+        >
+          <source :src="videoUrl" type="video/mp4" />
+        </video>
+
+        <div class="overlay-actions">
+          <button class="overlay-button icon-wrapper" @click="toggleLike">
+            <i
+              :class="[
+                liked ? 'fa-solid' : 'fa-regular',
+                'fa-heart cursor-pointer transition-transform duration-200',
+                animateLike ? 'scale-150' : '',
+              ]"
+            />
+            <span>{{ likeCount }}</span>
+          </button>
+          <button class="overlay-button icon-wrapper">
+            <i class="fa-regular fa-comment"></i>
+            <span>{{ jjure?.commentCount }}</span>
+          </button>
+          <button class="overlay-button icon-wrapper">
+            <i class="fa-solid fa-share-nodes"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 우측: 작성자 / 댓글 -->
+      <div class="right-panel">
+        <div class="author-info">
+          <img :src="jjure?.author.profileImageUrl" alt="프로필" class="author-image" />
+          <span class="author-name">@{{ jjure?.author.nickname }}</span>
+        </div>
+        <p class="caption-text">{{ jjure?.caption }}</p>
+
+        <!-- 댓글 -->
+        <CommentSection v-if="jjure" :target-id="jjure.id" target-type="JJURE" />
+      </div>
+
+      <!-- 닫기 -->
+      <button @click="close" class="close-button">×</button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.backdrop {
+  @apply fixed inset-0 bg-black-alpha-60 flex justify-center items-center z-50;
+}
+
+.icon-wrapper {
+  @apply cursor-pointer text-center shadow-elevated bg-black-alpha-20 rounded-full p-2;
+}
+
+.modal-container {
+  @apply bg-white w-[90%] max-w-4xl h-[700px] rounded-xl flex overflow-hidden relative;
+}
+
+.video-area {
+  @apply w-[450px] bg-black flex items-center justify-center relative;
+}
+
+.video-player {
+  @apply w-full h-full object-cover rounded;
+}
+
+.overlay-actions {
+  @apply absolute right-2 bottom-14 flex flex-col items-center gap-4 text-primary text-sm p-2;
+}
+
+.overlay-button {
+  @apply flex flex-col items-center opacity-80 hover:opacity-100;
+}
+
+.right-panel {
+  @apply flex-1 flex flex-col p-4 gap-4;
+}
+
+.author-info {
+  @apply flex items-center gap-2;
+}
+
+.author-image {
+  @apply w-8 h-8 rounded-full;
+}
+
+.author-name {
+  @apply font-bold text-sm text-primary;
+}
+
+.caption-text {
+  @apply text-sm text-gray-700;
+}
+
+.close-button {
+  @apply absolute top-2 right-3 text-xl text-gray-500;
+}
+</style>
