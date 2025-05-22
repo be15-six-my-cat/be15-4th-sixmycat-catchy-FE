@@ -49,6 +49,7 @@ export function uploadThumbnailImage(file) {
 
 /* 7. 내가 등록한 쭈르 썸네일 목록 조회 */
 export function fetchMyJjureList(params = { page: 0, size: 2 }) {
+  params.page = params.page - 1;
   return api.get('/jjures/me', {
     params,
   });
@@ -58,6 +59,7 @@ export function fetchMyJjureList(params = { page: 0, size: 2 }) {
 
 /* 8. 내가 좋아요한 쭈르 썸네일 목록 조회 */
 export function fetchLikedJjureList(params = { page: 0, size: 2 }) {
+  params.page = params.page - 1;
   return api.get('/jjures/likes', {
     params,
   });
