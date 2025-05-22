@@ -5,6 +5,7 @@ import { startLoading } from '@/composable/useLoadingBar.js';
 import { usePagination } from '@/composable/usePagination.js';
 import { fetchFeedList } from '@/api/feed.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
+import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
 
 const { items: feeds, loadMore, reset, hasNext, isLoading } = usePagination(fetchFeedList);
 

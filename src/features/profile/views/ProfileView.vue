@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex h-full">
     <ProfileMenu />
 
     <div class="flex-1 p-6">
@@ -16,45 +16,50 @@
           </div>
         </div>
         <PetSlider v-if="user?.cats?.length" :pets="user.cats" />
-        <FeedTabs />
-        <FeedGallery v-if="user?.feedImages" :images="user.feedImages" />
+        <FeedTabs v-model:selectedTab="selectedTab" />
+        <div class="flex justify-center">
+          <MyThumbnailList :selectedTab="selectedTab" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import ProfileMenu from '../components/ProfileMenu.vue'
-import ProfileHeader from '../components/ProfileHeader.vue'
-import PetSlider from '../components/PetSlider.vue'
-import FeedTabs from '../components/FeedTabs.vue'
-import FeedGallery from '../components/FeedGallery.vue'
-import { fetchMyProfile, fetchUserProfile } from '../api'
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import ProfileMenu from '../components/ProfileMenu.vue';
+import ProfileHeader from '../components/ProfileHeader.vue';
+import PetSlider from '../components/PetSlider.vue';
+import FeedTabs from '../components/FeedTabs.vue';
+import FeedGallery from '../components/FeedGallery.vue';
+import { fetchMyProfile, fetchUserProfile } from '../api';
+import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
 
-const route = useRoute()
-const user = ref(null)
+const route = useRoute();
+const user = ref(null);
+const selectedTab = ref('MyFeed');
 
 const loadProfile = async () => {
   try {
-    const userId = route.params.id
-    user.value = userId
-      ? await fetchUserProfile(userId)
-      : await fetchMyProfile()
+    const userId = route.params.id;
+    user.value = userId ? await fetchUserProfile(userId) : await fetchMyProfile();
 
-    console.log('✅ 프로필 응답:', user.value)
+    console.log('✅ 프로필 응답:', user.value);
   } catch (e) {
-    console.error('❌ 프로필 로딩 실패:', e)
-    user.value = null
+    console.error('❌ 프로필 로딩 실패:', e);
+    user.value = null;
   }
-}
+};
 
 onMounted(() => {
-  loadProfile()
-})
+  loadProfile();
+});
 
-watch(() => route.params.id, () => {
-  loadProfile()
-})
+watch(
+  () => route.params.id,
+  () => {
+    loadProfile();
+  },
+);
 </script>
