@@ -39,18 +39,18 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     }
   };
 
-  const handleScroll = () => {
+  const handleScroll = async () => {
     const el = scrollTargetRef.value;
     if (!el || isLoading.value || isLastPage.value) return;
 
     const { scrollTop, scrollHeight, clientHeight } = el;
     if (scrollTop + clientHeight >= scrollHeight - threshold) {
-      loadMore();
+      await loadMore();
     }
   };
 
-  onMounted(() => {
-    fetchInitial();
+  onMounted(async () => {
+    await fetchInitial();
     scrollTargetRef.value?.addEventListener('scroll', handleScroll);
   });
 
@@ -63,7 +63,7 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     totalPage.value = 1;
     items.value = [];
     isLastPage.value = false;
-    await fetchInitial();
+    await fetchInitial(1);
   };
 
   return {
