@@ -17,21 +17,26 @@
         <span class="inline-block text-center w-3">{{ commentCount }}</span>
       </div>
     </div>
-    <div>
-      <i class="fa-solid fa-share-nodes"></i>
-    </div>
+    <ShareDropdown
+      :shareUrl="`https://catchy.site/feed`"
+      :shareText="props.shareContent"
+      :shareImage="props.shareImage"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { likeFeed, unLikeFeed } from '@/api/like.js';
+import ShareDropdown from '@/components/ShareDropdown.vue';
 
 const props = defineProps({
   likeCount: Number,
   commentCount: Number,
   liked: Boolean,
   feedId: Number,
+  shareContent: String,
+  shareImage: String,
 });
 
 const liked = ref(props.liked);
