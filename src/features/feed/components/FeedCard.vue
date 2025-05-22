@@ -5,7 +5,6 @@ import FeedActions from './FeedActions.vue';
 import FeedCommentPreview from './FeedCommentPreview.vue';
 import { deleteFeed, editFeed, uploadImages } from '@/api/feed.js';
 import { showSuccessToast } from '@/utills/toast.js';
-import { useRouter } from 'vue-router';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import { ref } from 'vue';
