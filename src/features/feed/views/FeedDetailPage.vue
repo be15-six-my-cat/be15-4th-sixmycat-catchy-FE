@@ -37,6 +37,8 @@
           :author="feed.author"
           :createdAt="feed.createdAt"
           :mine="feed.mine"
+          @edit="handleEdit"
+          @delete="handleDelete"
         />
         <span class="content">{{ feed?.content }}</span>
         <CommentSection v-if="feed" :target-id="feed.id" target-type="FEED" />
@@ -45,30 +47,55 @@
       <!-- 닫기 버튼 -->
       <button @click="close" class="absolute top-2 right-3 text-xl text-gray-500">×</button>
     </div>
+    <UploadGuideModal
+      v-if="showImageEditModal"
+      :initialImages="feed.imageUrls"
+      @fileSelected="handleImageEditSave"
+      @close="showImageEditModal = false"
+    />
+
+    <FeedUploadModal
+      v-if="showFeedEditModal"
+      v-model:caption="caption"
+      :imageUrls="editImageUrls"
+      @upload="handleFeedEdit"
+      @close="showFeedEditModal = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchFeed } from '@/api/feed.js';
+import { deleteFeed, editFeed, fetchFeed, uploadImages } from '@/api/feed.js';
 
 import FeedCarousel from '../components/FeedCarousel.vue';
 import FeedHeader from '../components/FeedHeader.vue';
 import CommentSection from '@/components/CommentSection.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { likeFeed, unLikeFeed } from '@/api/like.js';
+import { showSuccessToast } from '@/utills/toast.js';
+import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
+import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
+import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 
 const feed = ref(null);
 const route = useRoute();
 const router = useRouter();
 const liked = ref(false);
 const likeCount = ref(0);
+const feedRefreshStore = useFeedRefreshStore();
+const showImageEditModal = ref(false);
+const showFeedEditModal = ref(false);
+const editImageFiles = ref([]);
+const editImageUrls = ref([]);
+const caption = ref('');
 
 watch(feed, (newFeed) => {
   if (newFeed) {
     liked.value = newFeed.liked;
     likeCount.value = newFeed.likeCount;
+    caption.value = newFeed.content;
   }
 });
 
@@ -79,7 +106,7 @@ const close = () => {
 const animateLike = ref(false);
 const toggleLike = async () => {
   const payload = {
-    targetId: route.params.id, // ← 부모 컴포넌트에서 넘겨줘야 함
+    targetId: route.params.id,
     targetType: 'FEED',
   };
 
@@ -101,6 +128,7 @@ const toggleLike = async () => {
     console.error('좋아요 처리 실패:', e);
   }
 };
+
 onMounted(async () => {
   const feedId = route.params.id;
   startLoading();
@@ -113,6 +141,69 @@ onMounted(async () => {
     console.error('피드 조회 실패', e);
   }
 });
+
+const handleDelete = async () => {
+  const confirmDelete = confirm('정말 삭제하시겠습니까?');
+  if (!confirmDelete) return;
+
+  try {
+    await deleteFeed(feed.value.id);
+    showSuccessToast('삭제되었습니다.');
+    feedRefreshStore.triggerRefresh();
+    router.back();
+  } catch (e) {
+    console.error(e);
+    alert('삭제 중 오류 발생');
+  }
+};
+
+const handleEdit = () => {
+  showImageEditModal.value = true;
+};
+
+const handleImageEditSave = ({ existingUrls = [], files = [] }) => {
+  editImageFiles.value = files;
+  editImageUrls.value = [...existingUrls, ...files.map((f) => URL.createObjectURL(f))];
+  showImageEditModal.value = false;
+  showFeedEditModal.value = true;
+};
+
+const handleFeedEdit = async () => {
+  try {
+    startLoading();
+
+    // 1. 이미지 업로드
+    let uploadedUrls = [];
+    if (editImageFiles.value.length > 0) {
+      const formData = new FormData();
+      editImageFiles.value.forEach((file) => formData.append('files', file));
+      const res = await uploadImages(formData);
+      uploadedUrls = res.data.data;
+    }
+
+    // 2. 기존 이미지 유지
+    const original = feed.value?.imageUrls || [];
+    const keepUrls = editImageUrls.value.filter((url) => original.includes(url));
+    const finalImageUrls = [...keepUrls, ...uploadedUrls];
+
+    // 3. 수정 요청
+    const payload = {
+      content: caption.value,
+      imageUrls: finalImageUrls,
+    };
+
+    await editFeed(feed.value.id, payload);
+    showSuccessToast('피드가 수정되었습니다!');
+
+    feedRefreshStore.triggerRefresh();
+    showFeedEditModal.value = false;
+
+    close();
+  } catch (e) {
+    console.error('피드 수정 실패:', e);
+    alert('피드 수정 중 오류가 발생했습니다.');
+  }
+};
 </script>
 
 <style scoped>
