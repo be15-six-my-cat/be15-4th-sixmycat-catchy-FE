@@ -1,36 +1,76 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { fetchLikedFeedList, fetchMyFeedList, fetchOtherFeedList } from '@/api/feed.js';
+import { fetchLikedJjureList, fetchMyJjureList, fetchOtherJjureList } from '@/api/jjure.js';
+import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
-defineProps({
+const { selectedTab } = defineProps({
   selectedTab: String,
 });
 
-const items = ref([]);
+const scrollContainer = ref(null);
+/* todo : 라우터 주소에서 member id 추출해서 추가하기 */
 
-const fetchItems = async () => {
+const fetchMap = {
+  OtherFeed: fetchOtherFeedList,
+  OtherJjure: fetchOtherJjureList,
+};
+
+const fetchFn = async (page = 1) => {
   try {
-    const res = await axios.get(`/api/items?tab=${props.selectedTab}`);
-    items.value = res.data;
+    const fetchFn = fetchMap[selectedTab];
+    if (!fetchFn) {
+      console.warn('해당하는 selectedTab이 없습니다.');
+      items.value = [];
+      return;
+    }
+
+    const { data } = await fetchFn({ page, size: 9 });
+    return data;
   } catch (error) {
-    console.error('API 오류:', error);
+    console.log('API 오류:', error);
+    items.value = [];
   }
 };
 
+const {
+  items: items,
+  isLastPage,
+  reset,
+} = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef: scrollContainer,
+});
+
 watch(
-  () => props.selectedTab,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      fetchItems();
-    }
+  () => selectedTab,
+  () => {
+    reset();
   },
-  { immediate: true }, // 초기 실행도 포함시킬 경우
 );
 </script>
 
 <template>
-  <div v-for="item in items" :key="item.id">
-    {{ item.name }}
+  <div class="justify-center w-[400px]">
+    <div v-if="items.length === 0" class="text-gray-400 text-sm text-center py-2">
+      데이터가 없습니다.
+    </div>
+    <template v-else>
+      <div class="body-scroll" ref="scrollContainer">
+        <div
+          v-for="(item, index) in items"
+          :key="index"
+          class="w-full sm:w-[48%] md:w-[30%] aspect-square overflow-hidden m-1"
+        >
+          <img :src="item.thumbnailUrl" alt="item.thumbnailUrl" class="object-cover" />
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.body-scroll {
+  @apply overflow-y-auto space-y-1 max-h-[70vh] flex flex-wrap;
+}
+</style>

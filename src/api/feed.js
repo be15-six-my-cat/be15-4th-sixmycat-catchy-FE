@@ -43,12 +43,21 @@ export const fetchMyFeedList = (params = { page: 0, size: 9 }) => {
   });
 };
 
-/* todo : 남이 등록한 피드 썸네일 목록 조회 */
-
 /* 내가 좋아요한 피드 썸네일 목록 조회 */
 export const fetchLikedFeedList = (params = { page: 0, size: 9 }) => {
   params.page = params.page - 1;
   return api.get('/feeds/likes', {
+    params,
+    headers: {
+      'X-USER-ID': 1,
+    },
+  });
+};
+
+/* 남이 등록한 피드 썸네일 목록 조회 */
+export const fetchOtherFeedList = (memberId, params = { page: 0, size: 9 }) => {
+  params.page = params.page - 1;
+  return api.get(`/feeds/member/${memberId}`, {
     params,
     headers: {
       'X-USER-ID': 1,
