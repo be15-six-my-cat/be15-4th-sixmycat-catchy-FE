@@ -37,3 +37,7 @@ export async function logout(accessToken) {
 export function reissueAccessToken() {
   return api.get('/members/token');
 }
+
+export function deleteMember() {
+  return api.delete('/members');
+}
