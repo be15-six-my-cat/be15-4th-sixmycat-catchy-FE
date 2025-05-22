@@ -29,7 +29,7 @@ export async function saveJjureMeta(payload) {
 }
 
 /* 4. 쭈르 목록 조회 */
-export function fetchJjureList(page = 0, size = 10) {
+export function fetchJjureList({ page = 0, size = 10 }) {
   return api.get('/jjures', {
     params: { page, size },
   });

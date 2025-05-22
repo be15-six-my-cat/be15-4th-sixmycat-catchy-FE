@@ -57,14 +57,14 @@ const notificationText = computed(() => {
   }
 });
 
-function goToProfile() {}
+function goToProfile() {
+  // todo : 타회원 프로필 조회 api 호출
+}
 
 function toggleFollow() {
   // todo : 팔로우 api 호출 후 상태 변경
   isFollowing.value = !isFollowing.value;
 }
-
-// todo : 타회원 프로필 조회 api 호출
 </script>
 
 <template>
