@@ -1,9 +1,9 @@
 <script setup>
-import { watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
+import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
 const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
 
@@ -28,6 +28,14 @@ const { isAuthenticated } = storeToRefs(authStore);
 
 const defaultProfileStore = useDefaultProfileStore();
 const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
+
+function handleLogout() {
+  startLoading();
+  authStore.logout().finally(() => {
+    stopLoading();
+    location.reload();
+  });
+}
 </script>
 
 <template>
@@ -65,7 +73,7 @@ const { image: profileImage, nickname } = storeToRefs(defaultProfileStore);
     <footer class="threads" v-if="isAuthenticated">
       <img :src="profileImage" alt="프로필" />
       <RouterLink to="/profile">{{ nickname }}</RouterLink>
-      <span class="logout" @click="authStore.logout">로그아웃</span>
+      <span class="logout" @click="handleLogout">로그아웃</span>
     </footer>
 
     <footer class="threads" v-else>

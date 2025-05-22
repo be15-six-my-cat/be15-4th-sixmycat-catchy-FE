@@ -5,6 +5,8 @@ import BasicButton from '@/features/member/components/BasicButton.vue';
 import Input from '@/features/member/components/Input.vue';
 import { getTempMemberInfo, socialSignupExtra } from '@/api/member';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore';
+import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
+import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
 const router = useRouter();
 const defaultProfileStore = useDefaultProfileStore();
@@ -49,7 +51,7 @@ onMounted(async () => {
   }
 
   if (!email || !social) {
-    alert('잘못된 접근입니다. 이메일 또는 소셜 정보가 누락되었습니다.');
+    showErrorToast('잘못된 접근입니다. 이메일 또는 소셜 정보가 누락되었습니다.');
     return;
   }
 
@@ -66,14 +68,15 @@ onMounted(async () => {
       contactReadonly.value = true;
     }
   } catch (err) {
-    console.error('임시 회원 정보 불러오기 실패:', err);
-    alert('임시 회원 정보를 불러오지 못했습니다.');
+    showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
+    router.push('/member/start');
   }
 });
 
 // 회원가입 제출
 const submitSignup = async () => {
   try {
+    startLoading();
     const formData = new FormData();
     formData.append('name', name.value);
     formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
@@ -87,13 +90,13 @@ const submitSignup = async () => {
 
     const { data } = await socialSignupExtra(formData);
 
-    alert('회원가입이 완료되었습니다!');
+    showSuccessToast('Catchy에 오신 것을 환영합니다!');
     defaultProfileStore.clearProfileImage();
-    router.push('/member/start');
+    router.push('/feed');
+    stopLoading();
   } catch (error) {
     const { errorCode, message } = error.response?.data ?? {};
-    alert(`[${errorCode ?? 'ERROR'}] ${message ?? '알 수 없는 오류가 발생했습니다.'}`);
-    console.error('회원가입 실패:', error);
+    showSuccessToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
   }
 };
 </script>
@@ -143,16 +146,12 @@ const submitSignup = async () => {
       />
       <Input
         title="전화번호"
-        text="전화번호를 입력해주세요 (후에 수정 불가)"
+        text="- 없이 전화번호를 입력해주세요 (후에 수정 불가)"
         v-model="contactNumber"
         :readonly="contactReadonly"
       />
-      <Input title="닉네임" text="영어 및 특수문자" v-model="nickname" />
+      <Input title="닉네임" text="영어, 숫자, 특수문자 (., _, ^)만 가능합니다" v-model="nickname" />
     </div>
-
-
-
-
   </div>
 </template>
 
@@ -203,7 +202,7 @@ const submitSignup = async () => {
 .signup-button-frame {
   display: flex;
   justify-content: flex-end;
-  width: 300px;
+  width: 370px;
 }
 
 .title {
