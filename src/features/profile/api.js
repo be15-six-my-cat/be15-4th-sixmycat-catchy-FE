@@ -17,3 +17,12 @@ export async function updateMyProfile(payload) {
   const { data } = await axios.patch('/profiles/me', payload)
   return data
 }
+
+export async function addNewCat(cat) {
+  return axios.post('profiles/cats', cat)
+}
+
+export async function deleteCat(catId) {
+  return axios.delete(`/profiles/cats/${catId}`)
+}
+
