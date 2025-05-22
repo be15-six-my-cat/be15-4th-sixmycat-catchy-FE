@@ -26,7 +26,7 @@ const thumbnailBlob = ref(null); // 썸네일 Blob 저장
 const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
 // 파일 선택 핸들러
-function handleFilesSelected(files) {
+function handleFilesSelected({ existingUrls = [], files = [] }) {
   if (!files.length) return;
 
   const file = files[0];
@@ -44,7 +44,7 @@ function handleFilesSelected(files) {
 
   if (isAllImages) {
     imageFiles.value = files;
-    imageUrls.value = files.map((f) => URL.createObjectURL(f));
+    imageUrls.value = [...existingUrls, ...files.map((f) => URL.createObjectURL(f))];
     showUploadGuideModal.value = false;
     showFeedUploadModal.value = true;
   }
