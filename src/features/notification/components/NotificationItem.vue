@@ -49,7 +49,7 @@ const notificationText = computed(() => {
     case 'RECOMMENT':
       return `님이 회원님의 댓글에 답글을 남겼습니다.`;
     case 'LIKE':
-      return `님이 회원님의 스토리를 좋아합니다.`;
+      return `님이 회원님의 피드/쭈르 을(를) 좋아합니다.`;
     case 'BIRTHDAY':
       return `님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
     default:
