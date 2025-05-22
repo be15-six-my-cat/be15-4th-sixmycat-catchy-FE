@@ -23,7 +23,7 @@ const fetchFn = async (page) => {
     const { data } = await (isFollowing ? getFollowing(page) : getFollower(page));
     return data;
   } catch (e) {
-    console.log(e + '알림 목록 초기 로드 실패');
+    console.log(e + '팔로우 목록 초기 로드 실패');
   }
 };
 

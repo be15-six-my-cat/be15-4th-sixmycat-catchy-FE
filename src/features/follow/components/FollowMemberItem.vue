@@ -49,7 +49,7 @@ const deleteFollow = async (memberId) => {
 </template>
 
 <style scoped>
-.profile-image {
+/*.profile-image {
   @apply w-12 h-12 rounded-full;
-}
+}*/
 </style>
