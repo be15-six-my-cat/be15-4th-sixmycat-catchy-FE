@@ -47,7 +47,7 @@ const goToDetail = () => {
 
 <style scoped>
 .feed-carousel {
-  @apply relative w-full aspect-[5/4] overflow-hidden bg-black/5;
+  @apply relative w-full h-full max-w-[560px] max-h-[560px] aspect-[5/4] overflow-hidden bg-black/5;
 }
 
 .feed-carousel img {
