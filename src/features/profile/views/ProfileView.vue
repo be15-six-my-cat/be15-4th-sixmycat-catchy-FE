@@ -1,29 +1,37 @@
 <template>
-  <div class="flex h-full">
+  <div class="flex h-full bg-gray-50">
     <ProfileMenu />
 
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->
-      <div v-if="!user">
-        <p class="text-gray-400">프로필 정보를 불러오는 중...</p>
+      <div v-if="!user" class="flex justify-center">
+        <div class="bg-white border rounded-xl shadow-sm p-10 max-w-xl w-full text-center">
+          <p class="text-gray-400">프로필 정보를 불러오는 중...</p>
+        </div>
       </div>
 
       <!-- ✅ 유저 데이터가 있을 때만 렌더링 -->
-      <div v-else>
-        <div class="flex justify-center">
-          <div class="w-full max-w-[1000px]">
-            <ProfileHeader v-if="user?.member" :user="user" />
+      <div v-else class="flex justify-center">
+        <div class="w-full max-w-md bg-white border rounded-xl shadow-sm p-10">
+          <!-- 프로필 헤더 -->
+          <ProfileHeader v-if="user?.member" :user="user" />
+
+          <!-- 고양이 슬라이더 -->
+          <PetSlider v-if="user?.cats?.length" :pets="user.cats" class="mt-6" />
+
+          <!-- 피드 탭 -->
+          <FeedTabs v-model:selectedTab="selectedTab" class="mt-6" />
+
+          <!-- 썸네일 리스트 -->
+          <div class="mt-6">
+            <MyThumbnailList :selectedTab="selectedTab" />
           </div>
-        </div>
-        <PetSlider v-if="user?.cats?.length" :pets="user.cats" />
-        <FeedTabs v-model:selectedTab="selectedTab" />
-        <div class="flex justify-center">
-          <MyThumbnailList :selectedTab="selectedTab" />
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';

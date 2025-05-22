@@ -4,7 +4,9 @@ import { onMounted } from 'vue'
 import ProfileMenu from '../components/ProfileMenu.vue'
 import CatFormModal from '../components/CatFormModal.vue'
 import { fetchMyProfile, updateMyProfile, addNewCat, deleteCat } from '@/features/profile/api'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const nickname = ref('')
 const statusMessage = ref('')
 const cats = ref([])
@@ -28,7 +30,7 @@ onMounted(async () => {
     imageFileName.value = res.profileImage
     cats.value = res.cats || []
   } catch (e) {
-    console.error('프로필 불러오기 실패', e)
+    error('프로필 불러오기 실패', e)
   }
 })
 
@@ -101,10 +103,10 @@ async function saveProfile() {
       await deleteCat(catId) // 삭제 API 호출
     }
 
-    alert('저장되었습니다!')
+    toast.success('저장되었습니다!')
   } catch (error) {
     console.error('저장 실패:', error)
-    alert('저장 실패')
+    toast.error('저장 실패')
   }
 }
 
@@ -113,7 +115,7 @@ async function saveProfile() {
 <template>
   <div class="flex min-h-screen bg-gray-50 font-sans">
     <ProfileMenu />
-    <div class="w-full max-w-screen-xl mx-auto px-6 py-10">
+    <div class="w-full max-w-md mx-auto px-4 py-10">
       <div class="flex">
         <section class="flex-1 bg-white p-8 rounded-xl shadow-sm">
           <h1 class="text-headline-md font-bold mb-6">프로필 수정</h1>
