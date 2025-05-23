@@ -1,13 +1,16 @@
 <template>
   <div class="relative inline-block">
+    <!-- 공유 아이콘 -->
     <i class="fa-solid fa-share-nodes cursor-pointer text-primary" @click.stop="toggleDropdown"></i>
 
-    <div v-if="open" ref="dropdownRef" class="share-dropdown absolute top-full left-0 mt-2 z-50">
-      <div class="share-section">
-        <button @click="shareKakao" class="sns-btn kakao">k</button>
-        <button @click="copyLink" class="sns-btn link">🔗</button>
+    <teleport to="body">
+      <div v-if="open" ref="dropdownRef" class="share-dropdown fixed z-50" :style="dropdownStyle">
+        <div class="share-section">
+          <button @click="shareKakao" class="sns-btn kakao">k</button>
+          <button @click="copyLink" class="sns-btn link">🔗</button>
+        </div>
       </div>
-    </div>
+    </teleport>
   </div>
 </template>
 
@@ -22,16 +25,30 @@ const props = defineProps({
 });
 
 const open = ref(false);
-const dropdownStyle = ref({});
 const dropdownRef = ref(null);
+const dropdownStyle = ref({ top: '0px', right: '0px' });
 
-const handleClickOutside = (event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    open.value = false;
+const toggleDropdown = async (event) => {
+  open.value = !open.value;
+
+  if (open.value) {
+    await nextTick();
+    const rect = event.target.getBoundingClientRect();
+    dropdownStyle.value = {
+      top: `${rect.bottom + 8}px`,
+      left: `${rect.right - 24}px`,
+    };
   }
 };
-const toggleDropdown = () => {
-  open.value = !open.value;
+
+const handleClickOutside = (event) => {
+  if (
+    dropdownRef.value &&
+    !dropdownRef.value.contains(event.target) &&
+    !event.target.closest('.fa-share-nodes')
+  ) {
+    open.value = false;
+  }
 };
 
 const copyLink = async () => {
@@ -66,7 +83,6 @@ const shareKakao = () => {
       },
     ],
   });
-
   open.value = false;
 };
 
@@ -84,8 +100,8 @@ onBeforeUnmount(() => {
 }
 
 .share-dropdown {
-  @apply w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black;
-  transform: translateX(-90%);
+  @apply w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black left-1/2;
+  transform: translateX(-50%); /* 가운데 정렬 */
 }
 
 .sns-btn {
