@@ -1,18 +1,22 @@
 <script setup>
 import defaultProfileImage from '@/assets/default_images/01_cat.png';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-const { notification } = defineProps({
+const { notification, isModalOpen } = defineProps({
   notification: {
     type: Object,
     required: true,
   },
+  isModalOpen: {
+    type: Boolean,
+    required: true,
+  },
 });
 
-const router = useRouter();
 const showFollow = ref(notification.type === 'FOLLOW');
-const isFollowing = ref(true);
+const initialIsFollowing = ref(notification.initialIsFollowing); // 모달 열릴 때 팔로우 상태
+const currentIsFollowing = ref(notification.initialIsFollowing); // 현재 버튼 상태
 
 function getTimeAgo(dateString) {
   const now = new Date();
@@ -62,9 +66,28 @@ function goToProfile() {
 }
 
 function toggleFollow() {
-  // todo : 팔로우 api 호출 후 상태 변경
-  isFollowing.value = !isFollowing.value;
+  currentIsFollowing.value = !currentIsFollowing.value;
 }
+
+async function handleFollowAPI() {
+  if (initialIsFollowing.value !== currentIsFollowing.value) {
+    // 상태가 변경된 경우에만 API 호출
+    if (currentIsFollowing.value) {
+      followUserAPI(); // 팔로우 API 호출
+    } else {
+      unfollowUserAPI(); // 언팔로우 API 호출
+    }
+  }
+}
+
+watch(
+  () => isModalOpen,
+  (newVal, oldVal) => {
+    if (oldVal && !newVal) {
+      handleFollowAPI();
+    }
+  },
+);
 </script>
 
 <template>
@@ -82,7 +105,7 @@ function toggleFollow() {
       <span class="text-gray-300 pl-1">{{ timeAgo }}</span>
     </div>
     <button class="following-button" @click.stop="toggleFollow" :class="{ invisible: !showFollow }">
-      팔로우
+      {{ currentIsFollowing ? '팔로잉' : '팔로우' }}
     </button>
   </div>
 </template>

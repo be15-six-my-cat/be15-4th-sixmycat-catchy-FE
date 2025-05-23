@@ -1,9 +1,16 @@
 <script setup>
 import NotificationList from '@/features/notification/components/NotificationList.vue';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { getNotifications } from '@/api/notification.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
+
+defineProps({
+  isModalOpen: {
+    type: Boolean,
+    required: true,
+  },
+});
 
 const emit = defineEmits(['close']);
 
@@ -19,12 +26,10 @@ const fetchFn = async (page) => {
   }
 };
 
-// const { items: notifications, isLastPage } = useInfiniteScroll({
-//   fetchFn,
-//   scrollTargetRef: scrollContainer,
-// });
-
-const notifications = ref([]);
+const { items: notifications, isLastPage } = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef: scrollContainer,
+});
 </script>
 
 <template>
@@ -39,7 +44,7 @@ const notifications = ref([]);
           <div class="text-gray-400 text-sm text-center py-2">도착한 알림이 없습니다</div>
         </div>
         <div v-else class="body-scroll" ref="scrollContainer">
-          <NotificationList :notifications="notifications" />
+          <NotificationList :notifications="notifications" :is-modal-open="isModalOpen" />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
         </div>
       </div>

@@ -1,9 +1,13 @@
 <script setup>
 import NotificationItem from '@/features/notification/components/NotificationItem.vue';
 
-const { notifications } = defineProps({
+const { notifications, isModalOpen } = defineProps({
   notifications: {
     type: Array,
+    required: true,
+  },
+  isModalOpen: {
+    type: Boolean,
     required: true,
   },
 });
@@ -16,6 +20,7 @@ const { notifications } = defineProps({
       v-for="notification in notifications"
       :key="notification.id"
       :notification="notification"
+      :is-modal-open="isModalOpen"
     />
   </div>
 </template>
