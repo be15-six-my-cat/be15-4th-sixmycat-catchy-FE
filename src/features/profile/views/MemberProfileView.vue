@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-full bg-gray-50">
-    <ProfileMenu />
 
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->
@@ -35,7 +34,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import ProfileMenu from '../components/ProfileMenu.vue'
 import ProfileHeader from '../components/ProfileHeader.vue'
 import PetSlider from '../components/PetSlider.vue'
 import FeedTabs from '../components/FeedTabs.vue'
