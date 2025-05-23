@@ -43,9 +43,9 @@ import { ref, onMounted, computed } from 'vue';
 import dayjs from 'dayjs';
 import { fetchBlockedUsers, unblockUser } from '@/api/block.js';
 import { useAuthStore } from '@/stores/auth.js';
+import defaultProfileImage from '@/assets/default_images/01_cat.png';
 
 const blockedUsers = ref([]);
-const defaultAvatar = '/default_avatar.png';
 const authStore = useAuthStore();
 const userId = computed(() => authStore.memberId);
 
