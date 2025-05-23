@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { likeFeed, unLikeFeed } from '@/api/like.js';
 import {
@@ -19,6 +19,7 @@ import {
   stopLoading,
   stopLoadingAsync,
 } from '@/composable/useLoadingBar.js';
+import ShareDropdown from '@/components/ShareDropdown.vue';
 
 const props = defineProps({
   id: Number,
@@ -32,6 +33,7 @@ const props = defineProps({
   commentCount: Number,
   isLiked: Boolean,
   isMine: Boolean,
+  thumbnailUrl: String,
 });
 
 const file = ref(null);
@@ -160,7 +162,13 @@ const updateJjureHandler = async () => {
           <i class="fa-regular fa-comment text-primary"></i>
           <div class="action-count">{{ commentCount }}</div>
         </RouterLink>
-        <button class="icon-wrapper text-primary"><i class="fa-solid fa-share-nodes"></i></button>
+        <div>
+          <ShareDropdown
+            :shareUrl="`http://localhost:5173/jjure/${id}`"
+            :shareText="caption"
+            :shareImage="thumbnailUrl"
+          />
+        </div>
       </div>
     </div>
 
@@ -217,10 +225,10 @@ const updateJjureHandler = async () => {
   @apply w-full h-full object-cover;
 }
 .reel-actions {
-  @apply absolute right-2 bottom-14 flex flex-col gap-4 text-white text-[16px];
+  @apply absolute right-2 bottom-14 flex flex-col gap-4 text-white text-[16px] items-center;
 }
 .icon-wrapper {
-  @apply cursor-pointer text-center shadow-elevated bg-black-alpha-20 rounded-full p-2;
+  @apply cursor-pointer text-center shadow-elevated bg-black-alpha-60 rounded-full p-2;
 }
 .reel-actions i {
   @apply hover:text-primary;

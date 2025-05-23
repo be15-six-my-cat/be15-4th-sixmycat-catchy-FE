@@ -68,6 +68,7 @@ onBeforeUnmount(() => {
         :ref="index === jjures.length - 1 ? lastCard : null"
         :isLiked="jjure.liked"
         :isMine="jjure.mine"
+        :thumbnailUrl="jjure.thumbnailUrl"
       />
     </section>
 

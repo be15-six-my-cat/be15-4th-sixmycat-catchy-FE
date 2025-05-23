@@ -66,7 +66,7 @@ async function generateThumbnail(retryCount = 0) {
   } catch (err) {
     console.warn(`썸네일 생성 실패 [시도 ${retryCount + 1}/3]:`, err);
 
-    if (retryCount < 2) {
+    if (retryCount < 5) {
       setTimeout(() => generateThumbnail(retryCount + 1), 1000); // 1초 간격 재시도
     } else {
       console.error('썸네일 최종 생성 실패. 사용자에게는 이전 썸네일이 유지됩니다.');
@@ -145,14 +145,12 @@ onMounted(() => {
   <section class="overlay" @click.self="emit('close')">
     <article class="reel-modal">
       <div class="video-preview">
-        <!-- ✅ video에 ref 연결 -->
         <video ref="videoRef" controls playsinline>
           <source :src="localVideoUrl" type="video/mp4" />
         </video>
       </div>
 
       <form class="reel-form" @submit.prevent="handleSubmit">
-        <!-- ✅ 사용자 정의 슬롯 영역 -->
         <div>
           <slot name="video-upload-slot" />
         </div>

@@ -1,15 +1,11 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  fetchJjureDetail,
-  fetchJjureComments,
-  postJjureComment,
-  deleteJjureComment,
-} from '@/api/jjure.js';
+import { fetchJjureDetail } from '@/api/jjure.js';
 import CommentSection from '@/components/CommentSection.vue';
 import { likeFeed, unLikeFeed } from '@/api/like.js';
 import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
+import ShareDropdown from '@/components/ShareDropdown.vue';
 
 const jjure = ref(null);
 const route = useRoute();
@@ -19,7 +15,7 @@ const jjureId = route.params.id;
 const liked = ref(false);
 const likeCount = ref(0);
 const animateLike = ref(false);
-const videoUrl = ref(null); // 🎯 최종 video URL
+const videoUrl = ref(null);
 
 // 닫기
 const close = () => router.back();
@@ -43,7 +39,6 @@ const toggleLike = async () => {
   }
 };
 
-// fileKey → videoUrl 생성 로직
 watch(
   jjure,
   (val) => {
@@ -56,7 +51,23 @@ watch(
     }
   },
   { immediate: true },
-); // 즉시 실행 추가
+);
+
+const commentSectionRef = ref(null);
+
+const focusCommentInput = async () => {
+  let tryCount = 0;
+  while (!commentSectionRef.value?.focusInput && tryCount < 10) {
+    await nextTick();
+    tryCount++;
+  }
+  await nextTick(); // 렌더 완료 보장
+  if (commentSectionRef.value?.focusInput) {
+    commentSectionRef.value.focusInput();
+  } else {
+    console.warn('커멘트 섹션 작동 안함');
+  }
+};
 
 // 상세 조회
 onMounted(async () => {
@@ -105,12 +116,16 @@ onMounted(async () => {
             />
             <span>{{ likeCount }}</span>
           </button>
-          <button class="overlay-button icon-wrapper">
+          <button class="overlay-button icon-wrapper" @click="focusCommentInput">
             <i class="fa-regular fa-comment"></i>
             <span>{{ jjure?.commentCount }}</span>
           </button>
           <button class="overlay-button icon-wrapper">
-            <i class="fa-solid fa-share-nodes"></i>
+            <ShareDropdown
+              :shareUrl="`http://localhost:5173/jjure/${jjure?.id}`"
+              :shareText="jjure?.caption"
+              :shareImage="jjure?.thumbnailUrl"
+            />
           </button>
         </div>
       </div>
@@ -124,7 +139,12 @@ onMounted(async () => {
         <p class="caption-text">{{ jjure?.caption }}</p>
 
         <!-- 댓글 -->
-        <CommentSection v-if="jjure" :target-id="jjure.id" target-type="JJURE" />
+        <CommentSection
+          v-if="jjure"
+          :target-id="jjure.id"
+          target-type="JJURE"
+          :ref="commentSectionRef"
+        />
       </div>
 
       <!-- 닫기 -->
