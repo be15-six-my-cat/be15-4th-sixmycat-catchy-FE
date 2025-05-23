@@ -33,29 +33,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import ProfileMenu from '../components/ProfileMenu.vue'
-import ProfileHeader from '../components/ProfileHeader.vue'
-import PetSlider from '../components/PetSlider.vue'
-import FeedTabs from '../components/FeedTabs.vue'
-import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue'
-import { fetchMyProfile } from '@/api/profile' // ✅ 내 프로필 전용
+import { onMounted, ref } from 'vue';
+import ProfileMenu from '../components/ProfileMenu.vue';
+import ProfileHeader from '../components/ProfileHeader.vue';
+import PetSlider from '../components/PetSlider.vue';
+import FeedTabs from '../components/FeedTabs.vue';
+import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
+import { fetchMyProfile } from '@/api/profile'; // ✅ 내 프로필 전용
 
-const user = ref(null)
-const selectedTab = ref('MyFeed')
+const user = ref(null);
+const selectedTab = ref('MyFeed');
 
 const loadProfile = async () => {
   try {
-    const res = await fetchMyProfile()
-    user.value = res
-    console.log('✅ 내 프로필 응답:', user.value)
+    user.value = await fetchMyProfile();
+    console.log('✅ 내 프로필 응답:', user.value);
   } catch (e) {
-    console.error('❌ 내 프로필 로딩 실패:', e)
-    user.value = null
+    console.error('❌ 내 프로필 로딩 실패:', e);
+    user.value = null;
   }
-}
+};
 
 onMounted(() => {
-  loadProfile()
-})
+  loadProfile();
+});
 </script>

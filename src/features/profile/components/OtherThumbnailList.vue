@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { fetchLikedFeedList, fetchMyFeedList, fetchOtherFeedList } from '@/api/feed.js';
-import { fetchLikedJjureList, fetchMyJjureList, fetchOtherJjureList } from '@/api/jjure.js';
+import { fetchOtherFeedList } from '@/api/feed.js';
+import { fetchOtherJjureList } from '@/api/jjure.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
 const { selectedTab } = defineProps({
@@ -33,11 +33,7 @@ const fetchFn = async (page = 1) => {
   }
 };
 
-const {
-  items: items,
-  isLastPage,
-  reset,
-} = useInfiniteScroll({
+const { items: items, reset } = useInfiniteScroll({
   fetchFn,
   scrollTargetRef: scrollContainer,
 });
