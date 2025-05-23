@@ -3,6 +3,7 @@ import defaultProfileImage from '@/assets/default_images/01_cat.png';
 import { computed, ref, toRef, watch } from 'vue';
 import { showSuccessToast } from '@/utills/toast.js';
 import { requestFollow, unfollow } from '@/api/follow.js';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   notification: {
@@ -15,10 +16,13 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['close']);
+
 const isModalOpenRef = toRef(props, 'isModalOpen');
 const showFollow = ref(props.notification.type === 'FOLLOW');
 const initialIsFollowing = ref(props.notification.initialFollowing);
 const currentIsFollowing = ref(props.notification.initialFollowing);
+const router = useRouter();
 
 const timeAgo = computed(() => {
   const now = new Date();
@@ -58,7 +62,8 @@ const notificationText = computed(() => {
 });
 
 function goToProfile() {
-  // TODO: 타회원 프로필 조회 API 호출
+  emit('close');
+  router.push(`/members/${props.notification.senderId}`);
 }
 
 function toggleFollow() {
@@ -88,7 +93,7 @@ watch(isModalOpenRef, (newVal, oldVal) => {
     <img
       :src="props.notification.profileImage || defaultProfileImage"
       alt="profileImage"
-      class="profile-image"
+      class="profile-image cursor-pointer"
       @click="goToProfile"
     />
     <div class="text-start text-sm leading-snug flex-1">

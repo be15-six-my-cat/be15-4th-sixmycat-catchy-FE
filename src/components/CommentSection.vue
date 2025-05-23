@@ -109,7 +109,7 @@ const filteredComments = computed(() => {
           <div class="flex flex-col">
             <p class="flex items-center gap-2">
               <router-link
-                :to="`/members/${comment.nickname}`"
+                :to="`/members/${comment.memberId}`"
                 class="text-xs text-[#3e2f2f] font-bold hover:underline"
               >
                 {{ comment.nickname }}

@@ -107,7 +107,7 @@ const handleFeedEdit = async () => {
         :to="
           feed.author.authorId == authStore.memberId
             ? '/profile'
-            : `/members/${feed.author.nickname}`
+            : `/members/${feed.author.authorId}`
         "
       >
         <span class="author">{{ feed.author.nickname }}</span>
