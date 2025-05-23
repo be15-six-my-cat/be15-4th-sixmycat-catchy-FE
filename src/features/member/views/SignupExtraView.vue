@@ -1,116 +1,119 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import BasicButton from '@/features/member/components/BasicButton.vue';
-import Input from '@/features/member/components/Input.vue';
-import { getTempMemberInfo, socialSignupExtra } from '@/api/member';
-import { useDefaultProfileStore } from '@/stores/defaultProfileStore';
-import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
-import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
+import { ref, onMounted } from 'vue';
+import CatFormModal from '@/features/profile/components/CatFormModal.vue';
+import { fetchMyProfile, addNewCat, deleteCat } from '@/api/profile';
+import { useToast } from 'vue-toastification';
+import axios from '@/api/axios'; // ✅ 설정된 axios 인스턴스 사용
 
-const router = useRouter();
-const defaultProfileStore = useDefaultProfileStore();
+const toast = useToast();
 
-const name = ref('');
-const contactNumber = ref('');
 const nickname = ref('');
-const profileImage = ref(null);
+const statusMessage = ref('');
+const cats = ref([]);
+const showCatModal = ref(false);
+const editIndex = ref(null);
+const deletedCatIds = ref([]);
 
-const nameReadonly = ref(false);
-const contactReadonly = ref(false);
+const imageUrl = ref('https://placekitten.com/200/200');
+const imageFile = ref(null);
+const imageInput = ref(null);
 
-const fileInput = ref(null);
-
-const urlParams = new URLSearchParams(window.location.search);
-const email = urlParams.get('email');
-const social = urlParams.get('social');
-
-// 미리보기 이미지: 업로드 이미지 있으면 그거, 없으면 랜덤 기본 이미지
-const previewImage = computed(() =>
-  profileImage.value ? URL.createObjectURL(profileImage.value) : defaultProfileStore.image,
-);
-
-// 이미지 선택 창 열기
-const triggerImageInput = () => {
-  fileInput.value?.click();
-};
-
-// 이미지 선택 시 파일 저장 및 기본 이미지 덮어쓰기
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    profileImage.value = file;
-  }
-};
-
-// 초기 데이터 세팅
 onMounted(async () => {
-  if (!defaultProfileStore.hasImage) {
-    defaultProfileStore.setProfileImage();
-  }
-
-  if (!email || !social) {
-    showErrorToast('잘못된 접근입니다. 이메일 또는 소셜 정보가 누락되었습니다.');
-    return;
-  }
-
-  startLoading(); // 로딩 시작
-
   try {
-    const res = await getTempMemberInfo(email, social.toUpperCase());
-    const data = res.data.data;
-
-    if (data.name) {
-      name.value = data.name;
-      nameReadonly.value = true;
-    }
-    if (data.contactNumber) {
-      contactNumber.value = data.contactNumber.replace(/-/g, '');
-      contactReadonly.value = true;
-    }
-  } catch (err) {
-    showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
-    router.push('/member/start');
-  } finally {
-    stopLoading(); // 로딩 종료
+    const res = await fetchMyProfile();
+    nickname.value = res.nickname;
+    statusMessage.value = res.statusMessage;
+    imageUrl.value = res.profileImage;
+    cats.value = res.cats || [];
+  } catch (e) {
+    console.error('프로필 불러오기 실패', e);
+    toast.error('프로필 정보를 불러오지 못했습니다.');
   }
 });
 
-// ✅ 회원가입 제출
-const submitSignup = async () => {
+function openAddCat() {
+  editIndex.value = null;
+  showCatModal.value = true;
+}
+
+function triggerImageUpload() {
+  imageInput.value?.click();
+}
+
+function handleImageChange(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  imageFile.value = file;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageUrl.value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAddCat(cat) {
+  if (editIndex.value !== null) {
+    cats.value[editIndex.value] = cat;
+    editIndex.value = null;
+  } else {
+    cats.value.push(cat);
+  }
+  showCatModal.value = false;
+}
+
+function handleDeleteCat(cat) {
+  if (!cat || !cat.id) return;
+
+  cats.value = cats.value.filter((c) => c.id !== cat.id);
+  deletedCatIds.value.push(cat.id);
+}
+
+function openEditCat(index) {
+  editIndex.value = index;
+  showCatModal.value = true;
+}
+
+async function saveProfile() {
   try {
-    startLoading();
+    const existingCats = cats.value.filter((cat) => cat.id != null);
+    const newCats = cats.value.filter((cat) => cat.id == null);
+
+    const payload = {
+      nickname: nickname.value,
+      statusMessage: statusMessage.value,
+      cats: existingCats,
+    };
 
     const formData = new FormData();
-    formData.append('name', name.value);
-    formData.append('contactNumber', contactNumber.value.replace(/-/g, ''));
-    formData.append('nickname', nickname.value);
-    formData.append('email', email);
-    formData.append('social', social.toUpperCase());
+    formData.append(
+      'request',
+      new Blob([JSON.stringify(payload)], { type: 'application/json' })
+    );
 
-    if (profileImage.value) {
-      formData.append('profileImage', profileImage.value);
+    if (imageFile.value) {
+      formData.append('imageFile', imageFile.value);
     }
 
-    const { data } = await socialSignupExtra(formData);
-    showSuccessToast('Catchy에 오신 것을 환영합니다!');
-    router.push('/feed');
+    await axios.patch('/api/v1/profiles/me', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    for (const cat of newCats) {
+      await addNewCat(cat); // 인증 토큰 자동 포함
+    }
+
+    for (const catId of deletedCatIds.value) {
+      await deleteCat(catId);
+    }
+
+    toast.success('저장되었습니다!');
   } catch (error) {
-    const { errorCode, message } = error.response?.data ?? {};
-    showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
-  } finally {
-    stopLoading();
+    console.error('저장 실패:', error);
+    toast.error('저장 실패');
   }
-};
-
-const handleContactInput = (e) => {
-  const raw = e.target.value.replace(/\D/g, '');
-  contactNumber.value = raw.slice(0, 11);
-};
-
-const handleNicknameInput = (e) => {
-  nickname.value = e.target.value.slice(0, 20);
-};
+}
 </script>
 
 <template>
@@ -170,7 +173,34 @@ const handleNicknameInput = (e) => {
         v-model="nickname"
         @input="handleNicknameInput"
       />
+      <!-- ✅ 고양이 정보 항목 추가 -->
+      <label class="input-title">고양이 정보</label>
+      <p v-if="cats.length === 0" class="input-desc">
+        아직 등록된 고양이가 없습니다.
+      </p>
+
+      <div
+        v-for="(cat, index) in cats"
+        :key="index"
+        @click="openEditCat(index)"
+        class="input-box cat-box"
+      >
+        {{ cat.name }} · {{ cat.breed }} · {{ cat.gender }}
+      </div>
+
+      <button class="input-box cat-add-btn" @click="openAddCat">
+        고양이 추가
+      </button>
     </div>
+
+    <!-- 고양이 모달 -->
+    <CatFormModal
+      :visible="showCatModal"
+      @close="showCatModal = false"
+      @submit="handleAddCat"
+      @delete="handleDeleteCat"
+      :initial-cat="editIndex !== null ? cats[editIndex] : null"
+    />
   </div>
 </template>
 
@@ -228,4 +258,67 @@ const handleNicknameInput = (e) => {
   font-size: 18px;
   font-weight: bold;
 }
+
+.input-title {
+  font-size: 14px;
+  color: #757575;
+  margin-top: 12px;
+  line-height: 1.5;
+  border-style: hidden;
+  width: 315px;
+}
+
+.input-desc {
+  font-size: 14px;
+  color: #757575;
+  margin-top: 12px;
+}
+
+.input-box {
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  width: 337px;
+  text-align: left;
+}
+
+.cat-box {
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.cat-box:hover {
+  background-color: #ffe5ec;
+  color: #ff5c8d;
+}
+
+.cat-add-btn {
+  color: #ff5c8d;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid #ff5c8d;
+}
+.cat-add-btn:hover {
+  background-color: #ffe5ec;
+  color: white;
+}
+
+.input
+{
+  background-color:#ffffff;
+  height:40px;
+  width:337px;
+  border-radius:8px;
+  padding-left:11px;
+  padding-right:11px;
+  padding-top:11px;
+  padding-bottom:9px;
+  display:flex;
+  flex-direction:column;
+  top:30px;
+  position:relative;
+}
+
 </style>
