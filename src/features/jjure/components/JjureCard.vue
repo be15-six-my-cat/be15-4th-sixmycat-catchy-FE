@@ -57,7 +57,9 @@ const formattedCommentCount = computed(() =>
 
     <div class="caption-box">
       <div class="title">
-        <span class="nickname">@{{ authorNickname }}</span>
+        <RouterLink :to="`/members/${authorNickname}`" class="nickname hover:underline">
+          @{{ authorNickname }}
+        </RouterLink>
         <span class="caption">{{ caption }}</span>
       </div>
       <div class="comment-preview" v-if="commentPreview">{{ commentPreview }}</div>
