@@ -41,13 +41,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import dayjs from 'dayjs';
 import { fetchBlockedUsers, unblockUser } from '@/api/block.js';
+import { useAuthStore } from '@/stores/auth.js';
 
 const blockedUsers = ref([]);
 const defaultAvatar = '/default_avatar.png';
-const userId = 1; // TODO: 로그인 사용자 ID로 교체
+const authStore = useAuthStore();
+const userId = computed(() => authStore.memberId);
 
 const loadBlockedUsers = async () => {
   try {

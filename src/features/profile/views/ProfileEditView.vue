@@ -80,33 +80,37 @@ function openEditCat(index) {
 
 async function saveProfile() {
   try {
-    console.log('nickname:', nickname.value)
-    console.log('statusMessage:', statusMessage.value)
+    const existingCats = cats.value.filter(cat => cat.id != null);
+    const newCats = cats.value.filter(cat => cat.id == null);
 
-    const existingCats = cats.value.filter(cat => cat.id != null)
-    const newCats = cats.value.filter(cat => cat.id == null)
-
-    console.log('보내는 cats 데이터:', JSON.stringify(existingCats, null, 2))
-
-    await updateMyProfile({
+    const payload = {
       nickname: nickname.value,
       statusMessage: statusMessage.value,
-      profileImage: imageFileName.value,
-      cats: existingCats // PATCH용
-    })
+      cats: existingCats,
+    };
+
+    const formData = new FormData();
+    formData.append('request', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+    if (imageFile.value) {
+      formData.append('imageFile', imageFile.value);
+    }
+
+    await axios.patch('/api/v1/profiles/me', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
     for (const cat of newCats) {
-      await addNewCat(cat) // 별도 POST API
+      await addNewCat(cat); // 별도 POST API
     }
 
     for (const catId of deletedCatIds.value) {
-      await deleteCat(catId) // 삭제 API 호출
+      await deleteCat(catId); // 삭제 API 호출
     }
 
-    toast.success('저장되었습니다!')
+    toast.success('저장되었습니다!');
   } catch (error) {
-    console.error('저장 실패:', error)
-    toast.error('저장 실패')
+    console.error('저장 실패:', error);
+    toast.error('저장 실패');
   }
 }
 
