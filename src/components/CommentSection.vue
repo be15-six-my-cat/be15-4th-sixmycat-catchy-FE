@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getComments, postComment, deleteComment } from '@/api/comment';
+import { useAuthStore } from '@/stores/auth';
 
 dayjs.extend(relativeTime);
 
@@ -11,7 +12,8 @@ const props = defineProps({
   targetType: String,
 });
 
-const currentUserId = 1; // 로그인 유저 ID
+const authStore = useAuthStore();
+const currentUserId = computed(() => authStore.memberId); // 로그인 유저 ID
 const comments = ref([]);
 const newComment = ref('');
 const replyingTo = ref(null);
