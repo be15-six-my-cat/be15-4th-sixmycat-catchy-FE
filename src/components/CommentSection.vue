@@ -7,20 +7,11 @@ import { useAuthStore } from '@/stores/auth';
 
 dayjs.extend(relativeTime);
 
-const commentInputRef = ref(null);
 const props = defineProps({
   targetId: Number,
   targetType: String,
 });
 
-defineExpose({
-  focusInput: () => {
-    commentInputRef.value?.focus();
-    console.log('작동');
-  },
-});
-
-const currentUserId = 1; // 로그인 유저 ID
 const authStore = useAuthStore();
 const currentUserId = computed(() => authStore.memberId);
 const comments = ref([]);
@@ -112,8 +103,6 @@ const filteredComments = computed(() => {
 
 <template>
   <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col">
-  <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col border-2 border-p">
-    <!-- 스크롤 가능 한 댓글 영역-->
     <div class="flex-1 overflow-y-auto p-4">
       <div class="flex flex-col gap-6">
         <div v-for="comment in filteredComments" :key="comment.commentId" class="text-sm">
@@ -199,7 +188,6 @@ const filteredComments = computed(() => {
         placeholder="댓글 달기..."
         @keyup.enter="addComment"
         class="flex-1 px-2 py-1.5 text-sm"
-        :ref="commentInputRef"
       />
       <button
         @click="addComment"
