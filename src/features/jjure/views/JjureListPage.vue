@@ -1,31 +1,32 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { fetchJjureList } from '@/api/jjure.js';
-import { usePagination } from '@/composable/usePagination.js';
 import JjureCard from '@/features/jjure/components/JjureCard.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useUploadStore } from '@/stores/uploadStore.js';
+import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
-const { items: jjures, loadMore, reset, hasNext, isLoading } = usePagination(fetchJjureList);
+const scrollTargetRef = ref(null);
 
-const observer = ref(null);
-const lastCard = ref(null);
-
-const observe = () => {
-  if (observer.value) observer.value.disconnect();
-  observer.value = new IntersectionObserver(
-    async ([entry]) => {
-      if (entry.isIntersecting && hasNext.value && !isLoading.value) {
-        await loadMore();
-      }
-    },
-    { threshold: 1.0 },
-  );
-
-  if (lastCard.value) {
-    observer.value.observe(lastCard.value);
+const fetchFn = async (page) => {
+  try {
+    const size = 5;
+    startLoading();
+    const { data } = await fetchJjureList({ page, size });
+    return data;
+  } catch (e) {
+    console.log(e + '알림 목록 초기 로드 실패');
   }
 };
+
+const {
+  items: jjures,
+  isLastPage,
+  reset,
+} = useInfiniteScroll({
+  fetchFn,
+  scrollTargetRef,
+});
 
 const uploadStore = useUploadStore();
 
@@ -34,25 +35,18 @@ watch(
   async (newVal, oldVal) => {
     if (oldVal !== null && newVal === null) {
       reset();
-      await loadMore();
     }
   },
 );
 
 onMounted(async () => {
   startLoading();
-  await loadMore();
-  observe();
-});
-
-onBeforeUnmount(() => {
-  if (observer.value) observer.value.disconnect();
 });
 </script>
 
 <template>
-  <main class="jjure-list-page">
-    <section class="jjure-list">
+  <main class="jjure-list-page max-h-[90vh]">
+    <section class="jjure-list" ref="scrollTargetRef">
       <JjureCard
         v-for="(jjure, index) in jjures"
         :key="jjure.id"
@@ -65,11 +59,11 @@ onBeforeUnmount(() => {
         :comment-preview="jjure.commentPreview?.content"
         :like-count="jjure.likeCount"
         :comment-count="jjure.commentCount"
-        :ref="index === jjures.length - 1 ? lastCard : null"
         :isLiked="jjure.liked"
         :isMine="jjure.mine"
         :thumbnailUrl="jjure.thumbnailUrl"
       />
+      <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
     </section>
 
     <p v-if="isLoading" class="loading">불러오는 중...</p>
@@ -89,7 +83,11 @@ onBeforeUnmount(() => {
 }
 
 .jjure-list {
-  @apply flex flex-col items-center gap-6 w-full;
+  @apply mx-auto gap-6 overflow-y-auto;
+  -ms-overflow-style: none;
+}
+.jjure-list::-webkit-scrollbar {
+  display: none;
 }
 
 .loading {
