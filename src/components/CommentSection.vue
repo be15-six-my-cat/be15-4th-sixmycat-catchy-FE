@@ -103,7 +103,7 @@ const filteredComments = computed(() => {
 
 <template>
   <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col">
-    <div class="flex-1 overflow-y-auto p-4">
+    <div class="flex-1 overflow-y-auto p-4 scrollbar-hide">
       <div class="flex flex-col gap-6">
         <div v-for="comment in filteredComments" :key="comment.commentId" class="text-sm">
           <div class="flex flex-col">
@@ -205,5 +205,13 @@ const filteredComments = computed(() => {
   color: #ff5c8d;
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
 }
 </style>
