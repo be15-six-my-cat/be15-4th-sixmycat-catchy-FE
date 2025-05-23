@@ -11,8 +11,9 @@ const scrollTargetRef = ref(null);
 const fetchFn = async (page) => {
   try {
     const size = 5;
+    const sendedPage = page - 1;
     startLoading();
-    const { data } = await fetchJjureList({ page, size });
+    const { data } = await fetchJjureList({ page: sendedPage, size });
     return data;
   } catch (e) {
     console.log(e + '알림 목록 초기 로드 실패');
@@ -34,7 +35,7 @@ watch(
   () => uploadStore.selectedFile,
   async (newVal, oldVal) => {
     if (oldVal !== null && newVal === null) {
-      reset();
+      await reset();
     }
   },
 );
@@ -79,7 +80,7 @@ onMounted(async () => {
 }
 
 .jjure-list {
-  @apply gap-6 overflow-y-auto w-full;
+  @apply gap-6 overflow-y-auto w-full flex flex-col gap-4;
   -ms-overflow-style: none;
 }
 

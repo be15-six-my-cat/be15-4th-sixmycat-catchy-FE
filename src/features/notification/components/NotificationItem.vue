@@ -3,7 +3,7 @@ import defaultProfileImage from '@/assets/default_images/01_cat.png';
 import { computed, ref, toRef, watch } from 'vue';
 import { showSuccessToast } from '@/utills/toast.js';
 import { requestFollow, unfollow } from '@/api/follow.js';
-// import { followUserAPI, unfollowUserAPI } from '@/api/follow'; // 실제 API 모듈 연결 시
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   notification: {
@@ -16,10 +16,13 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['close']);
+
 const isModalOpenRef = toRef(props, 'isModalOpen');
 const showFollow = ref(props.notification.type === 'FOLLOW');
 const initialIsFollowing = ref(props.notification.initialFollowing);
 const currentIsFollowing = ref(props.notification.initialFollowing);
+const router = useRouter();
 
 const timeAgo = computed(() => {
   const now = new Date();
@@ -41,25 +44,28 @@ const timeAgo = computed(() => {
 
 const notificationText = computed(() => {
   const type = props.notification.type;
-  const base = `님이 회원님을 `;
+  const base = `님이 회원님`;
   switch (type) {
     case 'FOLLOW':
-      return `${base}팔로우하기 시작했습니다.`;
+      return `${base}을 팔로우하기 시작했습니다.`;
     case 'COMMENT':
-      return `${base}게시물에 댓글을 남겼습니다.`;
+      return `${base}의 게시물에 댓글을 남겼습니다.`;
     case 'RECOMMENT':
-      return `${base}댓글에 답글을 남겼습니다.`;
-    case 'LIKE':
-      return `${base}피드/쭈르을(를) 좋아합니다.`;
+      return `${base}의 댓글에 답글을 남겼습니다.`;
+    case 'FEED_LIKE':
+      return `${base}의 피드를 좋아합니다.`;
+    case 'JJURE_LIKE':
+      return `${base}의 쭈르를 좋아합니다.`;
     case 'BIRTHDAY':
-      return `님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
+      return `회원님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
     default:
       return '';
   }
 });
 
 function goToProfile() {
-  // TODO: 타회원 프로필 조회 API 호출
+  emit('close');
+  router.push(`/members/${props.notification.senderId}`);
 }
 
 function toggleFollow() {
@@ -89,7 +95,7 @@ watch(isModalOpenRef, (newVal, oldVal) => {
     <img
       :src="props.notification.profileImage || defaultProfileImage"
       alt="profileImage"
-      class="profile-image"
+      class="profile-image cursor-pointer"
       @click="goToProfile"
     />
     <div class="text-start text-sm leading-snug flex-1">

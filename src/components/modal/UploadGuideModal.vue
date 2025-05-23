@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import draggable from 'vuedraggable';
+import { showErrorToast } from '@/utills/toast.js';
 
 const emit = defineEmits(['close', 'fileSelected']);
 const inputRef = ref(null);
@@ -25,7 +26,8 @@ function handleFileChange(event) {
   const videoFiles = files.filter((file) => file.type.startsWith('video/'));
 
   if (videoFiles.length === 1 && imageFiles.length === 0) {
-    emit('fileSelected', videoFiles);
+    console.log('[Modal] emit fileSelected', videoFiles);
+    emit('fileSelected', { files: videoFiles, existingUrls: [] });
     emit('close');
     return;
   }
@@ -46,7 +48,7 @@ function handleFileChange(event) {
     return;
   }
 
-  alert('이미지 또는 하나의 비디오만 선택해주세요.');
+  showErrorToast('이미지 또는 하나의 비디오만 선택해주세요.');
 }
 
 function removeImage(index) {

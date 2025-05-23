@@ -1,30 +1,35 @@
 <script setup>
+import { ref } from 'vue';
 import FeedHeader from './FeedHeader.vue';
 import FeedCarousel from './FeedCarousel.vue';
 import FeedActions from './FeedActions.vue';
 import FeedCommentPreview from './FeedCommentPreview.vue';
+import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
+import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
+
 import { deleteFeed, editFeed, uploadImages } from '@/api/feed.js';
 import { showSuccessToast } from '@/utills/toast.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
-import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
-import { ref } from 'vue';
-import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useAuthStore } from '@/stores/auth.js';
+import DeleteModal from '@/components/modal/DeleteModal.vue';
+
+const props = defineProps({ feed: Object });
+const feedRefreshStore = useFeedRefreshStore();
+const authStore = useAuthStore();
 
 const showImageEditModal = ref(false);
 const showFeedEditModal = ref(false);
+const showDeleteModal = ref(false);
 const editImageFiles = ref([]);
 const editImageUrls = ref([]);
-const props = defineProps({ feed: Object });
-const feedRefreshStore = useFeedRefreshStore();
 const caption = ref(props.feed.content);
-const authStore = useAuthStore();
 
-const handleDelete = async () => {
-  const confirmDelete = confirm('정말 삭제하시겠습니까?');
-  if (!confirmDelete) return;
+const handleDelete = () => {
+  showDeleteModal.value = true;
+};
 
+const handleDeleteConfirmed = async () => {
   try {
     await deleteFeed(props.feed.id);
     showSuccessToast('삭제되었습니다.');
@@ -32,6 +37,8 @@ const handleDelete = async () => {
   } catch (e) {
     console.error(e);
     alert('삭제 중 오류 발생');
+  } finally {
+    showDeleteModal.value = false;
   }
 };
 
@@ -49,21 +56,16 @@ const handleImageEditSave = ({ existingUrls = [], files = [] }) => {
 const handleFeedEdit = async () => {
   try {
     startLoading();
-
-    // 1. 새 이미지 업로드
     let uploadedUrls = [];
     if (editImageFiles.value.length > 0) {
       const formData = new FormData();
       editImageFiles.value.forEach((file) => formData.append('files', file));
       const res = await uploadImages(formData);
-      uploadedUrls = res.data.data; // 새로 업로드된 S3 URL들
+      uploadedUrls = res.data.data;
     }
 
-    // 2. 기존 유지 이미지 URL 추출
     const original = props.feed.imageUrls;
     const keepUrls = editImageUrls.value.filter((url) => original.includes(url));
-
-    // 3. 최종 payload 구성
     const finalImageUrls = [...keepUrls, ...uploadedUrls];
 
     const payload = {
@@ -71,9 +73,7 @@ const handleFeedEdit = async () => {
       imageUrls: finalImageUrls,
     };
 
-    // 4. 서버에 수정 요청
     await editFeed(props.feed.id, payload);
-
     showSuccessToast('피드가 수정되었습니다!');
     feedRefreshStore.triggerRefresh();
     showFeedEditModal.value = false;
@@ -107,7 +107,7 @@ const handleFeedEdit = async () => {
         :to="
           feed.author.authorId == authStore.memberId
             ? '/profile'
-            : `/members/${feed.author.nickname}`
+            : `/members/${feed.author.authorId}`
         "
       >
         <span class="author">{{ feed.author.nickname }}</span>
@@ -125,13 +125,17 @@ const handleFeedEdit = async () => {
       @fileSelected="handleImageEditSave"
       @close="showImageEditModal = false"
     />
-
     <FeedUploadModal
       v-if="showFeedEditModal"
       v-model:caption="caption"
       :imageUrls="editImageUrls"
       @upload="handleFeedEdit"
       @close="showFeedEditModal = false"
+    />
+    <DeleteModal
+      v-if="showDeleteModal"
+      @close="showDeleteModal = false"
+      @delete="handleDeleteConfirmed"
     />
   </div>
 </template>
@@ -140,15 +144,12 @@ const handleFeedEdit = async () => {
 .feed-card {
   @apply w-full max-w-[560px] rounded-xl bg-white shadow-base border border-gray-200;
 }
-
 .content-wrapper {
   @apply flex flex-col px-4 gap-2;
 }
-
 .author {
   @apply text-xs font-semibold;
 }
-
 .content-wrapper .content {
   @apply text-sm text-gray-800;
 }

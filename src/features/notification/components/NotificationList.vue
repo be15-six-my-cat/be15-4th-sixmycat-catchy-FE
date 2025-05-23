@@ -11,12 +11,15 @@ const { notifications, isModalOpen } = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(['close']);
 </script>
 
 <template>
   <div v-if="notifications.length !== 0" class="text-gray-500 text-start">이번 달</div>
   <div class="space-y-4 max-height overflow-y-auto">
     <NotificationItem
+      @close="emit('close')"
       v-for="notification in notifications"
       :key="notification.id"
       :notification="notification"
