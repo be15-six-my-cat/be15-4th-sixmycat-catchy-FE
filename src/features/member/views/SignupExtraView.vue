@@ -5,11 +5,13 @@ import BasicButton from '@/features/member/components/BasicButton.vue';
 import Input from '@/features/member/components/Input.vue';
 import { getTempMemberInfo, socialSignupExtra } from '@/api/member';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore';
+import { useAuthStore } from '@/stores/auth';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
 const router = useRouter();
 const defaultProfileStore = useDefaultProfileStore();
+const authStore = useAuthStore();
 
 const name = ref('');
 const contactNumber = ref('');
@@ -25,17 +27,14 @@ const urlParams = new URLSearchParams(window.location.search);
 const email = urlParams.get('email');
 const social = urlParams.get('social');
 
-// 미리보기 이미지: 업로드 이미지 있으면 그거, 없으면 랜덤 기본 이미지
 const previewImage = computed(() =>
   profileImage.value ? URL.createObjectURL(profileImage.value) : defaultProfileStore.image,
 );
 
-// 이미지 선택 창 열기
 const triggerImageInput = () => {
   fileInput.value?.click();
 };
 
-// 이미지 선택 시 파일 저장 및 기본 이미지 덮어쓰기
 const handleImageChange = (e) => {
   const file = e.target.files[0];
   if (file) {
@@ -43,7 +42,6 @@ const handleImageChange = (e) => {
   }
 };
 
-// 초기 데이터 세팅
 onMounted(async () => {
   if (!defaultProfileStore.hasImage) {
     defaultProfileStore.setProfileImage();
@@ -54,12 +52,10 @@ onMounted(async () => {
     return;
   }
 
-  startLoading(); // 로딩 시작
-
+  startLoading();
   try {
     const res = await getTempMemberInfo(email, social.toUpperCase());
     const data = res.data.data;
-
     if (data.name) {
       name.value = data.name;
       nameReadonly.value = true;
@@ -72,11 +68,10 @@ onMounted(async () => {
     showErrorToast('회원 정보를 불러오지 못했습니다. 다시 시도해주세요.');
     router.push('/member/start');
   } finally {
-    stopLoading(); // 로딩 종료
+    stopLoading();
   }
 });
 
-// ✅ 회원가입 제출
 const submitSignup = async () => {
   try {
     startLoading();
@@ -93,10 +88,13 @@ const submitSignup = async () => {
     }
 
     const { data } = await socialSignupExtra(formData);
+    const accessToken = data.data.accessToken;
+    authStore.setAuth(accessToken); // accessToken 수동 저장
+
     showSuccessToast('Catchy에 오신 것을 환영합니다!');
     router.push('/feed');
   } catch (error) {
-    const { errorCode, message } = error.response?.data ?? {};
+    const { message } = error.response?.data ?? {};
     showErrorToast(`${message ?? '알 수 없는 오류가 발생했습니다.'}`);
   } finally {
     stopLoading();
@@ -124,7 +122,6 @@ const handleNicknameInput = (e) => {
       />
     </div>
 
-    <!-- 프로필 이미지 및 아이콘 -->
     <div class="profile-frame">
       <img
         :src="previewImage"
@@ -149,7 +146,6 @@ const handleNicknameInput = (e) => {
 
     <h2 class="title">추가 정보 입력</h2>
 
-    <!-- 입력 폼 -->
     <div class="inputs-frame">
       <Input
         title="이름"
