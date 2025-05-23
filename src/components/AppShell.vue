@@ -11,6 +11,12 @@ import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useFeedRefreshStore } from '@/stores/feedRefreshStore.js';
 import { useRouter } from 'vue-router';
+import {
+  getPresignedUrl,
+  saveJjureMeta,
+  uploadFileToS3,
+  uploadThumbnailImage,
+} from '@/api/jjure.js';
 
 const showUploadGuideModal = ref(false);
 const showJjureUploadModal = ref(false);
@@ -25,6 +31,7 @@ const thumbnailBlob = ref(null); // 썸네일 Blob 저장
 
 const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
+
 // 파일 선택 핸들러
 function handleFilesSelected({ existingUrls = [], files = [] }) {
   if (!files.length) return;
@@ -61,7 +68,6 @@ async function handleUpload() {
     startLoading();
 
     // 1. 썸네일 S3 업로드
-    console.log('2번째 썸네일 이미지', thumbnailBlob.value);
     const thumbnailRes = await uploadThumbnailImage(thumbnailBlob.value);
     const thumbnailUrl = thumbnailRes.data.data;
 
@@ -72,12 +78,11 @@ async function handleUpload() {
     await uploadFileToS3(presignedUrl, file);
 
     // 4. 메타데이터 저장 API 호출 (썸네일 포함)
-    await saveJjureMeta({ fileKey, caption: caption.value, imageUrl: thumbnailUrl });
+    await saveJjureMeta({ fileKey, caption: caption.value, thumbnail_url: thumbnailUrl });
 
     showSuccessToast('쭈르 업로드에 성공했습니다!');
   } catch (error) {
-    console.error('업로드 실패:', error);
-    alert('업로드 중 오류가 발생했습니다.');
+    showErrorToast('업로드 중 오류가 발생했습니다.');
   } finally {
     showJjureUploadModal.value = false;
     URL.revokeObjectURL(videoUrl.value);
@@ -151,7 +156,11 @@ onUnmounted(() => {
       <RouterView />
     </SidebarMainLayout>
 
-    <NotificationModal v-if="showNotificationModal" @close="showNotificationModal = false" />
+    <NotificationModal
+      v-show="showNotificationModal"
+      :is-modal-open="showNotificationModal"
+      @close="showNotificationModal = false"
+    />
 
     <!-- 파일 업로드 안내 모달 -->
     <UploadGuideModal

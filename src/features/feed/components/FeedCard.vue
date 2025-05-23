@@ -10,6 +10,7 @@ import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
 import { ref } from 'vue';
 import FeedUploadModal from '@/features/feed/components/FeedUploadModal.vue';
 import { startLoading } from '@/composable/useLoadingBar.js';
+import { useAuthStore } from '@/stores/auth.js';
 
 const showImageEditModal = ref(false);
 const showFeedEditModal = ref(false);
@@ -18,6 +19,7 @@ const editImageUrls = ref([]);
 const props = defineProps({ feed: Object });
 const feedRefreshStore = useFeedRefreshStore();
 const caption = ref(props.feed.content);
+const authStore = useAuthStore();
 
 const handleDelete = async () => {
   const confirmDelete = confirm('정말 삭제하시겠습니까?');
@@ -102,11 +104,13 @@ const handleFeedEdit = async () => {
     />
     <div class="content-wrapper">
       <router-link
-        :to="feed.author.nickname === myNickname
-    ? '/profile'
-    : `/members/${feed.author.nickname}`"
+        :to="
+          feed.author.authorId == authStore.memberId
+            ? '/profile'
+            : `/members/${feed.author.nickname}`
+        "
       >
-        {{ feed.author.nickname }}
+        <span class="author">{{ feed.author.nickname }}</span>
       </router-link>
       <span class="content">{{ feed.content }}</span>
     </div>
@@ -141,7 +145,7 @@ const handleFeedEdit = async () => {
   @apply flex flex-col px-4 gap-2;
 }
 
-.content-wrapper .author {
+.author {
   @apply text-xs font-semibold;
 }
 

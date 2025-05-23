@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <!-- 이클립스 버튼 -->
-    <button @click="toggle" class="text-xs">
+    <button @click="toggle" class="text-xs text-white">
       <i class="fa-solid fa-ellipsis"></i>
     </button>
 

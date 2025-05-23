@@ -2,6 +2,7 @@ import './assets/main.css';
 import 'pretendard/dist/web/static/pretendard.css';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
+import VueKakaoSdk from 'vue-kakao-sdk';
 
 import { createApp, watch } from 'vue';
 import { createPinia } from 'pinia';
@@ -13,13 +14,18 @@ import router from './router/index.js';
 import { useAuthStore } from '@/stores/auth.js';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 import { fetchMyProfile, reissueAccessToken } from '@/api/member.js'; // ✅ refresh API import
+// main.js
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 async function bootstrap() {
   const app = createApp(App);
 
+  const apiKey = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY;
+
   const pinia = createPinia();
   pinia.use(piniaPluginPersistedstate);
   app.use(pinia);
+  app.use(VueKakaoSdk, { apiKey: apiKey });
 
   const authStore = useAuthStore();
   const defaultProfileStore = useDefaultProfileStore();

@@ -1,55 +1,56 @@
 <script setup>
 import defaultProfileImage from '@/assets/default_images/01_cat.png';
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, toRef, watch } from 'vue';
+import { showSuccessToast } from '@/utills/toast.js';
+import { requestFollow, unfollow } from '@/api/follow.js';
+// import { followUserAPI, unfollowUserAPI } from '@/api/follow'; // 실제 API 모듈 연결 시
 
-const { notification } = defineProps({
+const props = defineProps({
   notification: {
     type: Object,
     required: true,
   },
+  isModalOpen: {
+    type: Boolean,
+    required: true,
+  },
 });
 
-const router = useRouter();
-const showFollow = ref(notification.type === 'FOLLOW');
-const isFollowing = ref(true);
+const isModalOpenRef = toRef(props, 'isModalOpen');
+const showFollow = ref(props.notification.type === 'FOLLOW');
+const initialIsFollowing = ref(props.notification.initialFollowing);
+const currentIsFollowing = ref(props.notification.initialFollowing);
 
-function getTimeAgo(dateString) {
+const timeAgo = computed(() => {
   const now = new Date();
-  const created = new Date(dateString);
-  const diffMs = now - created;
+  const created = new Date(props.notification.createdAt);
+  const diff = now - created;
 
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffWeeks = Math.floor(diffDays / 7);
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  const weeks = Math.floor(days / 7);
 
-  if (diffSeconds < 60) {
-    return `${diffSeconds}초`;
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes}분`;
-  } else if (diffHours < 24) {
-    return `${diffHours}시간`;
-  } else if (diffDays < 7) {
-    return `${diffDays}일`;
-  } else {
-    return `${diffWeeks}주`;
-  }
-}
-
-const timeAgo = computed(() => getTimeAgo(notification.createdAt));
+  if (seconds < 60) return `${seconds}초`;
+  if (minutes < 60) return `${minutes}분`;
+  if (hours < 24) return `${hours}시간`;
+  if (days < 7) return `${days}일`;
+  return `${weeks}주`;
+});
 
 const notificationText = computed(() => {
-  switch (notification.type) {
+  const type = props.notification.type;
+  const base = `님이 회원님을 `;
+  switch (type) {
     case 'FOLLOW':
-      return `님이 회원님을 팔로우하기 시작했습니다.`;
+      return `${base}팔로우하기 시작했습니다.`;
     case 'COMMENT':
-      return `님이 회원님의 게시물에 댓글을 남겼습니다.`;
+      return `${base}게시물에 댓글을 남겼습니다.`;
     case 'RECOMMENT':
-      return `님이 회원님의 댓글에 답글을 남겼습니다.`;
+      return `${base}댓글에 답글을 남겼습니다.`;
     case 'LIKE':
-      return `님이 회원님의 피드/쭈르 을(를) 좋아합니다.`;
+      return `${base}피드/쭈르을(를) 좋아합니다.`;
     case 'BIRTHDAY':
       return `님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
     default:
@@ -58,31 +59,55 @@ const notificationText = computed(() => {
 });
 
 function goToProfile() {
-  // todo : 타회원 프로필 조회 api 호출
+  // TODO: 타회원 프로필 조회 API 호출
 }
 
 function toggleFollow() {
-  // todo : 팔로우 api 호출 후 상태 변경
-  isFollowing.value = !isFollowing.value;
+  currentIsFollowing.value = !currentIsFollowing.value;
+  showSuccessToast(currentIsFollowing.value ? '팔로우 완료!' : '팔로우 취소 완료!');
 }
+
+async function handleFollowAPI() {
+  if (initialIsFollowing.value === currentIsFollowing.value) return;
+
+  if (currentIsFollowing.value) {
+    await requestFollow(props.notification.senderId);
+  } else {
+    await unfollow(props.notification.senderId);
+  }
+}
+
+watch(isModalOpenRef, (newVal, oldVal) => {
+  if (oldVal && !newVal) {
+    handleFollowAPI();
+  }
+});
 </script>
 
 <template>
   <div class="flex items-center gap-2">
     <img
-      :src="notification.profileImage ||= defaultProfileImage"
-      :alt="'profileImage'"
+      :src="props.notification.profileImage || defaultProfileImage"
+      alt="profileImage"
       class="profile-image"
       @click="goToProfile"
     />
     <div class="text-start text-sm leading-snug flex-1">
-      <span class="font-bold">{{ notification.senderNickname }}</span>
+      <span class="font-bold">{{ props.notification.senderNickname }}</span>
       <span>{{ notificationText }}</span>
-      <span></span>
       <span class="text-gray-300 pl-1">{{ timeAgo }}</span>
     </div>
-    <button class="following-button" @click.stop="toggleFollow" :class="{ invisible: !showFollow }">
-      팔로우
+    <button
+      v-if="showFollow"
+      class="following-button"
+      @click.stop="toggleFollow"
+      :class="
+        currentIsFollowing
+          ? 'bg-secondary hover:bg-secondary-hover text-white'
+          : 'bg-primary hover:bg-primary-hover text-white'
+      "
+    >
+      {{ currentIsFollowing ? '팔로잉' : '팔로우' }}
     </button>
   </div>
 </template>
@@ -93,6 +118,6 @@ function toggleFollow() {
 }
 
 .following-button {
-  @apply bg-primary text-white text-body-sm py-1 px-3 rounded-sm hover:bg-primary-hover;
+  @apply text-body-sm py-1 px-3 rounded-sm;
 }
 </style>

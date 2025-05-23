@@ -1,21 +1,26 @@
 <script setup>
 import NotificationItem from '@/features/notification/components/NotificationItem.vue';
 
-const { notifications } = defineProps({
+const { notifications, isModalOpen } = defineProps({
   notifications: {
     type: Array,
+    required: true,
+  },
+  isModalOpen: {
+    type: Boolean,
     required: true,
   },
 });
 </script>
 
 <template>
-  <div class="space-y-2 max-height overflow-y-auto">
-    <div class="text-gray-500 text-start">이번 달</div>
+  <div v-if="notifications.length !== 0" class="text-gray-500 text-start">이번 달</div>
+  <div class="space-y-4 max-height overflow-y-auto">
     <NotificationItem
       v-for="notification in notifications"
       :key="notification.id"
       :notification="notification"
+      :is-modal-open="isModalOpen"
     />
   </div>
 </template>
