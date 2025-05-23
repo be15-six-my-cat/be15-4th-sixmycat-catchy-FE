@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-full bg-gray-50">
-
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->
       <div v-if="!user" class="flex justify-center">
@@ -19,11 +18,11 @@
           <PetSlider v-if="user?.cats?.length" :pets="user.cats" class="mt-6" />
 
           <!-- 피드 탭 -->
-          <FeedTabs v-model:selectedTab="selectedTab" class="mt-6" />
+          <FeedTabs v-model:selectedTab="selectedTab" class="mt-6" :is-other="true" />
 
           <!-- 썸네일 리스트 -->
           <div class="mt-6">
-            <MyThumbnailList :selectedTab="selectedTab" />
+            <OtherThumbnailList :selectedTab="selectedTab" />
           </div>
         </div>
       </div>
@@ -32,45 +31,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import ProfileHeader from '../components/ProfileHeader.vue'
-import PetSlider from '../components/PetSlider.vue'
-import FeedTabs from '../components/FeedTabs.vue'
-import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue'
-import { fetchUserProfile } from '@/api/profile'
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import ProfileHeader from '../components/ProfileHeader.vue';
+import PetSlider from '../components/PetSlider.vue';
+import FeedTabs from '../components/FeedTabs.vue';
+import { fetchUserProfile } from '@/api/profile';
+import OtherThumbnailList from '@/features/profile/components/OtherThumbnailList.vue';
 
-const route = useRoute()
-const user = ref(null)
-const selectedTab = ref('MyFeed')
+const route = useRoute();
+const user = ref(null);
+const selectedTab = ref('MyFeed');
 
 // 타 회원 닉네임으로 프로필 조회
 const loadProfile = async () => {
-  const nickname = route.params.nickname
+  const nickname = route.params.nickname;
 
   if (!nickname) {
-    console.warn('❌ 닉네임이 정의되지 않았습니다. 경로를 확인하세요.')
-    return
+    console.warn('❌ 닉네임이 정의되지 않았습니다. 경로를 확인하세요.');
+    return;
   }
 
   try {
-    user.value = await fetchUserProfile(nickname)
-    console.log('✅ 프로필 응답:', user.value)
+    user.value = await fetchUserProfile(nickname);
+    console.log('✅ 프로필 응답:', user.value);
   } catch (e) {
-    console.error('❌ 프로필 로딩 실패:', e.response?.data || e.message)
-    user.value = null
+    console.error('❌ 프로필 로딩 실패:', e.response?.data || e.message);
+    user.value = null;
   }
-}
-
+};
 
 onMounted(() => {
-  loadProfile()
-})
+  loadProfile();
+});
 
 watch(
   () => route.params.nickname,
   () => {
-    loadProfile()
-  }
-)
+    loadProfile();
+  },
+);
 </script>

@@ -9,7 +9,6 @@ const { selectedTab } = defineProps({
 });
 
 const scrollContainer = ref(null);
-/* todo : 라우터 주소에서 member id 추출해서 추가하기 */
 
 const fetchMap = {
   OtherFeed: fetchOtherFeedList,
@@ -24,7 +23,7 @@ const fetchFn = async (page = 1) => {
       items.value = [];
       return;
     }
-
+    /* todo : 라우터 주소에서 member id 추출해서 추가하기 */
     const { data } = await fetchFn({ page, size: 9 });
     return data;
   } catch (error) {
