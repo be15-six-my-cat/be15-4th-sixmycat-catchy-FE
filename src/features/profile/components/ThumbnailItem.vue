@@ -19,6 +19,14 @@ function handleItemClick() {
     router.push(`/feed/${item.feedId}`);
   } else if (selectedTab === 'OtherJjure') {
     router.push(`/jjure/${item.jjureId}`);
+  } else if (selectedTab === 'MyFeed') {
+    router.push(`/feed/${item.feedId}`);
+  } else if (selectedTab === 'LikedFeed') {
+    router.push(`/feed/${item.feedId}`);
+  } else if (selectedTab === 'MyJjure') {
+    router.push(`/jjure/${item.jjureId}`);
+  } else if (selectedTab === 'LikedJjure') {
+    router.push(`/jjure/${item.jjureId}`);
   }
 }
 </script>
@@ -26,7 +34,7 @@ function handleItemClick() {
 <template>
   <div
     @click="handleItemClick"
-    class="w-full sm:w-[48%] md:w-[30%] aspect-square overflow-hidden m-1 cursor-pointer group"
+    class="w-full aspect-square overflow-hidden m-1 cursor-pointer group"
   >
     <img
       :src="item.thumbnailUrl"

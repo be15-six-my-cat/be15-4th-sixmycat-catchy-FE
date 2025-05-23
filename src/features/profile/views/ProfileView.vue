@@ -23,7 +23,7 @@
           <FeedTabs v-model:selectedTab="selectedTab" class="mt-6" />
 
           <!-- 썸네일 리스트 -->
-          <div class="mt-6">
+          <div class="thumbnail-list mt-6 h-[300px] overflow-y-auto">
             <MyThumbnailList :selectedTab="selectedTab" />
           </div>
         </div>
@@ -58,3 +58,13 @@ onMounted(() => {
   loadProfile();
 });
 </script>
+<style>
+.thumbnail-list {
+  @apply overflow-y-auto flex flex-wrap;
+  -ms-overflow-style: none;
+}
+
+.thumbnail-list::-webkit-scrollbar {
+  display: none;
+}
+</style>

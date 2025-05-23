@@ -10,7 +10,7 @@
 
       <!-- ✅ 유저 데이터가 있을 때 -->
       <div v-else class="flex justify-center">
-        <div class="w-full h-[90vh] max-w-md bg-white border rounded-xl shadow-sm p-10">
+        <div class="w-full max-w-md bg-white border rounded-xl shadow-sm p-10">
           <!-- 프로필 헤더 -->
           <ProfileHeader :user="user" :is-other="true" />
 
@@ -21,7 +21,7 @@
           <FeedTabs v-model:selectedTab="selectedTab" class="mt-6" :is-other="true" />
 
           <!-- 썸네일 리스트 -->
-          <div class="mt-6">
+          <div class="thumbnail-list mt-6 h-[300px] overflow-y-auto">
             <OtherThumbnailList :selectedTab="selectedTab" />
           </div>
         </div>
@@ -72,3 +72,13 @@ watch(
   },
 );
 </script>
+<style>
+.thumbnail-list {
+  @apply overflow-y-auto flex flex-wrap;
+  -ms-overflow-style: none;
+}
+
+.thumbnail-list::-webkit-scrollbar {
+  display: none;
+}
+</style>
