@@ -153,7 +153,7 @@ onUnmounted(() => {
     </SidebarMainLayout>
 
     <NotificationModal
-      v-if="showNotificationModal"
+      v-show="showNotificationModal"
       :is-modal-open="showNotificationModal"
       @close="showNotificationModal = false"
     />

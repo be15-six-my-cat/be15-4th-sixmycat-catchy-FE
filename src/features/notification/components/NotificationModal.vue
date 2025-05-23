@@ -1,16 +1,18 @@
 <script setup>
 import NotificationList from '@/features/notification/components/NotificationList.vue';
-import { ref } from 'vue';
+import { ref, toRef, watch } from 'vue';
 import { getNotifications } from '@/api/notification.js';
 import { startLoading } from '@/composable/useLoadingBar.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 
-defineProps({
+const props = defineProps({
   isModalOpen: {
     type: Boolean,
     required: true,
   },
 });
+
+const isModalOpenRef = toRef(props, 'isModalOpen');
 
 const emit = defineEmits(['close']);
 
@@ -26,9 +28,20 @@ const fetchFn = async (page) => {
   }
 };
 
-const { items: notifications, isLastPage } = useInfiniteScroll({
+const {
+  items: notifications,
+  isLastPage,
+  reset,
+} = useInfiniteScroll({
   fetchFn,
   scrollTargetRef: scrollContainer,
+});
+
+watch(isModalOpenRef, (newVal, oldVal) => {
+  if (newVal !== oldVal && newVal === true) {
+    console.log('리셋완료!');
+    reset();
+  }
 });
 </script>
 
