@@ -1,9 +1,16 @@
 <template>
   <div class="feed-header">
-    <div class="author">
-      <img :src="author.profileImageUrl" alt="profile" class="profile-image" />
-      <span class="nickname">{{ author.nickname }}</span>
-    </div>
+    <router-link
+      :to="author.authorId == authStore.memberId ? '/profile' : `/members/${author.nickname}`"
+    >
+      <div class="author">
+        <img :src="author.profileImageUrl" alt="profile" class="profile-image" />
+
+        <span class="nickname" @click="() => console.log('authorId' + author.authorId)">{{
+          author.nickname
+        }}</span>
+      </div>
+    </router-link>
     <div class="flex gap-4 items-center">
       <span class="text-xs text-gray-400">{{ formattedTime }}</span>
       <EditDeleteDropdown v-if="mine" @edit="$emit('edit')" @delete="$emit('delete')" />
@@ -16,6 +23,7 @@ import { computed } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import EditDeleteDropdown from '@/components/EditDeleteDropdown.vue';
+import { useAuthStore } from '@/stores/auth.js';
 
 dayjs.extend(relativeTime);
 
@@ -25,6 +33,7 @@ const props = defineProps({
   mine: Boolean,
 });
 const formattedTime = computed(() => dayjs(props.createdAt).fromNow());
+const authStore = useAuthStore();
 </script>
 
 <style scoped>
