@@ -34,7 +34,11 @@ const fetchFn = async (page = 1) => {
   }
 };
 
-const { items: items, reset } = useInfiniteScroll({
+const {
+  items: items,
+  isLastPage,
+  reset,
+} = useInfiniteScroll({
   fetchFn,
   scrollTargetRef: scrollContainer,
 });
@@ -61,6 +65,7 @@ watch(
         >
           <img :src="item.thumbnailUrl" alt="item.thumbnailUrl" class="object-cover" />
         </div>
+        <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
       </div>
     </template>
   </div>
