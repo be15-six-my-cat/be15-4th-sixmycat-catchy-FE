@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onUnmounted } from 'vue';
+import { ref, onUnmounted, nextTick } from 'vue';
 import { useUploadStore } from '@/stores/uploadStore';
 import SidebarMainLayout from '@/components/layout/SidebarMainLayout.vue';
 import UploadGuideModal from '@/components/modal/UploadGuideModal.vue';
@@ -33,7 +33,8 @@ const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
 
 // 파일 선택 핸들러
-function handleFilesSelected({ existingUrls = [], files = [] }) {
+async function handleFilesSelected({ existingUrls = [], files = [] }) {
+  console.log(files);
   if (!files.length) return;
 
   const file = files[0];
@@ -44,6 +45,9 @@ function handleFilesSelected({ existingUrls = [], files = [] }) {
   if (isVideo && files.length === 1) {
     uploadStore.setFile(file);
     videoUrl.value = URL.createObjectURL(file);
+
+    await nextTick();
+
     showUploadGuideModal.value = false;
     showJjureUploadModal.value = true;
     return;
@@ -60,8 +64,6 @@ function handleFilesSelected({ existingUrls = [], files = [] }) {
 /* 쭈르 동영상 업로드 */
 async function handleUpload() {
   const file = uploadStore.selectedFile;
-  console.log('1번째 file', file);
-  console.log('2번째 썸네일', thumbnailBlob.value);
   if (!file || !thumbnailBlob.value) return;
 
   try {

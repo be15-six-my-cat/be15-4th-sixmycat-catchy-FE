@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref, watch, nextTick } from 'vue';
 
+console.log('Modal 열림');
+
 const props = defineProps({
   videoUrl: { type: String, required: true },
   caption: { type: String, default: '' },
@@ -189,12 +191,13 @@ onMounted(() => {
 }
 
 .reel-modal {
-  @apply w-[860px] h-[560px] flex bg-white rounded-lg overflow-hidden shadow-elevated;
+  @apply h-[560px] flex bg-white rounded-lg overflow-hidden shadow-elevated;
   position: relative;
 }
 
 .video-preview {
-  @apply w-[560px] h-full bg-black flex flex-col items-center justify-center gap-2;
+  @apply h-full w-[420px] bg-black flex flex-col items-center justify-center gap-2;
+  aspect-ratio: 9 / 16;
 }
 
 .video-preview video {
