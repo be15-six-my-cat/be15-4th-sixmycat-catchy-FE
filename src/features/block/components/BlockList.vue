@@ -12,13 +12,17 @@
             >
               <div class="flex items-center gap-4">
                 <img
-                  :src="user.avatar || defaultAvatar"
+                  :src="defaultProfileImage"
                   alt="프로필"
                   class="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p class="font-semibold text-sm">{{ user.blockedNickname }}</p>
-                  <p class="text-gray-500 text-xs">{{ formatDate(user.blockedAt) }}</p>
+                  <router-link
+                    :to="`/members/${user.blockedNickname}`"
+                    class="font-semibold text-sm text-gray-800 hover:underline"
+                  >
+                    {{ user.blockedNickname }}
+                  </router-link>
                 </div>
               </div>
               <button

@@ -24,7 +24,7 @@ const fetchFn = async (page) => {
     const { data } = await getNotifications(page);
     return data;
   } catch (e) {
-    console.log(e + '알림 목록 초기 로드 실패');
+    console.log(e + '알림 목록 로드 실패');
   }
 };
 
@@ -57,7 +57,11 @@ watch(isModalOpenRef, (newVal, oldVal) => {
           <div class="text-gray-400 text-sm text-center py-2">도착한 알림이 없습니다</div>
         </div>
         <div v-else class="body-scroll" ref="scrollContainer">
-          <NotificationList :notifications="notifications" :is-modal-open="isModalOpen" />
+          <NotificationList
+            @close="emit('close')"
+            :notifications="notifications"
+            :is-modal-open="isModalOpen"
+          />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
         </div>
       </div>
