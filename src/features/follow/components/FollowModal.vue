@@ -42,9 +42,15 @@ const { items: members, isLastPage } = useInfiniteScroll({
         <button class="cancel-button" @click="emit('close')">x</button>
       </div>
       <div class="modal-body">
-        <div class="body-scroll" ref="scrollContainer">
+        <div v-if="members.length === 0" class="empty-message-wrapper">
+          <div class="catchy-caption">
+            {{ isFollowing ? '팔로잉이 없습니다.' : '팔로워가 없습니다.' }}
+          </div>
+        </div>
+
+        <div v-else class="body-scroll" ref="scrollContainer">
           <FollowMemberList :members="members" :isFollowing="isFollowing" />
-          <div v-if="isLastPage" class="text-gray-400 text-sm text-center pt-2 pb-4">catchy</div>
+          <div v-if="isLastPage" class="catchy-caption">catchy</div>
         </div>
       </div>
     </section>
@@ -57,7 +63,7 @@ const { items: members, isLastPage } = useInfiniteScroll({
 }
 
 .noti-modal {
-  @apply w-[480px] max-h-[90vh] bg-white rounded-lg pb-5 text-center shadow-elevated flex flex-col;
+  @apply w-[480px] min-h-[40vh] max-h-[90vh] bg-white rounded-lg pb-5 text-center shadow-elevated flex flex-col;
 }
 
 .modal-header {
@@ -69,7 +75,7 @@ const { items: members, isLastPage } = useInfiniteScroll({
 }
 
 .modal-body {
-  @apply flex-1 flex flex-col;
+  @apply flex flex-col flex-grow;
 }
 
 .header1 {
@@ -78,5 +84,13 @@ const { items: members, isLastPage } = useInfiniteScroll({
 
 .body-scroll {
   @apply overflow-y-auto space-y-1 max-h-[70vh];
+}
+
+.catchy-caption {
+  @apply text-gray-400 text-sm text-center pt-2 pb-4;
+}
+
+.empty-message-wrapper {
+  @apply flex-grow flex justify-center items-center;
 }
 </style>

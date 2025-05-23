@@ -19,10 +19,12 @@ const fetchFn = async (page) => {
   }
 };
 
-const { items: notifications, isLastPage } = useInfiniteScroll({
-  fetchFn,
-  scrollTargetRef: scrollContainer,
-});
+// const { items: notifications, isLastPage } = useInfiniteScroll({
+//   fetchFn,
+//   scrollTargetRef: scrollContainer,
+// });
+
+const notifications = ref([]);
 </script>
 
 <template>
@@ -33,7 +35,10 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
         <button class="cancel-button" @click="emit('close')">x</button>
       </div>
       <div class="modal-body">
-        <div class="body-scroll" ref="scrollContainer">
+        <div v-if="notifications.length === 0" class="empty-message-wrapper">
+          <div class="text-gray-400 text-sm text-center py-2">도착한 알림이 없습니다</div>
+        </div>
+        <div v-else class="body-scroll" ref="scrollContainer">
           <NotificationList :notifications="notifications" />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
         </div>
@@ -48,7 +53,7 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
 }
 
 .noti-modal {
-  @apply w-[480px] max-h-[90vh] bg-white rounded-lg pb-5 px-5 text-center shadow-elevated flex flex-col;
+  @apply w-[480px] min-h-[40vh] max-h-[90vh] bg-white rounded-lg pb-5 px-5 text-center shadow-elevated flex flex-col;
 }
 
 .modal-header {
@@ -69,5 +74,9 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
 
 .body-scroll {
   @apply overflow-y-auto space-y-1 py-2 pl-1 max-h-[70vh];
+}
+
+.empty-message-wrapper {
+  @apply flex-grow flex justify-center items-center;
 }
 </style>

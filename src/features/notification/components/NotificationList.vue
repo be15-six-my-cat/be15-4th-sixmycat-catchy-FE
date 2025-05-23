@@ -10,7 +10,7 @@ const { notifications } = defineProps({
 </script>
 
 <template>
-  <div class="text-gray-500 text-start">이번 달</div>
+  <div v-if="notifications.length !== 0" class="text-gray-500 text-start">이번 달</div>
   <div class="space-y-4 max-height overflow-y-auto">
     <NotificationItem
       v-for="notification in notifications"
