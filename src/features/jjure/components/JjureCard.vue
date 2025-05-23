@@ -55,11 +55,11 @@ const isLiked = ref(props.isLiked);
 const handleLikeClick = async () => {
   try {
     if (isLiked.value) {
-      likeCount.value -= 1;
       await unLikeFeed(likeRequest.value);
+      likeCount.value -= 1;
     } else {
-      likeCount.value += 1;
       await likeFeed(likeRequest.value);
+      likeCount.value += 1;
     }
     isLiked.value = !isLiked.value;
     animateLike.value = true;
@@ -221,13 +221,15 @@ const updateJjureHandler = async () => {
   @apply flex justify-center;
 }
 .jjure-card {
-  @apply w-[400px] h-[740px] bg-white rounded-xl overflow-hidden shadow-hover text-black flex flex-col;
+  @apply w-[400px] bg-white rounded-xl overflow-hidden shadow-hover text-black flex flex-col;
 }
 .video-wrapper {
-  @apply relative w-full h-[650px] bg-black;
+  @apply relative w-full bg-black flex-shrink-0 h-[640px];
+  aspect-ratio: 9 / 16;
 }
 .video-wrapper video {
   @apply w-full h-full object-cover;
+  aspect-ratio: 9 / 16;
 }
 .reel-actions {
   @apply absolute right-2 bottom-14 flex flex-col gap-4 text-white text-[16px] items-center;
@@ -242,7 +244,7 @@ const updateJjureHandler = async () => {
   @apply text-[12px] mt-1 text-center;
 }
 .caption-box {
-  @apply bg-white p-3 text-[13px] border-t border-gray-200 text-gray-800;
+  @apply flex-1  bg-white p-3 text-[13px] border-t border-gray-200 text-gray-800;
 }
 .caption {
   @apply inline-block truncate text-[13px] max-w-[300px] text-gray-700;
@@ -260,6 +262,6 @@ const updateJjureHandler = async () => {
   @apply mt-2 text-[12px] text-gray-700 flex items-center gap-1;
 }
 .footer {
-  @apply text-center bg-white text-gray-400 text-[11px] py-2 border-t border-gray-200;
+  @apply bg-white text-gray-400 text-[11px] border-t border-gray-200 h-[36px] flex flex-col justify-center items-center leading-none flex-grow-0;
 }
 </style>

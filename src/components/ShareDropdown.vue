@@ -62,6 +62,10 @@ const copyLink = async () => {
 };
 
 const shareKakao = () => {
+  if (!window.Kakao.isInitialized()) {
+    window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+  }
+
   window.Kakao.Share.sendDefault({
     objectType: 'feed',
     content: {
