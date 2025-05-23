@@ -1,25 +1,18 @@
 <template>
   <div class="relative inline-block">
-    <i class="fa-solid fa-share-nodes cursor-pointer" @click="toggleDropdown($event)"></i>
+    <i class="fa-solid fa-share-nodes cursor-pointer text-primary" @click.stop="toggleDropdown"></i>
 
-    <Teleport to="body">
-      <div
-        v-if="open"
-        :style="dropdownStyle"
-        ref="dropdownRef"
-        class="absolute w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black z-50"
-      >
-        <div class="share-section">
-          <button @click="shareKakao" class="sns-btn kakao">k</button>
-          <button @click="copyLink" class="sns-btn link">🔗</button>
-        </div>
+    <div v-if="open" ref="dropdownRef" class="share-dropdown absolute top-full left-0 mt-2 z-50">
+      <div class="share-section">
+        <button @click="shareKakao" class="sns-btn kakao">k</button>
+        <button @click="copyLink" class="sns-btn link">🔗</button>
       </div>
-    </Teleport>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 
 const props = defineProps({
@@ -30,19 +23,15 @@ const props = defineProps({
 
 const open = ref(false);
 const dropdownStyle = ref({});
+const dropdownRef = ref(null);
 
-const toggleDropdown = async (event) => {
-  open.value = !open.value;
-
-  if (open.value) {
-    await nextTick();
-    const rect = event.target.getBoundingClientRect();
-    dropdownStyle.value = {
-      position: 'absolute',
-      top: `${rect.bottom + window.scrollY + 8}px`,
-      left: `${rect.left + window.scrollX - 140}px`, // 위치 조절 필요시 here
-    };
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    open.value = false;
   }
+};
+const toggleDropdown = () => {
+  open.value = !open.value;
 };
 
 const copyLink = async () => {
@@ -56,10 +45,6 @@ const copyLink = async () => {
 };
 
 const shareKakao = () => {
-  if (!window.Kakao.isInitialized()) {
-    window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-  }
-
   window.Kakao.Share.sendDefault({
     objectType: 'feed',
     content: {
@@ -84,11 +69,23 @@ const shareKakao = () => {
 
   open.value = false;
 };
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
 .share-section {
   @apply flex justify-center gap-3;
+}
+
+.share-dropdown {
+  @apply w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black;
+  transform: translateX(-90%);
 }
 
 .sns-btn {

@@ -47,6 +47,36 @@ export function uploadThumbnailImage(file) {
   return api.post('/jjure/upload/thumbnail', formData);
 }
 
+/* 7. 쭈르 삭제 */
+export async function deleteJjure(jjureId) {
+  return await api.delete(`/jjure/upload/${jjureId}`);
+}
+
+/* 9. 쭈르 수정 */
+export async function updateJjure(jjureId, payload) {
+  return await api.put(`/jjure/upload/${jjureId}`, payload);
+}
+
+/* 10. 댓글 목록 조회 */
+export function fetchJjureComments(jjureId, { page = 0, size = 10 }) {
+  return api.get(`/jjure/${jjureId}/comments`, {
+    params: { page, size },
+  });
+}
+
+/* 11. 댓글 등록 */
+export function postJjureComment({ jjureId, content }) {
+  return api.post('/jjure/comments', {
+    jjureId,
+    content,
+  });
+}
+
+/* 12. 댓글 삭제 */
+export function deleteJjureComment(commentId) {
+  return api.delete(`/jjure/comments/${commentId}`);
+}
+
 /* 7. 내가 등록한 쭈르 썸네일 목록 조회 */
 export function fetchMyJjureList(params = { page: 0, size: 9 }) {
   params.page = params.page - 1;
