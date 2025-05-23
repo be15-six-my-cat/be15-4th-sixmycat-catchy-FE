@@ -1,6 +1,7 @@
 <template>
   <div class="flex h-full bg-gray-50">
     <ProfileMenu />
+    <router-view />
 
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->

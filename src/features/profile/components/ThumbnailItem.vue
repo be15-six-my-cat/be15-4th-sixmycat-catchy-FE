@@ -1,7 +1,8 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 
 const { item, selectedTab } = defineProps({
   item: {
@@ -12,21 +13,20 @@ const { item, selectedTab } = defineProps({
     type: String,
     required: true,
   },
+  isOther: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 function handleItemClick() {
-  if (selectedTab === 'OtherFeed') {
-    router.push(`/feed/${item.feedId}`);
-  } else if (selectedTab === 'OtherJjure') {
-    router.push(`/jjure/${item.jjureId}`);
-  } else if (selectedTab === 'MyFeed') {
-    router.push(`/feed/${item.feedId}`);
-  } else if (selectedTab === 'LikedFeed') {
-    router.push(`/feed/${item.feedId}`);
-  } else if (selectedTab === 'MyJjure') {
-    router.push(`/jjure/${item.jjureId}`);
-  } else if (selectedTab === 'LikedJjure') {
-    router.push(`/jjure/${item.jjureId}`);
+  const feedTabs = ['OtherFeed', 'MyFeed', 'LikedFeed'];
+  const jjureTabs = ['OtherJjure', 'MyJjure', 'LikedJjure'];
+
+  if (feedTabs.includes(selectedTab)) {
+    router.push(`${route.path}/feed/${item.feedId}`);
+  } else if (jjureTabs.includes(selectedTab)) {
+    router.push(`${route.path}/jjure/${item.jjureId}`);
   }
 }
 </script>

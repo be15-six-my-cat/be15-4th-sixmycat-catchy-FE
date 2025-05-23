@@ -20,7 +20,6 @@ const fetchMap = {
 
 const fetchFn = async (page = 1) => {
   try {
-    console.log('호출됨!');
     const fetchFn = fetchMap[selectedTab];
     if (!fetchFn) {
       console.warn('해당하는 selectedTab이 없습니다.');
@@ -28,7 +27,7 @@ const fetchFn = async (page = 1) => {
       return;
     }
 
-    const { data } = await fetchFn(route.params.id, { page, size: 9 });
+    const { data } = await fetchFn(route.params.mid, { page, size: 9 });
     return data;
   } catch (error) {
     console.log('API 오류:', error);
@@ -57,7 +56,7 @@ watch(
 <template>
   <div class="thumbnail-scroll" ref="scrollContainer">
     <!-- 데이터 없을 때 -->
-    <div v-if="items.length === 0" class="text-gray-400 text-sm text-center py-2">
+    <div v-if="items.length === 0" class="w-full text-gray-400 text-sm text-center py-2">
       데이터가 없습니다.
     </div>
     <!-- 데이터 있을 때 -->
@@ -67,6 +66,7 @@ watch(
         :key="index"
         :item="item"
         :selected-tab="selectedTab"
+        :is-other="true"
       />
     </div>
     <div class="w-full text-center py-4 text-gray-400 text-sm">

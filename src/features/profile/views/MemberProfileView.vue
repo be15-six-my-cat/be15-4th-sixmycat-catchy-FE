@@ -1,4 +1,5 @@
 <template>
+  <router-view />
   <div class="flex h-full bg-gray-50">
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->
@@ -45,7 +46,8 @@ const selectedTab = ref('OtherFeed');
 
 // 타 회원 닉네임으로 프로필 조회
 const loadProfile = async () => {
-  const id = route.params.id;
+  const id = route.params.mid;
+  console.log(id);
 
   if (!id) {
     console.warn('❌ member id가 정의되지 않았습니다. 경로를 확인하세요.');
@@ -66,7 +68,7 @@ onMounted(() => {
 });
 
 watch(
-  () => route.params.id,
+  () => route.params.mid,
   () => {
     loadProfile();
   },
