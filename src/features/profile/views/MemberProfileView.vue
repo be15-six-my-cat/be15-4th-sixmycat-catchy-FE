@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-full bg-gray-50">
-    <ProfileMenu />
 
     <div class="flex-1 p-6">
       <!-- ✅ 로딩 중 -->
@@ -33,29 +32,45 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import ProfileMenu from '../components/ProfileMenu.vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import ProfileHeader from '../components/ProfileHeader.vue'
 import PetSlider from '../components/PetSlider.vue'
 import FeedTabs from '../components/FeedTabs.vue'
 import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue'
-import { fetchMyProfile } from '@/api/profile' // ✅ 내 프로필 전용
+import { fetchUserProfile } from '@/api/profile'
 
+const route = useRoute()
 const user = ref(null)
 const selectedTab = ref('MyFeed')
 
+// 타 회원 닉네임으로 프로필 조회
 const loadProfile = async () => {
+  const nickname = route.params.nickname
+
+  if (!nickname) {
+    console.warn('❌ 닉네임이 정의되지 않았습니다. 경로를 확인하세요.')
+    return
+  }
+
   try {
-    const res = await fetchMyProfile()
-    user.value = res
-    console.log('✅ 내 프로필 응답:', user.value)
+    user.value = await fetchUserProfile(nickname)
+    console.log('✅ 프로필 응답:', user.value)
   } catch (e) {
-    console.error('❌ 내 프로필 로딩 실패:', e)
+    console.error('❌ 프로필 로딩 실패:', e.response?.data || e.message)
     user.value = null
   }
 }
 
+
 onMounted(() => {
   loadProfile()
 })
+
+watch(
+  () => route.params.nickname,
+  () => {
+    loadProfile()
+  }
+)
 </script>
