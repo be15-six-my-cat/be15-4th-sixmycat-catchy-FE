@@ -24,7 +24,7 @@ const fetchFn = async (page) => {
     const { data } = await getNotifications(page);
     return data;
   } catch (e) {
-    console.log(e + '알림 목록 초기 로드 실패');
+    console.log(e + '알림 목록 로드 실패');
   }
 };
 
