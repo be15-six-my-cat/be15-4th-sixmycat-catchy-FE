@@ -45,15 +45,15 @@ const selectedTab = ref('MyFeed');
 
 // 타 회원 닉네임으로 프로필 조회
 const loadProfile = async () => {
-  const nickname = route.params.nickname;
+  const id = route.params.id;
 
-  if (!nickname) {
-    console.warn('❌ 닉네임이 정의되지 않았습니다. 경로를 확인하세요.');
+  if (!id) {
+    console.warn('❌ member id가 정의되지 않았습니다. 경로를 확인하세요.');
     return;
   }
 
   try {
-    user.value = await fetchUserProfile(nickname);
+    user.value = await fetchUserProfile(id);
     console.log('✅ 프로필 응답:', user.value);
   } catch (e) {
     console.error('❌ 프로필 로딩 실패:', e.response?.data || e.message);
