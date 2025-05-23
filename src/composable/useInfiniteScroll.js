@@ -1,7 +1,7 @@
 // src/composables/useInfiniteScroll.js
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 }) {
+export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 200 }) {
   const items = ref([]);
   const curPage = ref(1);
   const totalPage = ref(1);
@@ -63,7 +63,14 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     totalPage.value = 1;
     items.value = [];
     isLastPage.value = false;
-    await fetchInitial(1);
+    await fetchInitial();
+
+    // scroll 이벤트가 살아 있는지 확인해서 없으면 다시 붙이기
+    const el = scrollTargetRef.value;
+    if (el) {
+      el.removeEventListener('scroll', handleScroll); // 중복 방지
+      el.addEventListener('scroll', handleScroll);
+    }
   };
 
   return {

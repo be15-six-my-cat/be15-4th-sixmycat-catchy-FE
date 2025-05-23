@@ -64,13 +64,16 @@ import { useAuthStore } from '@/stores/auth.js';
 import { blockUser, unblockUser, fetchBlockedUsers } from '@/api/block.js';
 import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
-const props = defineProps({
+const { user, isOther } = defineProps({
   user: {
     type: Object,
     required: true,
   },
+  isOther: {
+    type: Boolean,
+    default: false,
+  },
 });
-const user = props.user;
 
 const authStore = useAuthStore();
 const currentUserId = computed(() => authStore.memberId);
@@ -91,6 +94,7 @@ function handleGetFollowing() {
 
 // ✅ 차단 여부 확인
 onMounted(async () => {
+  if (isOther) return;
   try {
     const { data } = await fetchBlockedUsers(currentUserId.value, 1, 100);
     const blockedList = data.data.content || [];
@@ -102,6 +106,9 @@ onMounted(async () => {
 
 // ✅ 차단/해제 처리
 const handleBlock = async () => {
+  if (isOther) {
+    console.log('다른사람 프로필입니다. 차단불가');
+  }
   try {
     if (isBlocked.value) {
       await unblockUser(currentUserId.value, user.member.id);

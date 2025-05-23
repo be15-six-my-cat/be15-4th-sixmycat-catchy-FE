@@ -1,8 +1,14 @@
 <script setup>
-const { selectedTab } = defineProps({
+import { computed } from 'vue';
+
+const { selectedTab, isOther } = defineProps({
   selectedTab: {
     type: String,
     required: true,
+  },
+  isOther: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -15,6 +21,13 @@ const tabMap = [
   { label: '쭈르 좋아요', value: 'LikedJjure' },
 ];
 
+const otherTabMap = [
+  { label: '피드', value: 'OtherFeed' },
+  { label: '쭈르', value: 'OtherJjure' },
+];
+
+const tabsToRender = computed(() => (isOther ? otherTabMap : tabMap));
+
 const changeTab = (value) => {
   emit('update:selectedTab', value);
 };
@@ -24,7 +37,7 @@ const changeTab = (value) => {
   <div class="flex justify-center mt-6 mb-4">
     <div class="flex gap-6 pl-2 pb-2 border-b border-gray-200 w-[400px] font-sans text-body-md">
       <button
-        v-for="tab in tabMap"
+        v-for="tab in tabsToRender"
         :key="tab.value"
         @click="changeTab(tab.value)"
         :class="[

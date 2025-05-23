@@ -1,7 +1,7 @@
 <template>
   <div class="feed-header">
     <router-link
-      :to="author.authorId == authStore.memberId ? '/profile' : `/members/${author.nickname}`"
+      :to="author.authorId == authStore.memberId ? '/profile' : `/members/${author.authorId}`"
     >
       <div class="author">
         <DefaultProfile :src="author.profileImageUrl" :size="24" />

@@ -15,10 +15,13 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['close']);
+
 const isModalOpenRef = toRef(props, 'isModalOpen');
 const showFollow = ref(props.notification.type === 'FOLLOW');
 const initialIsFollowing = ref(props.notification.initialFollowing);
 const currentIsFollowing = ref(props.notification.initialFollowing);
+const router = useRouter();
 
 const timeAgo = computed(() => {
   const now = new Date();
@@ -40,18 +43,20 @@ const timeAgo = computed(() => {
 
 const notificationText = computed(() => {
   const type = props.notification.type;
-  const base = `님이 회원님을 `;
+  const base = `님이 회원님`;
   switch (type) {
     case 'FOLLOW':
-      return `${base}팔로우하기 시작했습니다.`;
+      return `${base}을 팔로우하기 시작했습니다.`;
     case 'COMMENT':
-      return `${base}게시물에 댓글을 남겼습니다.`;
+      return `${base}의 게시물에 댓글을 남겼습니다.`;
     case 'RECOMMENT':
-      return `${base}댓글에 답글을 남겼습니다.`;
-    case 'LIKE':
-      return `${base}피드/쭈르을(를) 좋아합니다.`;
+      return `${base}의 댓글에 답글을 남겼습니다.`;
+    case 'FEED_LIKE':
+      return `${base}의 피드를 좋아합니다.`;
+    case 'JJURE_LIKE':
+      return `${base}의 쭈르를 좋아합니다.`;
     case 'BIRTHDAY':
-      return `님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
+      return `회원님의 냥이 생일 축하해요! 🐾🎂🐱🎉`;
     default:
       return '';
   }
