@@ -24,7 +24,6 @@ export default [
     path: '/members/:mid',
     name: 'MemberProfile',
     component: () => import('./views/MemberProfileView.vue'),
-    props: true,
     children: [
       {
         path: 'feed/:id',
