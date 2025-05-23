@@ -3,12 +3,14 @@ import { ref, watch } from 'vue';
 import { fetchOtherFeedList } from '@/api/feed.js';
 import { fetchOtherJjureList } from '@/api/jjure.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
+import { useRoute } from 'vue-router';
 
 const { selectedTab } = defineProps({
   selectedTab: String,
 });
 
 const scrollContainer = ref(null);
+const route = useRoute();
 
 const fetchMap = {
   OtherFeed: fetchOtherFeedList,
@@ -23,8 +25,8 @@ const fetchFn = async (page = 1) => {
       items.value = [];
       return;
     }
-    /* todo : 라우터 주소에서 member id 추출해서 추가하기 */
-    const { data } = await fetchFn({ page, size: 9 });
+
+    const { data } = await fetchFn(route.params.id, { page, size: 9 });
     return data;
   } catch (error) {
     console.log('API 오류:', error);

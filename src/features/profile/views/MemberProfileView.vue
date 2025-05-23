@@ -12,7 +12,7 @@
       <div v-else class="flex justify-center">
         <div class="w-full max-w-md bg-white border rounded-xl shadow-sm p-10">
           <!-- 프로필 헤더 -->
-          <ProfileHeader :user="user" />
+          <ProfileHeader :user="user" :is-other="true" />
 
           <!-- 고양이 슬라이더 -->
           <PetSlider v-if="user?.cats?.length" :pets="user.cats" class="mt-6" />
@@ -41,7 +41,7 @@ import OtherThumbnailList from '@/features/profile/components/OtherThumbnailList
 
 const route = useRoute();
 const user = ref(null);
-const selectedTab = ref('MyFeed');
+const selectedTab = ref('OtherFeed');
 
 // 타 회원 닉네임으로 프로필 조회
 const loadProfile = async () => {
@@ -66,7 +66,7 @@ onMounted(() => {
 });
 
 watch(
-  () => route.params.nickname,
+  () => route.params.id,
   () => {
     loadProfile();
   },
