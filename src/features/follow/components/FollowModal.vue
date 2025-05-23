@@ -65,7 +65,7 @@ const { items: members, isLastPage } = useInfiniteScroll({
 }
 
 .cancel-button {
-  @apply bg-primary text-white text-body-sm py-1 px-3 rounded-sm hover:bg-primary-hover;
+  @apply bg-primary text-white text-body-sm py-1 px-3 mb-4 rounded-sm hover:bg-primary-hover;
 }
 
 .modal-body {

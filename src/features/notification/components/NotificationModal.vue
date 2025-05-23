@@ -29,10 +29,10 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
   <div class="modal-overlay" @click.self="emit('close')">
     <section class="noti-modal">
       <div class="modal-header">
+        <div class="header1">알림</div>
         <button class="cancel-button" @click="emit('close')">x</button>
       </div>
       <div class="modal-body">
-        <div class="header1">알림</div>
         <div class="body-scroll" ref="scrollContainer">
           <NotificationList :notifications="notifications" />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">catchy</div>
@@ -48,15 +48,15 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
 }
 
 .noti-modal {
-  @apply w-[480px] max-h-[90vh] bg-white rounded-lg p-5 text-center shadow-elevated flex flex-col;
+  @apply w-[480px] max-h-[90vh] bg-white rounded-lg pb-5 px-5 text-center shadow-elevated flex flex-col;
 }
 
 .modal-header {
-  @apply w-full flex justify-end;
+  @apply w-full flex justify-between items-center border-b pt-4 px-2;
 }
 
 .cancel-button {
-  @apply bg-primary text-white text-body-sm py-1 px-3 rounded-sm hover:bg-primary-hover;
+  @apply bg-primary text-white text-body-sm py-1 px-3 mb-4 rounded-sm hover:bg-primary-hover;
 }
 
 .modal-body {
@@ -64,10 +64,10 @@ const { items: notifications, isLastPage } = useInfiniteScroll({
 }
 
 .header1 {
-  @apply text-body-lg font-bold p-3 border-b text-left mb-2;
+  @apply text-body-lg font-bold p-3 text-left mb-2;
 }
 
 .body-scroll {
-  @apply overflow-y-auto space-y-1 max-h-[70vh];
+  @apply overflow-y-auto space-y-1 py-2 pl-1 max-h-[70vh];
 }
 </style>
