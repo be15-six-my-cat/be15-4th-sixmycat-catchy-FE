@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getComments, postComment, deleteComment } from '@/api/comment';
@@ -13,15 +13,16 @@ const props = defineProps({
 });
 
 const authStore = useAuthStore();
-const currentUserId = computed(() => authStore.memberId); // 로그인 유저 ID
+const currentUserId = computed(() => authStore.memberId);
 const comments = ref([]);
 const newComment = ref('');
 const replyingTo = ref(null);
+const commentInput = ref(null);
 
 const fetchComments = async () => {
   const { data } = await getComments(props.targetId, props.targetType, 1, 100);
   const flatList = data.data.content;
-  flatList.forEach((c) => (c.showReplies = false)); // 반응성 보장
+  flatList.forEach((c) => (c.showReplies = false));
   comments.value = flatList;
 };
 
@@ -31,7 +32,15 @@ const addComment = async () => {
   const text = newComment.value.trim();
   if (!text) return;
 
-  await postComment(props.targetId, props.targetType, text, replyingTo.value, currentUserId);
+  const isReply = replyingTo.value && newComment.value.startsWith('@');
+
+  await postComment(
+    props.targetId,
+    props.targetType,
+    text,
+    isReply ? replyingTo.value : null,
+    currentUserId,
+  );
 
   newComment.value = '';
   replyingTo.value = null;
@@ -46,24 +55,18 @@ const deleteCommentHandler = async (commentId) => {
 const handleReplyClick = (commentId, writer) => {
   replyingTo.value = commentId;
   newComment.value = writer ? `@${writer} ` : '';
+  nextTick(() => {
+    commentInput.value?.focus();
+  });
 };
 
 const toggleReplies = (comment) => {
   const index = comments.value.findIndex((c) => c.commentId === comment.commentId);
-  if (index === -1) {
-    console.warn(`⚠️ commentId ${comment.commentId} not found in comments`);
-    return;
-  }
+  if (index === -1) return;
 
-  // showReplies만 토글, replies는 filteredComments에서 계산
   const updated = { ...comments.value[index] };
   updated.showReplies = !updated.showReplies;
-
-  // 교체
   comments.value.splice(index, 1, updated);
-
-  console.log(`🔁 toggled replies for commentId: ${comment.commentId}`);
-  console.log(`↪️ showReplies: ${updated.showReplies}`);
 };
 
 const formatMention = (text) => {
@@ -78,7 +81,7 @@ const filteredComments = computed(() => {
     map[c.commentId] = {
       ...c,
       replies: c.replies || [],
-      showReplies: c.showReplies ?? false, // 반드시 포함시킴
+      showReplies: c.showReplies ?? false,
     };
   });
 
@@ -94,16 +97,12 @@ const filteredComments = computed(() => {
     }
   });
 
-  console.log('✅ computed root:', root);
-  console.log('📌 map:', map);
-
   return root;
 });
 </script>
 
 <template>
   <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col">
-    <!-- 스크롤 가능 한 댓글 영역-->
     <div class="flex-1 overflow-y-auto p-4">
       <div class="flex flex-col gap-6">
         <div v-for="comment in filteredComments" :key="comment.commentId" class="text-sm">
@@ -112,7 +111,7 @@ const filteredComments = computed(() => {
               <strong class="text-xs text-[#3e2f2f] font-bold">{{ comment.nickname }}</strong>
               <span class="text-xs text-gray-400">{{ dayjs(comment.createdAt).fromNow() }}</span>
               <button
-                v-if="comment.memberId === currentUserId"
+                v-if="Number(comment.memberId) === Number(currentUserId)"
                 @click="deleteCommentHandler(comment.commentId)"
                 class="bg-none border-none text-gray-400 text-base leading-none px-1 ml-auto hover:text-red-500"
               >
@@ -146,7 +145,7 @@ const filteredComments = computed(() => {
                 <strong class="text-[#3e2f2f] text-xs font-bold">{{ reply.nickname }}</strong>
                 <span class="text-xs text-gray-400">{{ dayjs(reply.createdAt).fromNow() }}</span>
                 <button
-                  v-if="reply.memberId === currentUserId"
+                  v-if="Number(reply.memberId) === Number(currentUserId)"
                   @click="deleteCommentHandler(reply.commentId)"
                   class="bg-none border-none text-gray-400 text-base leading-none px-1 ml-auto hover:text-red-500"
                 >
@@ -171,9 +170,9 @@ const filteredComments = computed(() => {
       </div>
     </div>
 
-    <!-- 입력창 -->
     <div class="flex gap-2 px-2 py-3 border-t border-gray-300">
       <input
+        ref="commentInput"
         v-model="newComment"
         type="text"
         placeholder="댓글 달기..."
