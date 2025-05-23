@@ -3,7 +3,6 @@ import defaultProfileImage from '@/assets/default_images/01_cat.png';
 import { computed, ref, toRef, watch } from 'vue';
 import { showSuccessToast } from '@/utills/toast.js';
 import { requestFollow, unfollow } from '@/api/follow.js';
-// import { followUserAPI, unfollowUserAPI } from '@/api/follow'; // 실제 API 모듈 연결 시
 
 const props = defineProps({
   notification: {

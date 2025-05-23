@@ -4,6 +4,7 @@ import { fetchOtherFeedList } from '@/api/feed.js';
 import { fetchOtherJjureList } from '@/api/jjure.js';
 import { useInfiniteScroll } from '@/composable/useInfiniteScroll.js';
 import { useRoute } from 'vue-router';
+import ThumbnailItem from '@/features/profile/components/ThumbnailItem.vue';
 
 const { selectedTab } = defineProps({
   selectedTab: String,
@@ -58,13 +59,12 @@ watch(
     </div>
     <template v-else>
       <div class="body-scroll" ref="scrollContainer">
-        <div
+        <ThumbnailItem
           v-for="(item, index) in items"
           :key="index"
-          class="w-full sm:w-[48%] md:w-[30%] aspect-square overflow-hidden m-1"
-        >
-          <img :src="item.thumbnailUrl" alt="item.thumbnailUrl" class="object-cover" />
-        </div>
+          :item="item"
+          :selected-tab="selectedTab"
+        />
         <div v-if="isLastPage" class="text-gray-400 text-sm w-full text-center py-2">catchy</div>
       </div>
     </template>
