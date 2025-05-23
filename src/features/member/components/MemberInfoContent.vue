@@ -43,6 +43,9 @@ onMounted(async () => {
 
 <template>
   <div class="background">
+    <div class="header-frame">
+      <span class="header-text">회원 정보</span>
+    </div>
     <MemberInfoItem title="이름" :content="name" />
     <MemberInfoItem title="전화번호" :content="formattedContactNumber" />
     <MemberInfoItem title="이메일" :content="email" />
@@ -64,5 +67,21 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.header-frame {
+  height: 31px;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-text {
+  color: #1e1e1e;
+  text-align: left;
+  font-size: 24px;
+  line-height: 1.5;
+  font-weight: bold;
+  width: auto;
 }
 </style>
