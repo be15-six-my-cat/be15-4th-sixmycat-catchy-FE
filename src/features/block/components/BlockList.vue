@@ -13,7 +13,7 @@
               >
                 <div class="flex items-center gap-4">
                   <img
-                    :src="user.avatar || defaultAvatar"
+                    :src="defaultProfileImage"
                     alt="프로필"
                     class="w-10 h-10 rounded-full object-cover"
                   />
@@ -45,9 +45,9 @@ import { ref, onMounted, computed } from 'vue';
 import dayjs from 'dayjs';
 import { fetchBlockedUsers, unblockUser } from '@/api/block.js';
 import { useAuthStore } from '@/stores/auth.js';
+import defaultProfileImage from '@/assets/default_images/01_cat.png';
 
 const blockedUsers = ref([]);
-const defaultAvatar = '/default_avatar.png';
 const authStore = useAuthStore();
 const userId = computed(() => authStore.memberId);
 
