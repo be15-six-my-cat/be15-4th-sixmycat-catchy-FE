@@ -136,85 +136,90 @@ const updateJjureHandler = async () => {
 </script>
 
 <template>
-  <div class="jjure-card">
-    <div class="video-wrapper">
-      <video autoplay muted loop playsinline>
-        <source :src="videoUrl" type="video/mp4" />
-        브라우저가 비디오를 지원하지 않습니다.
-      </video>
+  <div class="jjure-container">
+    <div class="jjure-card">
+      <div class="video-wrapper">
+        <video autoplay muted loop playsinline>
+          <source :src="videoUrl" type="video/mp4" />
+          브라우저가 비디오를 지원하지 않습니다.
+        </video>
 
-      <div v-if="isMine" class="absolute top-3 right-3 z-20 shadow-elevated px-3 py-1 rounded-md">
-        <EditDeleteDropdown @edit="handleEdit" @delete="handleDelete" />
-      </div>
+        <div v-if="isMine" class="absolute top-3 right-3 z-20 shadow-elevated px-3 py-1 rounded-md">
+          <EditDeleteDropdown @edit="handleEdit" @delete="handleDelete" />
+        </div>
 
-      <div class="reel-actions">
-        <button class="icon-wrapper" @click="handleLikeClick">
-          <i
-            :class="[
-              isLiked ? 'fa-solid' : 'fa-regular',
-              'fa-heart text-primary cursor-pointer transition-transform duration-200',
-              animateLike ? 'scale-150' : '',
-            ]"
-          ></i>
-          <div class="action-count">{{ likeCount }}</div>
-        </button>
-        <RouterLink :to="`/jjure/${id}`" class="icon-wrapper">
-          <i class="fa-regular fa-comment text-primary"></i>
-          <div class="action-count">{{ commentCount }}</div>
-        </RouterLink>
-        <div>
-          <ShareDropdown
-            :shareUrl="`http://localhost:5173/jjure/${id}`"
-            :shareText="caption"
-            :shareImage="thumbnailUrl"
-          />
+        <div class="reel-actions">
+          <button class="icon-wrapper" @click="handleLikeClick">
+            <i
+              :class="[
+                isLiked ? 'fa-solid' : 'fa-regular',
+                'fa-heart text-primary cursor-pointer transition-transform duration-200',
+                animateLike ? 'scale-150' : '',
+              ]"
+            ></i>
+            <div class="action-count">{{ likeCount }}</div>
+          </button>
+          <RouterLink :to="`/jjure/${id}`" class="icon-wrapper">
+            <i class="fa-regular fa-comment text-primary"></i>
+            <div class="action-count">{{ commentCount }}</div>
+          </RouterLink>
+          <div>
+            <ShareDropdown
+              :shareUrl="`http://localhost:5173/jjure/${id}`"
+              :shareText="caption"
+              :shareImage="thumbnailUrl"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="caption-box">
-      <div class="title">
-        <RouterLink :to="`/members/${authorNickname}`" class="nickname hover:underline">
-          @{{ authorNickname }}
-        </RouterLink>
-        <span class="caption">{{ caption }}</span>
+      <div class="caption-box">
+        <div class="title">
+          <RouterLink :to="`/members/${authorNickname}`" class="nickname hover:underline">
+            @{{ authorNickname }}
+          </RouterLink>
+          <span class="caption">{{ caption }}</span>
+        </div>
+        <div v-if="commentPreview" class="comment-preview">{{ commentPreview }}</div>
+        <div v-if="musicTitle" class="music-info">
+          <i class="fa-solid fa-music"></i> {{ musicTitle }}
+        </div>
       </div>
-      <div v-if="commentPreview" class="comment-preview">{{ commentPreview }}</div>
-      <div v-if="musicTitle" class="music-info">
-        <i class="fa-solid fa-music"></i> {{ musicTitle }}
-      </div>
+
+      <div class="footer">ⓒ 2025 Catchy</div>
+
+      <JjureUploadModal
+        v-if="showEditModal"
+        v-model:caption="caption"
+        v-model:videoUrl="videoUrl"
+        v-model:thumbnail="thumbnailBlob"
+        @upload="updateJjureHandler"
+        @close="closeEditModal"
+      >
+        <template #video-upload-slot>
+          <label
+            class="inline-block px-4 py-2 bg-white border-primary border-2 text-primary text-body-sm rounded-md cursor-pointer text-center mt-4"
+          >
+            <span>동영상 수정</span>
+            <input type="file" accept="video/*" @change="onVideoSelected" hidden />
+          </label>
+        </template>
+      </JjureUploadModal>
+
+      <JjureDeleteModal
+        v-if="showDeleteModal"
+        @close="closeDeleteModal"
+        @confirm="closeDeleteModal"
+        @delete="deleteJjureHandler"
+      />
     </div>
-
-    <div class="footer">ⓒ 2025 Catchy</div>
-
-    <JjureUploadModal
-      v-if="showEditModal"
-      v-model:caption="caption"
-      v-model:videoUrl="videoUrl"
-      v-model:thumbnail="thumbnailBlob"
-      @upload="updateJjureHandler"
-      @close="closeEditModal"
-    >
-      <template #video-upload-slot>
-        <label
-          class="inline-block px-4 py-2 bg-white border-primary border-2 text-primary text-body-sm rounded-md cursor-pointer text-center mt-4"
-        >
-          <span>동영상 수정</span>
-          <input type="file" accept="video/*" @change="onVideoSelected" hidden />
-        </label>
-      </template>
-    </JjureUploadModal>
-
-    <JjureDeleteModal
-      v-if="showDeleteModal"
-      @close="closeDeleteModal"
-      @confirm="closeDeleteModal"
-      @delete="deleteJjureHandler"
-    />
   </div>
 </template>
 
 <style scoped>
+.jjure-container {
+  @apply flex justify-center;
+}
 .jjure-card {
   @apply w-[400px] h-[740px] bg-white rounded-xl overflow-hidden shadow-hover text-black flex flex-col;
 }

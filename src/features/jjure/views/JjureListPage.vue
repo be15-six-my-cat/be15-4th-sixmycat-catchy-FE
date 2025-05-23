@@ -45,7 +45,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="jjure-list-page max-h-[90vh]">
+  <main class="jjure-list-page">
     <section class="jjure-list" ref="scrollTargetRef">
       <JjureCard
         v-for="(jjure, index) in jjures"
@@ -75,17 +75,14 @@ onMounted(async () => {
 
 <style scoped>
 .jjure-list-page {
-  @apply flex flex-col items-center px-4 py-10  min-h-screen;
-}
-
-.page-title {
-  @apply text-xl font-bold text-gray-700 mb-6;
+  @apply flex flex-col items-center px-4 py-10 h-[100vh];
 }
 
 .jjure-list {
-  @apply mx-auto gap-6 overflow-y-auto;
+  @apply gap-6 overflow-y-auto w-full;
   -ms-overflow-style: none;
 }
+
 .jjure-list::-webkit-scrollbar {
   display: none;
 }
