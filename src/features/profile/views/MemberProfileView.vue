@@ -10,7 +10,7 @@
 
       <!-- ✅ 유저 데이터가 있을 때 -->
       <div v-else class="flex justify-center">
-        <div class="w-full max-w-md bg-white border rounded-xl shadow-sm p-10">
+        <div class="w-full h-[90vh] max-w-md bg-white border rounded-xl shadow-sm p-10">
           <!-- 프로필 헤더 -->
           <ProfileHeader :user="user" :is-other="true" />
 

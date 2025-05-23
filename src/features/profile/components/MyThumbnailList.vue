@@ -68,6 +68,11 @@ watch(
 
 <style scoped>
 .body-scroll {
-  @apply overflow-y-auto space-y-1 max-h-[70vh] flex flex-wrap;
+  @apply overflow-y-auto space-y-1 max-h-[35vh] flex flex-wrap;
+  -ms-overflow-style: none;
+}
+
+.body-scroll::-webkit-scrollbar {
+  display: none;
 }
 </style>

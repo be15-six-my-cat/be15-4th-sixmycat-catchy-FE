@@ -48,7 +48,7 @@ watch(
 </script>
 
 <template>
-  <div class="justify-center w-[400px]">
+  <div class="justify-center w-[400px] overflow-y-auto">
     <div v-if="items.length === 0" class="text-gray-400 text-sm text-center py-2">
       데이터가 없습니다.
     </div>
@@ -68,6 +68,11 @@ watch(
 
 <style scoped>
 .body-scroll {
-  @apply overflow-y-auto space-y-1 max-h-[70vh] flex flex-wrap;
+  @apply overflow-y-auto space-y-1 max-h-[35vh] flex flex-wrap;
+  -ms-overflow-style: none;
+}
+
+.body-scroll::-webkit-scrollbar {
+  display: none;
 }
 </style>
