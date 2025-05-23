@@ -1,6 +1,21 @@
 import axios from './axios'
 
 export async function fetchMyProfile() {
-  const { data } = await axios.get('/profiles/me')
-  return data
+  return axios.get('/profiles/me').then(res => res.data)
+}
+
+export async function fetchUserProfile(nickname) {
+  return axios.get(`/profiles/nickname/${nickname}`).then(res => res.data)
+}
+
+export async function updateMyProfile(payload) {
+  return axios.patch('/profiles/me', payload).then(res => res.data)
+}
+
+export async function addNewCat(cat) {
+  return axios.post('/profiles/cats', cat)
+}
+
+export async function deleteCat(catId) {
+  return axios.delete(`/profiles/cats/${catId}`)
 }
