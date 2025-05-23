@@ -28,7 +28,7 @@ const email = urlParams.get('email');
 const social = urlParams.get('social');
 
 const previewImage = computed(() =>
-  profileImage.value ? URL.createObjectURL(profileImage.value) : defaultProfileStore.image,
+  profileImage.value ? URL.createObjectURL(profileImage.value) : defaultProfileStore.defaultImage,
 );
 
 const triggerImageInput = () => {

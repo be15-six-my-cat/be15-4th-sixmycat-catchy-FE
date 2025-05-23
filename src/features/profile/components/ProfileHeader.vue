@@ -11,11 +11,7 @@
 
     <div v-if="user?.member" class="flex items-start gap-6 mb-4 -translate-x-12">
       <!-- 프로필 이미지 -->
-      <img
-        :src="user.member.profileImage || defaultProfileImage"
-        alt="profileImage"
-        class="w-24 h-24 bg-gray-300 rounded-full shrink-0"
-      />
+      <DefaultProfile :src="user.member.profileImage" :size="96" class="shrink-0" />
 
       <div class="flex-1">
         <!-- 닉네임 -->
@@ -63,10 +59,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import defaultProfileImage from '@/assets/default_images/01_cat.png';
 import FollowModal from '@/features/follow/components/FollowModal.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import { blockUser, unblockUser, fetchBlockedUsers } from '@/api/block.js';
+import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
 const props = defineProps({
   user: {

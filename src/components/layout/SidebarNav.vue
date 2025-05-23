@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
 import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
+import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
 const emit = defineEmits(['open-upload-modal', 'open-notification-modal']);
 
@@ -69,9 +70,8 @@ function handleLogout() {
       </li>
     </ul>
 
-    <!-- 👇 수정된 로그인 상태 반영 코드 시작 -->
     <footer class="threads" v-if="isAuthenticated">
-      <img :src="profileImage" alt="프로필" />
+      <DefaultProfile :src="profileImage" :size="24" />
       <RouterLink to="/profile" class="hover:text-[#FF5C8D]">{{ nickname }}</RouterLink>
       <span class="logout" @click="handleLogout">로그아웃</span>
     </footer>
@@ -79,7 +79,6 @@ function handleLogout() {
     <footer class="threads" v-else>
       <RouterLink to="/member/start">Catchy 시작하기</RouterLink>
     </footer>
-    <!-- ☝ 수정된 로그인 상태 반영 코드 끝 -->
   </nav>
 </template>
 
@@ -104,7 +103,7 @@ function handleLogout() {
 
 .threads {
   @apply font-bold text-sm text-gray-700 flex justify-center flex-wrap gap-2 pb-4;
-  align-items: flex-start; /* 또는 items-start */
+  align-items: flex-start;
   width: 100%;
   text-align: center;
 }
