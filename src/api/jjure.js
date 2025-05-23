@@ -55,12 +55,18 @@ export function fetchMyJjureList(params = { page: 0, size: 9 }) {
   });
 }
 
-/* todo : 남이 등록한 쭈르 썸네일 목록 조회 */
-
 /* 8. 내가 좋아요한 쭈르 썸네일 목록 조회 */
 export function fetchLikedJjureList(params = { page: 0, size: 9 }) {
   params.page = params.page - 1;
   return api.get('/jjures/likes', {
+    params,
+  });
+}
+
+/* 남이 등록한 쭈르 썸네일 목록 조회 */
+export function fetchOtherJjureList(memberId, params = { page: 0, size: 9 }) {
+  params.page = params.page - 1;
+  return api.get(`/jjures/member/${memberId}`, {
     params,
   });
 }

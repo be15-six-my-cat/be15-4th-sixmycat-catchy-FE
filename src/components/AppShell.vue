@@ -25,6 +25,7 @@ const thumbnailBlob = ref(null); // 썸네일 Blob 저장
 
 const uploadStore = useUploadStore();
 const feedRefreshStore = useFeedRefreshStore();
+
 // 파일 선택 핸들러
 function handleFilesSelected({ existingUrls = [], files = [] }) {
   if (!files.length) return;
@@ -151,7 +152,11 @@ onUnmounted(() => {
       <RouterView />
     </SidebarMainLayout>
 
-    <NotificationModal v-if="showNotificationModal" @close="showNotificationModal = false" />
+    <NotificationModal
+      v-show="showNotificationModal"
+      :is-modal-open="showNotificationModal"
+      @close="showNotificationModal = false"
+    />
 
     <!-- 파일 업로드 안내 모달 -->
     <UploadGuideModal
