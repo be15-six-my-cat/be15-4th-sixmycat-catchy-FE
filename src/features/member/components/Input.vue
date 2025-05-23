@@ -37,7 +37,6 @@ const emit = defineEmits(['update:modelValue']);
   font-size: 14px;
   color: #888888;
   margin-bottom: 4px;
-  font-family: Assistant;
 }
 
 .text-frame {
@@ -59,7 +58,6 @@ const emit = defineEmits(['update:modelValue']);
   text-align: left;
   vertical-align: text-top;
   font-size: 14px;
-  font-family: Assistant;
   line-height: 1.5;
   border-style: hidden;
   outline: none;
