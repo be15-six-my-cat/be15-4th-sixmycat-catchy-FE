@@ -10,11 +10,11 @@
         </div>
       </div>
 
-      <!-- ✅ 유저 데이터가 있을 때만 렌더링 -->
+      <!-- ✅ 유저 데이터가 있을 때 -->
       <div v-else class="flex justify-center">
         <div class="w-full max-w-md bg-white border rounded-xl shadow-sm p-10">
           <!-- 프로필 헤더 -->
-          <ProfileHeader v-if="user?.member" :user="user" />
+          <ProfileHeader :user="user" />
 
           <!-- 고양이 슬라이더 -->
           <PetSlider v-if="user?.cats?.length" :pets="user.cats" class="mt-6" />
@@ -32,42 +32,30 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import ProfileMenu from '../components/ProfileMenu.vue';
-import ProfileHeader from '../components/ProfileHeader.vue';
-import PetSlider from '../components/PetSlider.vue';
-import FeedTabs from '../components/FeedTabs.vue';
-import FeedGallery from '../components/FeedGallery.vue';
-import { fetchMyProfile, fetchUserProfile } from '../api';
-import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue';
+import { ref, onMounted } from 'vue'
+import ProfileMenu from '../components/ProfileMenu.vue'
+import ProfileHeader from '../components/ProfileHeader.vue'
+import PetSlider from '../components/PetSlider.vue'
+import FeedTabs from '../components/FeedTabs.vue'
+import MyThumbnailList from '@/features/profile/components/MyThumbnailList.vue'
+import { fetchMyProfile } from '@/api/profile' // ✅ 내 프로필 전용
 
-const route = useRoute();
-const user = ref(null);
-const selectedTab = ref('MyFeed');
+const user = ref(null)
+const selectedTab = ref('MyFeed')
 
 const loadProfile = async () => {
   try {
-    const userId = route.params.id;
-    user.value = userId ? await fetchUserProfile(userId) : await fetchMyProfile();
-
-    console.log('✅ 프로필 응답:', user.value);
+    const res = await fetchMyProfile()
+    user.value = res
+    console.log('✅ 내 프로필 응답:', user.value)
   } catch (e) {
-    console.error('❌ 프로필 로딩 실패:', e);
-    user.value = null;
+    console.error('❌ 내 프로필 로딩 실패:', e)
+    user.value = null
   }
-};
+}
 
 onMounted(() => {
-  loadProfile();
-});
-
-watch(
-  () => route.params.id,
-  () => {
-    loadProfile();
-  },
-);
+  loadProfile()
+})
 </script>

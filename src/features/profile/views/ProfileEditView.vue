@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { onMounted } from 'vue'
 import ProfileMenu from '../components/ProfileMenu.vue'
 import CatFormModal from '../components/CatFormModal.vue'
-import { fetchMyProfile, updateMyProfile, addNewCat, deleteCat } from '@/features/profile/api'
+import { fetchMyProfile, addNewCat, deleteCat } from '@/api/profile'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast()
