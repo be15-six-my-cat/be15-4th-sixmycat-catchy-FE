@@ -101,7 +101,13 @@ const handleFeedEdit = async () => {
       :shareImage="feed.imageUrls[0]"
     />
     <div class="content-wrapper">
-      <span class="author">{{ feed.author.nickname }}</span>
+      <router-link
+        :to="feed.author.nickname === myNickname
+    ? '/profile'
+    : `/members/${feed.author.nickname}`"
+      >
+        {{ feed.author.nickname }}
+      </router-link>
       <span class="content">{{ feed.content }}</span>
     </div>
     <FeedCommentPreview

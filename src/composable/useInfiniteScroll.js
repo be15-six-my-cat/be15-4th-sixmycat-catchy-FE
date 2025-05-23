@@ -71,5 +71,6 @@ export function useInfiniteScroll({ fetchFn, scrollTargetRef, threshold = 100 })
     isLoading,
     isLastPage,
     reset, // 외부에서 호출 가능하도록
+    loadMore,
   };
 }

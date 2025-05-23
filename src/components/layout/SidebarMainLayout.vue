@@ -15,10 +15,10 @@ function handleNotificationModal() {
 <template>
   <div class="layout">
     <aside class="sidebar">
-      <div class="logo">
+      <router-link to="/" class="logo">
         <img src="@/assets/logo.png" alt="Catchy 로고" class="logo-image" />
         <span>Catchy</span>
-      </div>
+      </router-link>
 
       <SidebarNav
         @open-upload-modal="handleOpenUploadModal"

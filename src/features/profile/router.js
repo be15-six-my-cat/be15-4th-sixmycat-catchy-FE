@@ -12,9 +12,9 @@ export default [
     meta: { requiresAuth: true },
   },
   {
-    path: '/profile/:id',
-    name: 'UserProfile',
-    component: () => import('./views/ProfileView.vue'),
+    path: '/members/:nickname',
+    name: 'MemberProfile',
+    component: () => import('./views/MemberProfileView.vue'),
     props: true,
   },
 ];
