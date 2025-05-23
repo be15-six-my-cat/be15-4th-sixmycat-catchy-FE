@@ -2,6 +2,7 @@
 import defaultProfileImage from '@/assets/default_images/01_cat.png';
 import { computed, ref, toRef, watch } from 'vue';
 import { showSuccessToast } from '@/utills/toast.js';
+import { requestFollow, unfollow } from '@/api/follow.js';
 // import { followUserAPI, unfollowUserAPI } from '@/api/follow'; // 실제 API 모듈 연결 시
 
 const props = defineProps({
@@ -66,15 +67,13 @@ function toggleFollow() {
   showSuccessToast(currentIsFollowing.value ? '팔로우 완료!' : '팔로우 취소 완료!');
 }
 
-function handleFollowAPI() {
+async function handleFollowAPI() {
   if (initialIsFollowing.value === currentIsFollowing.value) return;
 
   if (currentIsFollowing.value) {
-    console.log('팔로우 API 호출');
-    // await followUserAPI();
+    await requestFollow(props.notification.senderId);
   } else {
-    console.log('언팔로우 API 호출');
-    // await unfollowUserAPI();
+    await unfollow(props.notification.senderId);
   }
 }
 
@@ -117,6 +116,7 @@ watch(isModalOpenRef, (newVal, oldVal) => {
 .profile-image {
   @apply w-14 h-14 rounded-full;
 }
+
 .following-button {
   @apply text-body-sm py-1 px-3 rounded-sm;
 }
