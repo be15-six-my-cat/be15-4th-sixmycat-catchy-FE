@@ -1,48 +1,37 @@
 <template>
   <div class="flex">
-    <div class="flex-1 p-6">
+    <div class="flex-1">
       <div class="flex justify-center">
-        <div class="w-full max-w-[800px]">
-          <h2 class="text-2xl font-bold ml-6 mb-6">차단 목록</h2>
-          <div class="bg-white rounded-xl shadow p-6">
-            <ul class="space-y-4">
-              <li
-                v-for="user in blockedUsers"
-                :key="user.blockedId"
-                class="flex items-center justify-between"
-              >
-                <div class="flex items-center gap-4">
-                  <!-- 프로필 링크: 아바타와 닉네임 클릭 시 이동 -->
-                  <router-link
-                    :to="`/members/${user.blockedNickname}`"
-                    class="flex items-center gap-4"
-                  >
-                    <img
-                      :src="defaultProfileImage"
-                      alt="프로필"
-                      class="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p class="font-semibold text-sm hover:underline">
-                        {{ user.blockedNickname }}
-                      </p>
-                      <p class="text-gray-500 text-xs">{{ formatDate(user.blockedAt) }}</p>
-                    </div>
-                  </router-link>
+        <div class="w-full">
+          <div class="text-[24px] font-bold text-left mb-6">차단 목록</div>
+          <ul class="space-y-4">
+            <li
+              v-for="user in blockedUsers"
+              :key="user.blockedId"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center gap-4">
+                <img
+                  :src="user.avatar || defaultAvatar"
+                  alt="프로필"
+                  class="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <p class="font-semibold text-sm">{{ user.blockedNickname }}</p>
+                  <p class="text-gray-500 text-xs">{{ formatDate(user.blockedAt) }}</p>
                 </div>
-
-                <button
-                  class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded text-sm"
-                  @click="unblock(user.blockedId)"
-                >
-                  해제
-                </button>
-              </li>
-              <li v-if="blockedUsers.length === 0" class="text-center text-gray-500 text-sm">
-                차단한 사용자가 없습니다.
-              </li>
-            </ul>
-          </div>
+              </div>
+              <button
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded text-sm"
+                @click="unblock(user.blockedId)"
+              >
+                해제
+              </button>
+            </li>
+            <li v-if="blockedUsers.length === 0" class="text-center text-gray-500 text-sm py-2">
+              차단한 사용자가 없습니다.
+            </li>
+          </ul>
         </div>
       </div>
     </div>
