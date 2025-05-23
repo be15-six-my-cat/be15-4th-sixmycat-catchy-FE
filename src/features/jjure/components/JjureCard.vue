@@ -11,7 +11,7 @@ import {
 } from '@/api/jjure.js';
 import EditDeleteDropdown from '@/components/EditDeleteDropdown.vue';
 import JjureUploadModal from '@/features/jjure/components/JjureUploadModal.vue';
-import JjureDeleteModal from '@/features/jjure/components/JjureDeleteModal.vue';
+import DeleteModal from '@/components/modal/DeleteModal.vue';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import {
   startLoading,
@@ -206,7 +206,7 @@ const updateJjureHandler = async () => {
         </template>
       </JjureUploadModal>
 
-      <JjureDeleteModal
+      <DeleteModal
         v-if="showDeleteModal"
         @close="closeDeleteModal"
         @confirm="closeDeleteModal"
