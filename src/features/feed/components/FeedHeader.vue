@@ -4,7 +4,7 @@
       :to="author.authorId == authStore.memberId ? '/profile' : `/members/${author.authorId}`"
     >
       <div class="author">
-        <img :src="author.profileImageUrl" alt="profile" class="profile-image" />
+        <DefaultProfile :src="author.profileImageUrl" :size="24" />
 
         <span class="nickname" @click="() => console.log('authorId' + author.authorId)">{{
           author.nickname
@@ -24,6 +24,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import EditDeleteDropdown from '@/components/EditDeleteDropdown.vue';
 import { useAuthStore } from '@/stores/auth.js';
+import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
 dayjs.extend(relativeTime);
 
@@ -43,10 +44,6 @@ const authStore = useAuthStore();
 
 .author {
   @apply flex items-center gap-3;
-}
-
-.author .profile-image {
-  @apply w-6 h-6 rounded-full object-cover;
 }
 
 .author .nickname {

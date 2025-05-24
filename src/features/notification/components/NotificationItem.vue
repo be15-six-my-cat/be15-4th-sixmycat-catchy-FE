@@ -1,9 +1,8 @@
 <script setup>
-import defaultProfileImage from '@/assets/default_images/01_cat.png';
-import { computed, ref, toRef, watch } from 'vue';
+import { ref, toRef, computed, watch } from 'vue';
 import { showSuccessToast } from '@/utills/toast.js';
 import { requestFollow, unfollow } from '@/api/follow.js';
-import { useRouter } from 'vue-router';
+import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
 const props = defineProps({
   notification: {
@@ -92,12 +91,7 @@ watch(isModalOpenRef, (newVal, oldVal) => {
 
 <template>
   <div class="flex items-center gap-2">
-    <img
-      :src="props.notification.profileImage || defaultProfileImage"
-      alt="profileImage"
-      class="profile-image cursor-pointer"
-      @click="goToProfile"
-    />
+    <DefaultProfile :src="props.notification.profileImage" :size="56" @click="goToProfile" />
     <div class="text-start text-sm leading-snug flex-1">
       <span class="font-bold">{{ props.notification.senderNickname }}</span>
       <span>{{ notificationText }}</span>
@@ -119,10 +113,6 @@ watch(isModalOpenRef, (newVal, oldVal) => {
 </template>
 
 <style scoped>
-.profile-image {
-  @apply w-14 h-14 rounded-full;
-}
-
 .following-button {
   @apply text-body-sm py-1 px-3 rounded-sm;
 }
