@@ -110,7 +110,6 @@ async function saveProfile() {
     if (imageFile.value) {
       formData.append('imageFile', imageFile.value);
     }
-
     await axios.patch('/profiles/me', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

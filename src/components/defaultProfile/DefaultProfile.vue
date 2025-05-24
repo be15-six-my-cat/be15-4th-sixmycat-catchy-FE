@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
-
 const props = defineProps({
   src: {
     type: String,
