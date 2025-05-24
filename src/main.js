@@ -13,7 +13,7 @@ import router from './router/index.js';
 
 import { useAuthStore } from '@/stores/auth.js';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore.js';
-import { fetchMyProfile, reissueAccessToken } from '@/api/member.js'; // ✅ refresh API import
+import { fetchMyProfile, reissueAccessToken } from '@/api/member.js';
 // main.js
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
