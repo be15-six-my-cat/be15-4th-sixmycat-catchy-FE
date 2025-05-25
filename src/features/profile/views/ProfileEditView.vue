@@ -25,6 +25,7 @@ const imageSrc = computed(() => {
   return url && typeof url === 'string' && url.trim() !== '' ? url : undefined;
 });
 
+
 onMounted(async () => {
   try {
     const res = await fetchMyProfile();
@@ -103,21 +104,26 @@ async function saveProfile() {
       statusMessage: statusMessage.value,
       cats: existingCats,
     };
-
+    console.log(2);
     const formData = new FormData();
     formData.append('request', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
 
     if (imageFile.value) {
       formData.append('imageFile', imageFile.value);
     }
+
+    console.log(3);
+    console.log('API URL:', import.meta.env.VITE_API_URL);
+    console.log('formData entries:', [...formData.entries()]);
+
     await axios.patch('/profiles/me', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-
+    console.log(4);
     for (const cat of newCats) {
       await addNewCat(cat);
     }
-
+    console.log(5);
     for (const catId of deletedCatIds.value) {
       await deleteCat(catId);
     }

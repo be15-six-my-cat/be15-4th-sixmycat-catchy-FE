@@ -77,31 +77,38 @@ const form = reactive({
 
 // 👇 모달이 열릴 때 initialCat이 있으면 form에 복사
 watch(
-  () => props.initialCat,
-  (cat) => {
-    if (cat) {
-      form.name = cat.name
-      form.gender = cat.gender
-      form.breed = cat.breed
-      form.age = cat.age ?? null;
+  () => props.visible,
+  (isVisible) => {
+    if (isVisible) {
+      if (props.initialCat) {
+        // 수정 모드
+        form.name = props.initialCat.name || ''
+        form.gender = props.initialCat.gender || ''
+        form.breed = props.initialCat.breed || ''
+        form.age = props.initialCat.age ?? null
 
-      // birthDay가 Date나 문자열인 경우 처리
-      if (cat.birthDate instanceof Date) {
-        form.birthDate = cat.birthDate.toISOString().slice(0, 10)
-      } else if (typeof cat.birthDate === 'string') {
-        form.birthDate = cat.birthDate.slice(0, 10)
+        if (props.initialCat.birthDate instanceof Date) {
+          form.birthDate = props.initialCat.birthDate.toISOString().slice(0, 10)
+        } else if (typeof props.initialCat.birthDate === 'string') {
+          form.birthDate = props.initialCat.birthDate.slice(0, 10)
+        } else {
+          form.birthDate = ''
+        }
       } else {
+        // 추가 모드
+        form.name = ''
+        form.gender = ''
+        form.breed = ''
         form.birthDate = ''
+        form.age = null
       }
-    } else {
-      form.name = ''
-      form.gender = ''
-      form.breed = ''
-      form.birthDate = ''
     }
   },
   { immediate: true }
 )
+
+
+
 
 function close() {
   emit('close')
