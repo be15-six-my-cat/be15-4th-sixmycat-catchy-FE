@@ -1,11 +1,9 @@
 <template>
-  <div class="relative">
-    <!-- 이클립스 버튼 -->
-    <button @click="toggle" class="text-xs">
+  <div class="relative" ref="dropdownRef">
+    <button @click.stop="toggle" class="text-xs text-black">
       <i class="fa-solid fa-ellipsis"></i>
     </button>
 
-    <!-- 드롭다운 메뉴 -->
     <div v-if="open" class="dropdown-menu">
       <button class="block w-full text-left px-4 py-3 hover:bg-gray-100" @click="handleEdit">
         수정
@@ -25,6 +23,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const emit = defineEmits(['edit', 'delete']);
 const open = ref(false);
+const dropdownRef = ref(null);
 
 const toggle = () => {
   open.value = !open.value;
@@ -42,7 +41,7 @@ const handleDelete = () => {
 
 // 외부 클릭 시 닫기
 const handleClickOutside = (e) => {
-  if (!e.target.closest('.relative')) {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
     open.value = false;
   }
 };

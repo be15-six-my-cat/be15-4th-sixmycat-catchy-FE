@@ -1,25 +1,21 @@
 <template>
   <div class="relative inline-block">
-    <i class="fa-solid fa-share-nodes cursor-pointer" @click="toggleDropdown($event)"></i>
+    <!-- 공유 아이콘 -->
+    <i class="fa-solid fa-share-nodes cursor-pointer text-primary" @click.stop="toggleDropdown"></i>
 
-    <Teleport to="body">
-      <div
-        v-if="open"
-        :style="dropdownStyle"
-        ref="dropdownRef"
-        class="absolute w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black z-50"
-      >
+    <teleport to="body">
+      <div v-if="open" ref="dropdownRef" class="share-dropdown fixed z-50" :style="dropdownStyle">
         <div class="share-section">
           <button @click="shareKakao" class="sns-btn kakao">k</button>
           <button @click="copyLink" class="sns-btn link">🔗</button>
         </div>
       </div>
-    </Teleport>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 
 const props = defineProps({
@@ -29,7 +25,8 @@ const props = defineProps({
 });
 
 const open = ref(false);
-const dropdownStyle = ref({});
+const dropdownRef = ref(null);
+const dropdownStyle = ref({ top: '0px', right: '0px' });
 
 const toggleDropdown = async (event) => {
   open.value = !open.value;
@@ -38,10 +35,19 @@ const toggleDropdown = async (event) => {
     await nextTick();
     const rect = event.target.getBoundingClientRect();
     dropdownStyle.value = {
-      position: 'absolute',
-      top: `${rect.bottom + window.scrollY + 8}px`,
-      left: `${rect.left + window.scrollX - 140}px`, // 위치 조절 필요시 here
+      top: `${rect.bottom + 8}px`,
+      left: `${rect.right - 24}px`,
     };
+  }
+};
+
+const handleClickOutside = (event) => {
+  if (
+    dropdownRef.value &&
+    !dropdownRef.value.contains(event.target) &&
+    !event.target.closest('.fa-share-nodes')
+  ) {
+    open.value = false;
   }
 };
 
@@ -81,14 +87,25 @@ const shareKakao = () => {
       },
     ],
   });
-
   open.value = false;
 };
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
 .share-section {
   @apply flex justify-center gap-3;
+}
+
+.share-dropdown {
+  @apply w-40 p-3 bg-white border border-gray-200 rounded-xl shadow text-black left-1/2;
+  transform: translateX(-50%); /* 가운데 정렬 */
 }
 
 .sns-btn {

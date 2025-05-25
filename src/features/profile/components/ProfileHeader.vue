@@ -1,12 +1,17 @@
 <template>
-  <div class="flex justify-center">
+  <div class="flex justify-center relative">
+    <!-- 🔘 우측 상단 차단 or 차단 해제 버튼 -->
+    <button
+      v-if="Number(currentUserId) !== Number(user.member.id)"
+      class="absolute top-4 right-6 text-pink-500 text-sm font-semibold hover:underline"
+      @click="handleBlock"
+    >
+      {{ isBlocked ? '차단 해제' : '🚫 차단' }}
+    </button>
+
     <div v-if="user?.member" class="flex items-start gap-6 mb-4 -translate-x-12">
       <!-- 프로필 이미지 -->
-      <img
-        :src="user.member.profileImage ||= defaultProfileImage"
-        :alt="'profileImage'"
-        class="w-24 h-24 bg-gray-300 rounded-full shrink-0"
-      />
+      <DefaultProfile :src="user.member.profileImage" :size="96" class="shrink-0" />
 
       <div class="flex-1">
         <!-- 닉네임 -->
@@ -31,39 +36,52 @@
         <!-- 게시물 수 등 -->
         <div class="flex gap-4 mt-2 text-body-md text-gray-700">
           <span>게시물 {{ user.contents?.feedCount ?? 0 }}</span>
-          <span
-            ><button class="follow-button" @click="handleGetFollower">
+          <span>
+            <button class="follow-button" @click="handleGetFollower">
               팔로워 {{ user.follows?.followerCount ?? 0 }}
-            </button></span
-          >
-          <span
-            ><button class="follow-button" @click="handleGetFollowing">
+            </button>
+          </span>
+          <span>
+            <button class="follow-button" @click="handleGetFollowing">
               팔로잉 {{ user.follows?.followingCount ?? 0 }}
-            </button></span
-          >
+            </button>
+          </span>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 팔로우 모달 -->
   <template v-if="isVisibleFollowModal">
     <FollowModal :isFollowing="isFollowing" @close="isVisibleFollowModal = false" />
   </template>
 </template>
 
 <script setup>
-import defaultProfileImage from '@/assets/default_images/01_cat.png';
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import FollowModal from '@/features/follow/components/FollowModal.vue';
+import { useAuthStore } from '@/stores/auth.js';
+import { blockUser, unblockUser, fetchBlockedUsers } from '@/api/block.js';
+import DefaultProfile from '@/components/defaultProfile/DefaultProfile.vue';
 
-defineProps({
+const { user, isOther } = defineProps({
   user: {
     type: Object,
     required: true,
   },
+  isOther: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const authStore = useAuthStore();
+const currentUserId = computed(() => authStore.memberId);
 
 const isFollowing = ref(false);
 const isVisibleFollowModal = ref(false);
+const isBlocked = ref(false);
+
 function handleGetFollower() {
   isFollowing.value = false;
   isVisibleFollowModal.value = true;
@@ -73,6 +91,38 @@ function handleGetFollowing() {
   isFollowing.value = true;
   isVisibleFollowModal.value = true;
 }
+
+// ✅ 차단 여부 확인
+onMounted(async () => {
+  if (isOther) return;
+  try {
+    const { data } = await fetchBlockedUsers(currentUserId.value, 1, 100);
+    const blockedList = data.data.content || [];
+    isBlocked.value = blockedList.some((u) => Number(u.blockedId) === Number(user.member.id));
+  } catch (error) {
+    console.error('❌ 차단 목록 조회 실패:', error);
+  }
+});
+
+// ✅ 차단/해제 처리
+const handleBlock = async () => {
+  if (isOther) {
+    console.log('다른사람 프로필입니다. 차단불가');
+  }
+  try {
+    if (isBlocked.value) {
+      await unblockUser(currentUserId.value, user.member.id);
+      alert('차단 해제되었습니다.');
+    } else {
+      await blockUser(currentUserId.value, user.member.id);
+      alert('차단되었습니다.');
+    }
+    isBlocked.value = !isBlocked.value;
+  } catch (error) {
+    console.error('❌ 차단/해제 실패:', error);
+    alert('차단 상태 변경에 실패했습니다.');
+  }
+};
 </script>
 
 <style scoped>
