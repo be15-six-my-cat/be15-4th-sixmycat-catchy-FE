@@ -20,7 +20,7 @@ import BlockList from '@/features/block/components/BlockList.vue';
 .background {
   background-color: #ffffff;
   height: auto;
-  width: 565px;
+  width: 450px;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.04));
   border-radius: 12px;
   padding: 25px;
