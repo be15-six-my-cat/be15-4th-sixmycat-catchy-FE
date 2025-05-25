@@ -3,7 +3,7 @@
 const props = defineProps({
   text: { type: String, required: true },
   backgroundColor: { type: String, default: '#ff5c8d' },
-  textColor: { type: String, default: '#ffffff' }
+  textColor: { type: String, default: '#ffffff' },
 });
 </script>
 
@@ -29,8 +29,7 @@ const props = defineProps({
 }
 
 .signup-text {
-  font-size: 13.3px;
-  font-family: Assistant;
+  font-size: 14px;
   line-height: 1.5;
   text-align: center;
   vertical-align: middle;

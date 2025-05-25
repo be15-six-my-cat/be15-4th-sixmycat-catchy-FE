@@ -37,7 +37,6 @@ const props = defineProps({
   text-align: left;
   vertical-align: text-top;
   font-size: 14px;
-  font-family: Anuphan;
   line-height: 1.5;
   font-weight: bold;
   outline: none;
@@ -56,7 +55,6 @@ const props = defineProps({
   text-align: left;
   vertical-align: text-top;
   font-size: 16px;
-  font-family: Anuphan;
   line-height: 1.5;
   border-style: hidden;
   outline: none;

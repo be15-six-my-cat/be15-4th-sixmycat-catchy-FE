@@ -103,12 +103,17 @@ const filteredComments = computed(() => {
 
 <template>
   <div class="w-full h-full overflow-hidden border-none bg-white flex flex-col">
-    <div class="flex-1 overflow-y-auto p-4">
+    <div class="flex-1 overflow-y-auto p-4 scrollbar-hide">
       <div class="flex flex-col gap-6">
         <div v-for="comment in filteredComments" :key="comment.commentId" class="text-sm">
           <div class="flex flex-col">
             <p class="flex items-center gap-2">
-              <strong class="text-xs text-[#3e2f2f] font-bold">{{ comment.nickname }}</strong>
+              <router-link
+                :to="`/members/${comment.memberId}`"
+                class="text-xs text-[#3e2f2f] font-bold hover:underline"
+              >
+                {{ comment.nickname }}
+              </router-link>
               <span class="text-xs text-gray-400">{{ dayjs(comment.createdAt).fromNow() }}</span>
               <button
                 v-if="Number(comment.memberId) === Number(currentUserId)"
@@ -142,7 +147,12 @@ const filteredComments = computed(() => {
           <div v-if="comment.showReplies" class="ml-5 mt-2.5 flex flex-col gap-3">
             <div v-for="reply in comment.replies" :key="reply.commentId">
               <p class="flex items-center gap-2">
-                <strong class="text-[#3e2f2f] text-xs font-bold">{{ reply.nickname }}</strong>
+                <router-link
+                  :to="`/members/${reply.nickname}`"
+                  class="text-[#3e2f2f] text-xs font-bold hover:underline"
+                >
+                  {{ reply.nickname }}
+                </router-link>
                 <span class="text-xs text-gray-400">{{ dayjs(reply.createdAt).fromNow() }}</span>
                 <button
                   v-if="Number(reply.memberId) === Number(currentUserId)"
@@ -195,5 +205,13 @@ const filteredComments = computed(() => {
   color: #ff5c8d;
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
 }
 </style>

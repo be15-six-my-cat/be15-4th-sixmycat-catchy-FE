@@ -17,6 +17,7 @@ const defaultProfileStore = useDefaultProfileStore();
 const authStore = useAuthStore();
 const toast = useToast();
 
+
 const name = ref('');
 const contactNumber = ref('');
 const nickname = ref('');
@@ -98,6 +99,7 @@ const submitSignup = async () => {
 
     const { data } = await socialSignupExtra(formData);
     const accessToken = data.data.accessToken;
+
     authStore.setAuth(accessToken);
 
     for (const cat of cats.value) {
