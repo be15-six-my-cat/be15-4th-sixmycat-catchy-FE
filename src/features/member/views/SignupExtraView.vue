@@ -3,30 +3,20 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BasicButton from '@/features/member/components/BasicButton.vue';
 import Input from '@/features/member/components/Input.vue';
-import CatFormModal from '@/features/profile/components/CatFormModal.vue';
 import { getTempMemberInfo, socialSignupExtra } from '@/api/member';
-import { addNewCat } from '@/api/profile';
 import { useDefaultProfileStore } from '@/stores/defaultProfileStore';
 import { useAuthStore } from '@/stores/auth';
-import { useToast } from 'vue-toastification';
 import { showErrorToast, showSuccessToast } from '@/utills/toast.js';
 import { startLoading, stopLoading } from '@/composable/useLoadingBar.js';
 
 const router = useRouter();
 const defaultProfileStore = useDefaultProfileStore();
 const authStore = useAuthStore();
-const toast = useToast();
-
 
 const name = ref('');
 const contactNumber = ref('');
 const nickname = ref('');
 const profileImage = ref(null);
-
-const cats = ref([]);
-const showCatModal = ref(false);
-const editIndex = ref(null);
-const currentCat = ref({}); // ✅ 모달에 넘길 현재 고양이 데이터
 
 const nameReadonly = ref(false);
 const contactReadonly = ref(false);
@@ -99,12 +89,7 @@ const submitSignup = async () => {
 
     const { data } = await socialSignupExtra(formData);
     const accessToken = data.data.accessToken;
-
-    authStore.setAuth(accessToken);
-
-    for (const cat of cats.value) {
-      await addNewCat(cat);
-    }
+    authStore.setAuth(accessToken); // accessToken 수동 저장
 
     showSuccessToast('Catchy에 오신 것을 환영합니다!');
     router.push('/feed');
@@ -124,32 +109,6 @@ const handleContactInput = (e) => {
 const handleNicknameInput = (e) => {
   nickname.value = e.target.value.slice(0, 20);
 };
-
-function openAddCat() {
-  editIndex.value = null;
-  currentCat.value = null;
-  showCatModal.value = true;
-}
-
-function openEditCat(index) {
-  editIndex.value = index;
-  currentCat.value = { ...cats.value[index] }; // ✅ 기존 값 복사
-  showCatModal.value = true;
-}
-
-function handleAddCat(cat) {
-  if (editIndex.value !== null) {
-    cats.value[editIndex.value] = cat;
-    editIndex.value = null;
-  } else {
-    cats.value.push(cat);
-  }
-  showCatModal.value = false;
-}
-
-function handleDeleteCat(cat) {
-  cats.value = cats.value.filter((c) => c !== cat);
-}
 </script>
 
 <template>
@@ -207,35 +166,7 @@ function handleDeleteCat(cat) {
         v-model="nickname"
         @input="handleNicknameInput"
       />
-
-      <!-- ✅ 고양이 정보 입력 영역 -->
-      <label class="input-title">고양이 정보</label>
-      <p v-if="cats.length === 0" class="input-desc">
-        아직 등록된 고양이가 없습니다.
-      </p>
-
-      <div
-        v-for="(cat, index) in cats"
-        :key="index"
-        @click="openEditCat(index)"
-        class="input-box cat-box"
-      >
-        {{ cat.name }} · {{ cat.breed }} · {{ cat.gender }}
-      </div>
-
-      <button class="input-box cat-add-btn" @click="openAddCat">
-        고양이 추가
-      </button>
     </div>
-
-    <!-- 고양이 입력 모달 -->
-    <CatFormModal
-      :visible="showCatModal"
-      @close="showCatModal = false"
-      @submit="handleAddCat"
-      @delete="handleDeleteCat"
-      :initial-cat="currentCat"
-    />
   </div>
 </template>
 
@@ -292,51 +223,5 @@ function handleDeleteCat(cat) {
 .title {
   font-size: 18px;
   font-weight: bold;
-}
-
-.input-title {
-  font-size: 14px;
-  color: #757575;
-  margin-top: 12px;
-  line-height: 1.5;
-  border-style: hidden;
-  width: 315px;
-}
-
-.input-desc {
-  font-size: 14px;
-  color: #757575;
-  margin-top: 12px;
-}
-
-.input-box {
-  font-size: 14px;
-  border: 1px solid #cccccc;
-  border-radius: 6px;
-  padding: 10px 12px;
-  background-color: #fff;
-  transition: all 0.2s ease;
-  width: 337px;
-  text-align: left;
-}
-
-.cat-box {
-  cursor: pointer;
-  margin-bottom: 8px;
-}
-.cat-box:hover {
-  background-color: #ffe5ec;
-  color: #ff5c8d;
-}
-
-.cat-add-btn {
-  color: #ff5c8d;
-  font-weight: 500;
-  text-align: center;
-  border: 1px solid #ff5c8d;
-}
-.cat-add-btn:hover {
-  background-color: #ffe5ec;
-  color: white;
 }
 </style>
